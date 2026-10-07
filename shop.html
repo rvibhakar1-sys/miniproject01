@@ -29,117 +29,347 @@
         <h4 class="mb-1">Welcome, Shop User</h4>
         <p class="text-muted mb-4">Fair-Price Shop — Create requests and track deliveries</p>
 
-        <div class="row g-4">
 
-            <!-- ========== LEFT SIDE: CREATE REQUEST FORM ========== -->
-            <div class="col-md-6">
-                <div class="card p-4">
-                    <h5 class="mb-3">Create Commodity Request</h5>
+        <!-- ============================================================ -->
+        <!-- DASHBOARD MAIN MENU — Shows 4 Feature Cards                  -->
+        <!-- This section is visible by default.                          -->
+        <!-- When the user clicks a button, this is hidden and the        -->
+        <!-- corresponding detail view is shown instead.                  -->
+        <!-- ============================================================ -->
+         
+        <div id="dashboardMain">
+            <div class="row g-4">
 
-                    <!-- This form lets the shop user request commodities -->
-                    <form onsubmit="submitRequest(event)">
-
-                        <!-- Rice Quantity -->
-                        <div class="mb-3">
-                            <label for="rice" class="form-label">Rice (kg):</label>
-                            <input type="number" class="form-control" id="rice" placeholder="Enter quantity" min="0">
+                <!-- Card 1: Stock Request -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card dashboard-card p-3 text-center">
+                        <div class="card-body">
+                            <div class="icon-circle shop-icon">📦</div>
+                            <br>
+                            <h5 class="card-title">Stock Request</h5>
+                            <br>
+                            <p class="card-text text-muted">Create a new commodity request.</p>
+                            <button class="btn shop-btn btn-sm" onclick="showSection('stockRequestView')">Create Request</button>
                         </div>
-
-                        <!-- Wheat Quantity -->
-                        <div class="mb-3">
-                            <label for="wheat" class="form-label">Wheat (kg):</label>
-                            <input type="number" class="form-control" id="wheat" placeholder="Enter quantity" min="0">
-                        </div>
-
-                        <!-- Sugar Quantity -->
-                        <div class="mb-3">
-                            <label for="sugar" class="form-label">Sugar (kg):</label>
-                            <input type="number" class="form-control" id="sugar" placeholder="Enter quantity" min="0">
-                        </div>
-
-                        <!-- Urgency Level -->
-                        <div class="mb-3">
-                            <label for="urgency" class="form-label">Select Urgency:</label>
-                            <select class="form-select" id="urgency">
-                                <option value="normal">Normal</option>
-                                <option value="urgent">Urgent</option>
-                                <option value="critical">Critical</option>
-                            </select>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn shop-btn">Submit Request</button>
-
-                    </form>
-                </div>
-            </div>
-            <!-- ========== END CREATE REQUEST FORM ========== -->
-
-            <!-- ========== RIGHT SIDE: FEATURE CARDS ========== -->
-            <div class="col-md-6">
-
-                <!-- Card 1: View Request Status -->
-                <div class="card dashboard-card p-3 text-center mb-4">
-                    <div class="card-body">
-                        <div class="icon-circle shop-icon">📋</div>
-                        <h5 class="card-title">Request Status</h5>
-                        <p class="card-text text-muted">View the status of your submitted commodity requests.</p>
-                        <button class="btn shop-btn btn-sm">View Status</button>
                     </div>
                 </div>
 
-                <!-- Card 2: Delivery Status -->
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle shop-icon">🚚</div>
-                        <h5 class="card-title">Delivery Status</h5>
-                        <p class="card-text text-muted">Track deliveries coming to your shop.</p>
-                        <button class="btn shop-btn btn-sm">Track Delivery</button>
+                <!-- Card 2: Warehouse Stock & Location -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card dashboard-card p-3 text-center">
+                        <div class="card-body">
+                            <div class="icon-circle shop-icon">🏭</div>
+                            <h5 class="card-title">Warehouse Stock &amp; Location</h5>
+                            <p class="card-text text-muted">Check the nearest warehouse, location and available stock.</p>
+                            <button class="btn shop-btn btn-sm" onclick="showSection('warehouseView')">View Warehouse</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Request Status -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card dashboard-card p-3 text-center">
+                        <div class="card-body">
+                            <div class="icon-circle shop-icon">📋</div>
+                            <br>
+                            <h5 class="card-title">Request Status</h5>
+                            <p class="card-text text-muted">Check the status of submitted requests.</p>
+                            <button class="btn shop-btn btn-sm" onclick="showSection('requestStatusView')">View Status</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Delivery Status -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card dashboard-card p-3 text-center">
+                        <div class="card-body">
+                            <div class="icon-circle shop-icon">🚚</div>
+                            <br>
+                            <h5 class="card-title">Delivery Status</h5>
+                            <p class="card-text text-muted">Track the delivery of the requested commodities.</p>
+                            <button class="btn shop-btn btn-sm" onclick="showSection('deliveryStatusView')">Track Delivery</button>
+                        </div>
                     </div>
                 </div>
 
             </div>
-            <!-- ========== END FEATURE CARDS ========== -->
-
         </div>
+        <!-- ========== END DASHBOARD MAIN MENU ========== -->
 
-        <!-- ========== REQUEST HISTORY TABLE ========== -->
-        <div class="card mt-4 p-3">
-            <h5 class="mb-3">Your Recent Requests</h5>
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Request ID</th>
-                            <th>Rice (kg)</th>
-                            <th>Wheat (kg)</th>
-                            <th>Sugar (kg)</th>
-                            <th>Urgency</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>REQ-101</td>
-                            <td>200</td>
-                            <td>100</td>
-                            <td>50</td>
-                            <td><span class="badge bg-danger">Critical</span></td>
-                            <td><span class="badge bg-warning text-dark">In Transit</span></td>
-                        </tr>
-                        <tr>
-                            <td>REQ-102</td>
-                            <td>300</td>
-                            <td>150</td>
-                            <td>80</td>
-                            <td><span class="badge bg-primary">Normal</span></td>
-                            <td><span class="badge bg-success">Delivered</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+
+        <!-- ============================================================ -->
+        <!-- DETAIL VIEW 1: STOCK REQUEST                                 -->
+        <!-- Hidden by default. Shown when user clicks "Create Request".  -->
+        <!-- Contains the commodity request form + Recent Requests table.  -->
+        <!-- ============================================================ -->
+        <div id="stockRequestView" style="display: none;">
+
+            <!-- Back Button -->
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="row g-4">
+
+                <!-- Create Commodity Request Form -->
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h5 class="mb-3">Create Commodity Request</h5>
+
+                        <!-- This form lets the shop user request commodities -->
+                        <form onsubmit="submitRequest(event)">
+
+                            <!-- Rice Quantity -->
+                            <div class="mb-3">
+                                <label for="rice" class="form-label">Rice (kg):</label>
+                                <input type="number" class="form-control" id="rice" placeholder="Enter quantity" min="0">
+                            </div>
+
+                            <!-- Wheat Quantity -->
+                            <div class="mb-3">
+                                <label for="wheat" class="form-label">Wheat (kg):</label>
+                                <input type="number" class="form-control" id="wheat" placeholder="Enter quantity" min="0">
+                            </div>
+
+                            <!-- Sugar Quantity -->
+                            <div class="mb-3">
+                                <label for="sugar" class="form-label">Sugar (kg):</label>
+                                <input type="number" class="form-control" id="sugar" placeholder="Enter quantity" min="0">
+                            </div>
+
+                            <!-- Urgency Level -->
+                            <div class="mb-3">
+                                <label for="urgency" class="form-label">Select Urgency:</label>
+                                <select class="form-select" id="urgency">
+                                    <option value="normal">Normal</option>
+                                    <option value="urgent">Urgent</option>
+                                    <option value="critical">Critical</option>
+                                </select>
+                            </div>
+
+                            <!-- Choose Warehouse -->
+                            <div class="mb-3">
+                                <label for="warehouse" class="form-label">Choose Warehouse:</label>
+                                <select class="form-select" id="warehouse">
+                                    <option value="Valam Central Warehouse">Valam Central Warehouse</option>
+                                    <option value="Valam North Warehouse">Valam North Warehouse</option>
+                                </select>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn shop-btn">Submit Request</button>
+
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Recent Requests Table -->
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h5 class="mb-3">Your Recent Requests</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Request ID</th>
+                                        <th>Rice (kg)</th>
+                                        <th>Wheat (kg)</th>
+                                        <th>Sugar (kg)</th>
+                                        <th>Urgency</th>
+                                        <th>Warehouse</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentRequestsBody">
+                                    <tr>
+                                        <td>REQ-101</td>
+                                        <td>200</td>
+                                        <td>100</td>
+                                        <td>50</td>
+                                        <td><span class="badge bg-danger">Critical</span></td>
+                                        <td>Valam Central Warehouse</td>
+                                        <td><span class="badge bg-warning text-dark">In Transit</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>REQ-102</td>
+                                        <td>300</td>
+                                        <td>150</td>
+                                        <td>80</td>
+                                        <td><span class="badge bg-primary">Normal</span></td>
+                                        <td>Valam North Warehouse</td>
+                                        <td><span class="badge bg-success">Delivered</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
-        <!-- ========== END TABLE ========== -->
+        <!-- ========== END STOCK REQUEST VIEW ========== -->
+
+
+        <!-- ============================================================ -->
+        <!-- DETAIL VIEW 2: WAREHOUSE STOCK & LOCATION                    -->
+        <!-- Hidden by default. Shown when user clicks "View Warehouse".  -->
+        <!-- Shows sample/manual warehouse data only.                     -->
+        <!-- ============================================================ -->
+        <div id="warehouseView" style="display: none;">
+
+            <!-- Back Button -->
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Warehouse Stock &amp; Location</h5>
+
+                <!-- Nearest Warehouse Highlight -->
+                <div class="alert alert-success mb-3 py-2" role="alert">
+                    <strong>Nearest Warehouse:</strong> Valam Central Warehouse (5 km)
+                </div>
+
+                <!-- Warehouse 1 -->
+                <div class="mb-3 p-3 border rounded">
+                    <h6 class="mb-1"><strong>Valam Central Warehouse</strong></h6>
+                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: Central Area &nbsp;|&nbsp; Distance: 5 km</p>
+                    <p class="mb-0" style="font-size: 0.9rem;">
+                        <strong>Available Stock:</strong><br>
+                        Rice: <span class="badge bg-success">500 kg</span> &nbsp;
+                        Wheat: <span class="badge bg-success">300 kg</span> &nbsp;
+                        Sugar: <span class="badge bg-success">200 kg</span>
+                    </p>
+                </div>
+
+                <!-- Warehouse 2 -->
+                <div class="p-3 border rounded">
+                    <h6 class="mb-1"><strong>Valam North Warehouse</strong></h6>
+                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: North Area &nbsp;|&nbsp; Distance: 8 km</p>
+                    <p class="mb-0" style="font-size: 0.9rem;">
+                        <strong>Available Stock:</strong><br>
+                        Rice: <span class="badge bg-success">700 kg</span> &nbsp;
+                        Wheat: <span class="badge bg-success">400 kg</span> &nbsp;
+                        Sugar: <span class="badge bg-success">250 kg</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- ========== END WAREHOUSE VIEW ========== -->
+
+
+        <!-- ============================================================ -->
+        <!-- DETAIL VIEW 3: REQUEST STATUS                                -->
+        <!-- Hidden by default. Shown when user clicks "View Status".     -->
+        <!-- Shows sample request statuses with Bootstrap badges.         -->
+        <!-- ============================================================ -->
+        <div id="requestStatusView" style="display: none;">
+
+            <!-- Back Button -->
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Request Status</h5>
+
+                <!-- Request Status Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Rice (kg)</th>
+                                <th>Wheat (kg)</th>
+                                <th>Sugar (kg)</th>
+                                <th>Urgency</th>
+                                <th>Warehouse</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestStatusBody">
+                            <tr>
+                                <td>REQ-101</td>
+                                <td>200</td>
+                                <td>100</td>
+                                <td>50</td>
+                                <td><span class="badge bg-danger">Critical</span></td>
+                                <td>Valam Central Warehouse</td>
+                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
+                            </tr>
+                            <tr>
+                                <td>REQ-102</td>
+                                <td>300</td>
+                                <td>150</td>
+                                <td>80</td>
+                                <td><span class="badge bg-primary">Normal</span></td>
+                                <td>Valam North Warehouse</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Status Legend -->
+                <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
+                    Status Flow:
+                    <span class="badge bg-secondary">Pending</span> →
+                    <span class="badge bg-warning text-dark">Reserved</span> →
+                    <span class="badge bg-info text-dark">Dispatched</span> →
+                    <span class="badge bg-success">Delivered</span>
+                </p>
+            </div>
+        </div>
+        <!-- ========== END REQUEST STATUS VIEW ========== -->
+
+
+        <!-- ============================================================ -->
+        <!-- DETAIL VIEW 4: DELIVERY STATUS                               -->
+        <!-- Hidden by default. Shown when user clicks "Track Delivery".  -->
+        <!-- Shows simple delivery info with sample data.                 -->
+        <!-- ============================================================ -->
+        <div id="deliveryStatusView" style="display: none;">
+
+            <!-- Back Button -->
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Delivery Status</h5>
+
+                <div id="deliveryStatusList">
+                    <!-- Delivery Entry 1 -->
+                    <div class="mb-3 p-3 border rounded">
+                        <h6 class="mb-1"><strong>REQ-101</strong></h6>
+                        <p class="mb-1" style="font-size: 0.9rem;">
+                            🏭 Warehouse: Valam Central Warehouse<br>
+                            🚚 Vehicle: V01<br>
+                            📦 Route: Warehouse → Shop
+                        </p>
+                        <p class="mb-0">
+                            Status: <span class="badge bg-warning text-dark">In Transit</span>
+                        </p>
+                    </div>
+
+                    <!-- Delivery Entry 2 -->
+                    <div class="mb-3 p-3 border rounded">
+                        <h6 class="mb-1"><strong>REQ-102</strong></h6>
+                        <p class="mb-1" style="font-size: 0.9rem;">
+                            🏭 Warehouse: Valam North Warehouse<br>
+                            🚚 Vehicle: V02<br>
+                            📦 Route: Warehouse → Shop
+                        </p>
+                        <p class="mb-0">
+                            Status: <span class="badge bg-success">Delivered</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Delivery Status Legend -->
+                <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
+                    Delivery Flow:
+                    <span class="badge bg-secondary">Pending</span> →
+                    <span class="badge bg-info text-dark">Dispatched</span> →
+                    <span class="badge bg-warning text-dark">In Transit</span> →
+                    <span class="badge bg-success">Delivered</span>
+                </p>
+            </div>
+        </div>
+        <!-- ========== END DELIVERY STATUS VIEW ========== -->
+
 
         <!-- Footer -->
         <p class="text-center footer-text mt-4 mb-3">&copy; 2026 VALAM - Supply Management System</p>
@@ -152,6 +382,36 @@
 
     <!-- ========== JAVASCRIPT FOR SHOP REQUEST FUNCTIONALITY ========== -->
     <script>
+
+        // ---------------------------------------------------------------
+        // NAVIGATION: Show/Hide Sections
+        // These two simple functions handle switching between the
+        // dashboard main menu and the detail views.
+        // ---------------------------------------------------------------
+
+        // showSection() — Hides the dashboard menu and shows the
+        // selected detail view.
+        // "sectionId" is the id of the detail view to show.
+        function showSection(sectionId) {
+            // Hide the dashboard main menu
+            document.getElementById("dashboardMain").style.display = "none";
+
+            // Show the selected detail view
+            document.getElementById(sectionId).style.display = "block";
+        }
+
+        // goBack() — Hides all detail views and shows the dashboard
+        // main menu again.
+        function goBack() {
+            // Hide all 4 detail views
+            document.getElementById("stockRequestView").style.display = "none";
+            document.getElementById("warehouseView").style.display = "none";
+            document.getElementById("requestStatusView").style.display = "none";
+            document.getElementById("deliveryStatusView").style.display = "none";
+
+            // Show the dashboard main menu
+            document.getElementById("dashboardMain").style.display = "block";
+        }
 
         // ---------------------------------------------------------------
         // STEP 1: Create an empty array to store all submitted requests.
@@ -195,6 +455,9 @@
             // This works the same way — it reads the <select> with id="urgency"
             var urgency = document.getElementById("urgency").value;
 
+            // --- 3c2: Get the selected warehouse from the dropdown ---
+            var warehouse = document.getElementById("warehouse").value;
+
             // --- 3d: Simple validation ---
             // Check if the user entered at least one quantity.
             // If all three fields are empty or zero, show an error message.
@@ -227,26 +490,36 @@
                 wheat: wheat,           // e.g. "100"
                 sugar: sugar,           // e.g. "50"
                 urgency: urgency,       // e.g. "critical"
-                status: "Pending"       // all new requests start as "Pending"
+                status: "Pending",      // all new requests start as "Pending"
+                warehouse: warehouse,   // user-selected warehouse
+                vehicle: "V01",
+                route: "Warehouse → Shop"
             };
 
             // --- 3i: Add the request to our array ---
             // .push() adds a new item to the end of the array.
             requests.push(newRequest);
 
-            // --- 3j: Add a new row to the HTML table ---
+            // --- 3j: Add a new row to the Recent Requests HTML table ---
             // This calls another function (defined below) that
             // creates a new <tr> row and inserts it into the table.
             addRowToTable(newRequest);
 
-            // --- 3k: Clear the input fields ---
+            // --- 3k: Add a new row to the Request Status table ---
+            addRequestStatusRow(newRequest);
+
+            // --- 3l: Add a new card to the Delivery Status page ---
+            addDeliveryStatusCard(newRequest);
+
+            // --- 3m: Clear the input fields ---
             // Set each input back to empty so the user can enter a new request.
             document.getElementById("rice").value = "";
             document.getElementById("wheat").value = "";
             document.getElementById("sugar").value = "";
             document.getElementById("urgency").value = "normal";
+            document.getElementById("warehouse").value = "Valam Central Warehouse";
 
-            // --- 3l: Show a success message ---
+            // --- 3n: Show a success message ---
             alert("Request submitted successfully!\n\nRequest ID: " + requestId);
         }
 
@@ -275,12 +548,11 @@
             // New requests are always "Pending", so we use a secondary (grey) badge.
             var statusBadge = '<span class="badge bg-secondary">Pending</span>';
 
-            // --- 4c: Find the table body in the HTML ---
-            // The <tbody> is inside the table. We need to find it
-            // so we can add a new row to it.
-            // getElementsByTagName("tbody") returns a list of all <tbody> elements.
-            // [0] gets the first (and only) one on our page.
-            var tableBody = document.getElementsByTagName("tbody")[0];
+            // --- 4c: Find the Recent Requests table body in the HTML ---
+            // We use getElementById to find the <tbody> with id="recentRequestsBody".
+            // This ensures new requests are added to the correct table
+            // (not the Request Status table).
+            var tableBody = document.getElementById("recentRequestsBody");
 
             // --- 4d: Create a new table row element ---
             // document.createElement("tr") creates a new empty <tr> tag.
@@ -295,11 +567,78 @@
                 "<td>" + req.wheat + "</td>" +
                 "<td>" + req.sugar + "</td>" +
                 "<td>" + urgencyBadge + "</td>" +
+                "<td>" + req.warehouse + "</td>" +
                 "<td>" + statusBadge + "</td>";
 
             // --- 4f: Add the row to the table ---
             // appendChild() puts the new row at the bottom of the table body.
             tableBody.appendChild(newRow);
+        }
+
+        // ---------------------------------------------------------------
+        // STEP 5: Function to add one new row to Request Status table.
+        // ---------------------------------------------------------------
+        function addRequestStatusRow(req) {
+
+            // --- 5a: Decide the badge color for the urgency ---
+            var urgencyBadge = "";
+            if (req.urgency === "critical") {
+                urgencyBadge = '<span class="badge bg-danger">Critical</span>';
+            } else if (req.urgency === "urgent") {
+                urgencyBadge = '<span class="badge bg-warning text-dark">Urgent</span>';
+            } else {
+                urgencyBadge = '<span class="badge bg-primary">Normal</span>';
+            }
+
+            // --- 5b: Create the status badge (starts at "Pending") ---
+            var statusBadge = '<span class="badge bg-secondary">Pending</span>';
+
+            // --- 5c: Find Request Status table body in the HTML ---
+            var tableBody = document.getElementById("requestStatusBody");
+
+            // --- 5d: Create a new table row element ---
+            var newRow = document.createElement("tr");
+
+            // --- 5e: Fill the row with table cells ---
+            newRow.innerHTML =
+                "<td>" + req.requestId + "</td>" +
+                "<td>" + req.rice + "</td>" +
+                "<td>" + req.wheat + "</td>" +
+                "<td>" + req.sugar + "</td>" +
+                "<td>" + urgencyBadge + "</td>" +
+                "<td>" + req.warehouse + "</td>" +
+                "<td>" + statusBadge + "</td>";
+
+            // --- 5f: Add the row to the Request Status table ---
+            tableBody.appendChild(newRow);
+        }
+
+        // ---------------------------------------------------------------
+        // STEP 6: Function to add one new entry to Delivery Status view.
+        // ---------------------------------------------------------------
+        function addDeliveryStatusCard(req) {
+
+            // --- 6a: Find Delivery Status container ---
+            var deliveryContainer = document.getElementById("deliveryStatusList");
+
+            // --- 6b: Create a new card container element ---
+            var newCard = document.createElement("div");
+            newCard.className = "mb-3 p-3 border rounded";
+
+            // --- 6c: Fill the card with delivery information ---
+            newCard.innerHTML =
+                '<h6 class="mb-1"><strong>' + req.requestId + '</strong></h6>' +
+                '<p class="mb-1" style="font-size: 0.9rem;">' +
+                '🏭 Warehouse: ' + req.warehouse + '<br>' +
+                '🚚 Vehicle: ' + req.vehicle + '<br>' +
+                '📦 Route: ' + req.route +
+                '</p>' +
+                '<p class="mb-0">' +
+                'Status: <span class="badge bg-secondary">' + req.status + '</span>' +
+                '</p>';
+
+            // --- 6d: Add the card to the Delivery Status list ---
+            deliveryContainer.appendChild(newCard);
         }
 
     </script>

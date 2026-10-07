@@ -29,113 +29,290 @@
         <h4 class="mb-1">Welcome, Warehouse Staff</h4>
         <p class="text-muted mb-4">Manage warehouse stock and process dispatch operations</p>
 
-        <!-- ========== FEATURE CARDS ========== -->
-        <div class="row g-4">
 
-            <!-- Card 1: View Warehouse Stock -->
-            <div class="col-md-4">
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle warehouse-icon">📦</div>
-                        <h5 class="card-title">Warehouse Stock</h5>
-                        <p class="card-text text-muted">View current stock levels in the warehouse.</p>
-                        <button class="btn warehouse-btn btn-sm">View Stock</button>
+        <!-- ============================================================ -->
+        <!-- DASHBOARD MAIN MENU — Shows 4 Feature Cards                  -->
+        <!-- This section is visible by default.                          -->
+        <!-- When the user clicks a button, this is hidden and the        -->
+        <!-- corresponding detail view is shown instead.                  -->
+        <!-- ============================================================ -->
+
+        <div id="dashboardMain">
+            <div class="row g-4">
+
+                <!-- Card 1: Shop Requests -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card dashboard-card p-3 text-center">
+                        <div class="card-body">
+                            <div class="icon-circle warehouse-icon">📋</div>
+                            <br>
+                            <h5 class="card-title">Shop Requests</h5>
+                            <br>
+                            <p class="card-text text-muted">View commodity requests received from shops.</p>
+                            <button class="btn warehouse-btn btn-sm" onclick="showSection('shopRequestsView')">View Requests</button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Card 2: Check Shop Requests -->
-            <div class="col-md-4">
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle warehouse-icon">📋</div>
-                        <h5 class="card-title">Shop Requests</h5>
-                        <p class="card-text text-muted">Review commodity requests received from shops.</p>
-                        <button class="btn warehouse-btn btn-sm">View Requests</button>
+                <!-- Card 2: Process Request -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card dashboard-card p-3 text-center">
+                        <div class="card-body">
+                            <div class="icon-circle warehouse-icon">⚙️</div>
+                            <br>
+                            <h5 class="card-title">Process Request</h5>
+                            <br>
+                            <p class="card-text text-muted">Review and process shop commodity requests.</p>
+                            <button class="btn warehouse-btn btn-sm" onclick="showSection('processRequestView')">Process Request</button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Card 3: Reserve Stock -->
-            <div class="col-md-4">
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle warehouse-icon">🔒</div>
-                        <h5 class="card-title">Reserve Stock</h5>
-                        <p class="card-text text-muted">Reserve stock for approved shop requests.</p>
-                        <button class="btn warehouse-btn btn-sm">Reserve</button>
+                <!-- Card 3: Warehouse Stock -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card dashboard-card p-3 text-center">
+                        <div class="card-body">
+                            <div class="icon-circle warehouse-icon">📦</div>
+                            <br>
+                            <h5 class="card-title">Warehouse Stock</h5>
+                            <br>
+                            <p class="card-text text-muted">View and update current warehouse stock.</p>
+                            <button class="btn warehouse-btn btn-sm" onclick="showSection('warehouseStockView')">View Stock</button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-        </div>
-
-        <div class="row g-4 mt-1">
-
-            <!-- Card 4: Check Vehicle Availability -->
-            <div class="col-md-4">
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle warehouse-icon">🚚</div>
-                        <h5 class="card-title">Vehicle Availability</h5>
-                        <p class="card-text text-muted">Check which vehicles are available for dispatch.</p>
-                        <button class="btn warehouse-btn btn-sm">Check Vehicles</button>
+                <!-- Card 4: Delivery / Vehicle -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card dashboard-card p-3 text-center">
+                        <div class="card-body">
+                            <div class="icon-circle warehouse-icon">🚚</div>
+                            <br>
+                            <h5 class="card-title">Delivery / Vehicle</h5>
+                            <br>
+                            <p class="card-text text-muted">Assign vehicle and update delivery status.</p>
+                            <button class="btn warehouse-btn btn-sm" onclick="showSection('deliveryVehicleView')">Manage Delivery</button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Card 5: Process Dispatch -->
-            <div class="col-md-4">
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle warehouse-icon">📤</div>
-                        <h5 class="card-title">Process Dispatch</h5>
-                        <p class="card-text text-muted">Dispatch commodities to the requested shops.</p>
-                        <button class="btn warehouse-btn btn-sm">Dispatch</button>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <!-- ========== END FEATURE CARDS ========== -->
-
-        <!-- ========== WAREHOUSE STOCK TABLE ========== -->
-        <div class="card mt-4 p-3">
-            <h5 class="mb-3">Current Warehouse Stock</h5>
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Commodity</th>
-                            <th>Available Stock</th>
-                            <th>Reserved</th>
-                            <th>Unit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Rice</td>
-                            <td>5000</td>
-                            <td>800</td>
-                            <td>kg</td>
-                        </tr>
-                        <tr>
-                            <td>Wheat</td>
-                            <td>3200</td>
-                            <td>400</td>
-                            <td>kg</td>
-                        </tr>
-                        <tr>
-                            <td>Sugar</td>
-                            <td>1500</td>
-                            <td>200</td>
-                            <td>kg</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
-        <!-- ========== END TABLE ========== -->
+        <!-- ========== END DASHBOARD MAIN MENU ========== -->
+
+
+        <!-- ============================================================ -->
+        <!-- DETAIL VIEW 1: SHOP REQUESTS                                 -->
+        <!-- Hidden by default. Shown when user clicks "View Requests".   -->
+        <!-- Shows all requests received from shops.                      -->
+        <!-- ============================================================ -->
+        <div id="shopRequestsView" style="display: none;">
+
+            <!-- Back Button -->
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Shop Requests</h5>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Shop ID</th>
+                                <th>Rice (kg)</th>
+                                <th>Wheat (kg)</th>
+                                <th>Sugar (kg)</th>
+                                <th>Urgency</th>
+                                <th>Warehouse</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopRequestsBody">
+                            <tr>
+                                <td>REQ-101</td>
+                                <td>S01</td>
+                                <td>200</td>
+                                <td>100</td>
+                                <td>50</td>
+                                <td><span class="badge bg-danger">Critical</span></td>
+                                <td>Valam Central Warehouse</td>
+                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
+                            </tr>
+                            <tr>
+                                <td>REQ-102</td>
+                                <td>S02</td>
+                                <td>300</td>
+                                <td>150</td>
+                                <td>80</td>
+                                <td><span class="badge bg-primary">Normal</span></td>
+                                <td>Valam North Warehouse</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ========== END SHOP REQUESTS VIEW ========== -->
+
+
+        <!-- ============================================================ -->
+        <!-- DETAIL VIEW 2: PROCESS REQUEST                               -->
+        <!-- Hidden by default. Shown when user clicks "Process Request". -->
+        <!-- Allows warehouse staff to process/confirm a pending request. -->
+        <!-- ============================================================ -->
+        <div id="processRequestView" style="display: none;">
+
+            <!-- Back Button -->
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Process Request</h5>
+
+                <!-- Select a Request to Process -->
+                <div class="mb-3">
+                    <label for="processRequestSelect" class="form-label">Select Request to Process:</label>
+                    <select class="form-select" id="processRequestSelect" onchange="showRequestDetails()">
+                        <option value="">-- Select a Request --</option>
+                    </select>
+                </div>
+
+                <!-- Request Details (shown after selecting a request) -->
+                <div id="processRequestDetails" style="display: none;">
+                    <div class="p-3 border rounded mb-3">
+                        <p class="mb-1"><strong>Request ID:</strong> <span id="detailRequestId"></span></p>
+                        <p class="mb-1"><strong>Shop ID:</strong> <span id="detailShopId"></span></p>
+                        <p class="mb-1"><strong>Rice:</strong> <span id="detailRice"></span> kg</p>
+                        <p class="mb-1"><strong>Wheat:</strong> <span id="detailWheat"></span> kg</p>
+                        <p class="mb-1"><strong>Sugar:</strong> <span id="detailSugar"></span> kg</p>
+                        <p class="mb-1"><strong>Urgency:</strong> <span id="detailUrgency"></span></p>
+                        <p class="mb-1"><strong>Warehouse:</strong> <span id="detailWarehouse"></span></p>
+                        <p class="mb-0"><strong>Current Status:</strong> <span id="detailStatus"></span></p>
+                    </div>
+
+                    <button class="btn warehouse-btn" id="processBtn" onclick="processRequest()">Confirm / Process Request</button>
+
+                    <!-- Success message (hidden by default) -->
+                    <div id="processSuccessMsg" class="alert alert-success mt-3 py-2" style="display: none;">
+                        ✅ Request has been processed successfully! Status changed to <strong>Reserved</strong>.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ========== END PROCESS REQUEST VIEW ========== -->
+
+
+        <!-- ============================================================ -->
+        <!-- DETAIL VIEW 3: WAREHOUSE STOCK                               -->
+        <!-- Hidden by default. Shown when user clicks "View Stock".      -->
+        <!-- Shows current warehouse stock levels.                        -->
+        <!-- ============================================================ -->
+        <div id="warehouseStockView" style="display: none;">
+
+            <!-- Back Button -->
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Current Warehouse Stock</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Commodity</th>
+                                <th>Available Stock</th>
+                                <th>Reserved</th>
+                                <th>Unit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Rice</td>
+                                <td id="stockRice">5000</td>
+                                <td id="reservedRice">800</td>
+                                <td>kg</td>
+                            </tr>
+                            <tr>
+                                <td>Wheat</td>
+                                <td id="stockWheat">3200</td>
+                                <td id="reservedWheat">400</td>
+                                <td>kg</td>
+                            </tr>
+                            <tr>
+                                <td>Sugar</td>
+                                <td id="stockSugar">1500</td>
+                                <td id="reservedSugar">200</td>
+                                <td>kg</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ========== END WAREHOUSE STOCK VIEW ========== -->
+
+
+        <!-- ============================================================ -->
+        <!-- DETAIL VIEW 4: DELIVERY / VEHICLE                            -->
+        <!-- Hidden by default. Shown when user clicks "Manage Delivery". -->
+        <!-- Allows assigning a vehicle and updating delivery status.     -->
+        <!-- ============================================================ -->
+        <div id="deliveryVehicleView" style="display: none;">
+
+            <!-- Back Button -->
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Delivery / Vehicle Management</h5>
+
+                <!-- Select a Processed Request for Delivery -->
+                <div class="mb-3">
+                    <label for="deliveryRequestSelect" class="form-label">Select Processed Request:</label>
+                    <select class="form-select" id="deliveryRequestSelect" onchange="showDeliveryDetails()">
+                        <option value="">-- Select a Request --</option>
+                    </select>
+                </div>
+
+                <!-- Delivery Details (shown after selecting a request) -->
+                <div id="deliveryDetails" style="display: none;">
+                    <div class="p-3 border rounded mb-3">
+                        <p class="mb-1"><strong>Request ID:</strong> <span id="delRequestId"></span></p>
+                        <p class="mb-1"><strong>Shop ID:</strong> <span id="delShopId"></span></p>
+                        <p class="mb-1"><strong>Warehouse:</strong> <span id="delWarehouse"></span></p>
+                        <p class="mb-1"><strong>Vehicle:</strong> <span id="delVehicle">Not Assigned</span></p>
+                        <p class="mb-0"><strong>Delivery Status:</strong> <span id="delStatus"></span></p>
+                    </div>
+
+                    <!-- Vehicle Selection -->
+                    <div class="mb-3">
+                        <label for="vehicleSelect" class="form-label">Assign Vehicle:</label>
+                        <select class="form-select" id="vehicleSelect">
+                            <option value="V01">V01</option>
+                            <option value="V02">V02</option>
+                            <option value="V03">V03</option>
+                        </select>
+                    </div>
+
+                    <button class="btn warehouse-btn" id="assignVehicleBtn" onclick="assignVehicle()">Assign Vehicle</button>
+
+                    <!-- Success message (hidden by default) -->
+                    <div id="deliverySuccessMsg" class="alert alert-success mt-3 py-2" style="display: none;">
+                        ✅ Vehicle assigned! Delivery status updated to <strong>Dispatched</strong>.
+                    </div>
+                </div>
+
+                <!-- Delivery Status Legend -->
+                <p class="text-muted mt-3 mb-0" style="font-size: 0.8rem;">
+                    Delivery Flow:
+                    <span class="badge bg-secondary">Pending</span> →
+                    <span class="badge bg-info text-dark">Dispatched</span> →
+                    <span class="badge bg-warning text-dark">In Transit</span> →
+                    <span class="badge bg-success">Delivered</span>
+                </p>
+            </div>
+        </div>
+        <!-- ========== END DELIVERY / VEHICLE VIEW ========== -->
+
 
         <!-- Footer -->
         <p class="text-center footer-text mt-4 mb-3">&copy; 2026 VALAM - Supply Management System</p>
@@ -145,6 +322,380 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ========== JAVASCRIPT FOR WAREHOUSE FUNCTIONALITY ========== -->
+    <script>
+
+        // ---------------------------------------------------------------
+        // NAVIGATION: Show/Hide Sections
+        // These two simple functions handle switching between the
+        // dashboard main menu and the detail views.
+        // ---------------------------------------------------------------
+
+        // showSection() — Hides the dashboard menu and shows the
+        // selected detail view.
+        // "sectionId" is the id of the detail view to show.
+        function showSection(sectionId) {
+            // Hide the dashboard main menu
+            document.getElementById("dashboardMain").style.display = "none";
+
+            // Show the selected detail view
+            document.getElementById(sectionId).style.display = "block";
+
+            // If opening the Process Request view, populate its dropdown
+            if (sectionId === "processRequestView") {
+                populateProcessDropdown();
+            }
+
+            // If opening the Delivery view, populate its dropdown
+            if (sectionId === "deliveryVehicleView") {
+                populateDeliveryDropdown();
+            }
+        }
+
+        // goBack() — Hides all detail views and shows the dashboard
+        // main menu again.
+        function goBack() {
+            // Hide all 4 detail views
+            document.getElementById("shopRequestsView").style.display = "none";
+            document.getElementById("processRequestView").style.display = "none";
+            document.getElementById("warehouseStockView").style.display = "none";
+            document.getElementById("deliveryVehicleView").style.display = "none";
+
+            // Show the dashboard main menu
+            document.getElementById("dashboardMain").style.display = "block";
+        }
+
+
+        // ---------------------------------------------------------------
+        // WAREHOUSE DATA
+        // ---------------------------------------------------------------
+
+        // --- Warehouse Stock ---
+        // These variables track the current stock levels.
+        // When a request is processed, stock is reduced.
+        var warehouseStock = {
+            rice: 5000,
+            wheat: 3200,
+            sugar: 1500
+        };
+
+        // --- Reserved Stock ---
+        // Tracks how much stock has been reserved for processed requests.
+        var reservedStock = {
+            rice: 800,
+            wheat: 400,
+            sugar: 200
+        };
+
+
+        // ---------------------------------------------------------------
+        // REQUEST DATA
+        // This array stores all requests received from shops.
+        // In a real system, this data would come from a database.
+        // For this prototype, we use sample/manual data.
+        // ---------------------------------------------------------------
+        var warehouseRequests = [
+            {
+                requestId: "REQ-101",
+                shopId: "S01",
+                rice: "200",
+                wheat: "100",
+                sugar: "50",
+                urgency: "critical",
+                warehouse: "Valam Central Warehouse",
+                status: "Dispatched",
+                vehicle: "V01"
+            },
+            {
+                requestId: "REQ-102",
+                shopId: "S02",
+                rice: "300",
+                wheat: "150",
+                sugar: "80",
+                urgency: "normal",
+                warehouse: "Valam North Warehouse",
+                status: "Delivered",
+                vehicle: "V02"
+            }
+        ];
+
+        // Request counter for new requests (starts at 103 to match shop page)
+        var warehouseRequestCounter = 103;
+
+
+        // ---------------------------------------------------------------
+        // SHOP REQUESTS VIEW FUNCTIONS
+        // ---------------------------------------------------------------
+
+        // addShopRequestRow() — Adds a new row to the Shop Requests table.
+        function addShopRequestRow(req) {
+
+            // --- Decide the badge color for urgency ---
+            var urgencyBadge = "";
+            if (req.urgency === "critical") {
+                urgencyBadge = '<span class="badge bg-danger">Critical</span>';
+            } else if (req.urgency === "urgent") {
+                urgencyBadge = '<span class="badge bg-warning text-dark">Urgent</span>';
+            } else {
+                urgencyBadge = '<span class="badge bg-primary">Normal</span>';
+            }
+
+            // --- Decide the badge color for status ---
+            var statusBadge = "";
+            if (req.status === "Pending") {
+                statusBadge = '<span class="badge bg-secondary">Pending</span>';
+            } else if (req.status === "Reserved") {
+                statusBadge = '<span class="badge bg-warning text-dark">Reserved</span>';
+            } else if (req.status === "Dispatched") {
+                statusBadge = '<span class="badge bg-info text-dark">Dispatched</span>';
+            } else if (req.status === "In Transit") {
+                statusBadge = '<span class="badge bg-warning text-dark">In Transit</span>';
+            } else {
+                statusBadge = '<span class="badge bg-success">Delivered</span>';
+            }
+
+            // --- Find Shop Requests table body ---
+            var tableBody = document.getElementById("shopRequestsBody");
+
+            // --- Create a new table row ---
+            var newRow = document.createElement("tr");
+            newRow.setAttribute("id", "shopRow-" + req.requestId);
+
+            // --- Fill the row with cells ---
+            newRow.innerHTML =
+                "<td>" + req.requestId + "</td>" +
+                "<td>" + req.shopId + "</td>" +
+                "<td>" + req.rice + "</td>" +
+                "<td>" + req.wheat + "</td>" +
+                "<td>" + req.sugar + "</td>" +
+                "<td>" + urgencyBadge + "</td>" +
+                "<td>" + req.warehouse + "</td>" +
+                "<td>" + statusBadge + "</td>";
+
+            // --- Add the row to the table ---
+            tableBody.appendChild(newRow);
+        }
+
+
+        // ---------------------------------------------------------------
+        // PROCESS REQUEST FUNCTIONS
+        // ---------------------------------------------------------------
+
+        // populateProcessDropdown() — Fills the dropdown with pending requests.
+        function populateProcessDropdown() {
+            var select = document.getElementById("processRequestSelect");
+
+            // Clear existing options
+            select.innerHTML = '<option value="">-- Select a Request --</option>';
+
+            // Add only "Pending" requests to the dropdown
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                if (warehouseRequests[i].status === "Pending") {
+                    var option = document.createElement("option");
+                    option.value = warehouseRequests[i].requestId;
+                    option.textContent = warehouseRequests[i].requestId + " — " + warehouseRequests[i].shopId;
+                    select.appendChild(option);
+                }
+            }
+
+            // Hide the details section and success message
+            document.getElementById("processRequestDetails").style.display = "none";
+            document.getElementById("processSuccessMsg").style.display = "none";
+        }
+
+        // showRequestDetails() — Shows the details of the selected request.
+        function showRequestDetails() {
+            var selectedId = document.getElementById("processRequestSelect").value;
+
+            // If nothing selected, hide details
+            if (selectedId === "") {
+                document.getElementById("processRequestDetails").style.display = "none";
+                return;
+            }
+
+            // Find the request in the array
+            var req = null;
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                if (warehouseRequests[i].requestId === selectedId) {
+                    req = warehouseRequests[i];
+                    break;
+                }
+            }
+
+            if (req === null) { return; }
+
+            // Fill in the details
+            document.getElementById("detailRequestId").textContent = req.requestId;
+            document.getElementById("detailShopId").textContent = req.shopId;
+            document.getElementById("detailRice").textContent = req.rice;
+            document.getElementById("detailWheat").textContent = req.wheat;
+            document.getElementById("detailSugar").textContent = req.sugar;
+            document.getElementById("detailUrgency").textContent = req.urgency.charAt(0).toUpperCase() + req.urgency.slice(1);
+            document.getElementById("detailWarehouse").textContent = req.warehouse;
+            document.getElementById("detailStatus").innerHTML = '<span class="badge bg-secondary">' + req.status + '</span>';
+
+            // Show the details section
+            document.getElementById("processRequestDetails").style.display = "block";
+
+            // Show the process button, hide old success message
+            document.getElementById("processBtn").style.display = "inline-block";
+            document.getElementById("processSuccessMsg").style.display = "none";
+        }
+
+        // processRequest() — Processes the selected request.
+        // Changes status to "Reserved" and updates warehouse stock.
+        function processRequest() {
+            var selectedId = document.getElementById("processRequestSelect").value;
+
+            // Find the request in the array
+            var req = null;
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                if (warehouseRequests[i].requestId === selectedId) {
+                    req = warehouseRequests[i];
+                    break;
+                }
+            }
+
+            if (req === null) { return; }
+
+            // --- Change status to "Reserved" ---
+            req.status = "Reserved";
+
+            // --- Update the status display ---
+            document.getElementById("detailStatus").innerHTML = '<span class="badge bg-warning text-dark">Reserved</span>';
+
+            // --- Update warehouse stock ---
+            // Reduce available stock by the requested quantities
+            warehouseStock.rice = warehouseStock.rice - parseInt(req.rice);
+            warehouseStock.wheat = warehouseStock.wheat - parseInt(req.wheat);
+            warehouseStock.sugar = warehouseStock.sugar - parseInt(req.sugar);
+
+            // Increase reserved stock
+            reservedStock.rice = reservedStock.rice + parseInt(req.rice);
+            reservedStock.wheat = reservedStock.wheat + parseInt(req.wheat);
+            reservedStock.sugar = reservedStock.sugar + parseInt(req.sugar);
+
+            // --- Update the stock table display ---
+            document.getElementById("stockRice").textContent = warehouseStock.rice;
+            document.getElementById("stockWheat").textContent = warehouseStock.wheat;
+            document.getElementById("stockSugar").textContent = warehouseStock.sugar;
+            document.getElementById("reservedRice").textContent = reservedStock.rice;
+            document.getElementById("reservedWheat").textContent = reservedStock.wheat;
+            document.getElementById("reservedSugar").textContent = reservedStock.sugar;
+
+            // --- Update the Shop Requests table row status ---
+            var shopRow = document.getElementById("shopRow-" + req.requestId);
+            if (shopRow) {
+                var cells = shopRow.getElementsByTagName("td");
+                cells[7].innerHTML = '<span class="badge bg-warning text-dark">Reserved</span>';
+            }
+
+            // --- Show success message, hide process button ---
+            document.getElementById("processBtn").style.display = "none";
+            document.getElementById("processSuccessMsg").style.display = "block";
+        }
+
+
+        // ---------------------------------------------------------------
+        // DELIVERY / VEHICLE FUNCTIONS
+        // ---------------------------------------------------------------
+
+        // populateDeliveryDropdown() — Fills the dropdown with processed (Reserved) requests.
+        function populateDeliveryDropdown() {
+            var select = document.getElementById("deliveryRequestSelect");
+
+            // Clear existing options
+            select.innerHTML = '<option value="">-- Select a Request --</option>';
+
+            // Add only "Reserved" requests to the dropdown
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                if (warehouseRequests[i].status === "Reserved") {
+                    var option = document.createElement("option");
+                    option.value = warehouseRequests[i].requestId;
+                    option.textContent = warehouseRequests[i].requestId + " — " + warehouseRequests[i].shopId;
+                    select.appendChild(option);
+                }
+            }
+
+            // Hide the details section and success message
+            document.getElementById("deliveryDetails").style.display = "none";
+            document.getElementById("deliverySuccessMsg").style.display = "none";
+        }
+
+        // showDeliveryDetails() — Shows the delivery details of the selected request.
+        function showDeliveryDetails() {
+            var selectedId = document.getElementById("deliveryRequestSelect").value;
+
+            // If nothing selected, hide details
+            if (selectedId === "") {
+                document.getElementById("deliveryDetails").style.display = "none";
+                return;
+            }
+
+            // Find the request in the array
+            var req = null;
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                if (warehouseRequests[i].requestId === selectedId) {
+                    req = warehouseRequests[i];
+                    break;
+                }
+            }
+
+            if (req === null) { return; }
+
+            // Fill in the delivery details
+            document.getElementById("delRequestId").textContent = req.requestId;
+            document.getElementById("delShopId").textContent = req.shopId;
+            document.getElementById("delWarehouse").textContent = req.warehouse;
+            document.getElementById("delVehicle").textContent = req.vehicle || "Not Assigned";
+            document.getElementById("delStatus").innerHTML = '<span class="badge bg-warning text-dark">' + req.status + '</span>';
+
+            // Show the details section
+            document.getElementById("deliveryDetails").style.display = "block";
+
+            // Show the assign button, hide old success message
+            document.getElementById("assignVehicleBtn").style.display = "inline-block";
+            document.getElementById("deliverySuccessMsg").style.display = "none";
+        }
+
+        // assignVehicle() — Assigns a vehicle and updates delivery status.
+        function assignVehicle() {
+            var selectedId = document.getElementById("deliveryRequestSelect").value;
+            var selectedVehicle = document.getElementById("vehicleSelect").value;
+
+            // Find the request in the array
+            var req = null;
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                if (warehouseRequests[i].requestId === selectedId) {
+                    req = warehouseRequests[i];
+                    break;
+                }
+            }
+
+            if (req === null) { return; }
+
+            // --- Update request data ---
+            req.vehicle = selectedVehicle;
+            req.status = "Dispatched";
+
+            // --- Update the display ---
+            document.getElementById("delVehicle").textContent = selectedVehicle;
+            document.getElementById("delStatus").innerHTML = '<span class="badge bg-info text-dark">Dispatched</span>';
+
+            // --- Update the Shop Requests table row status ---
+            var shopRow = document.getElementById("shopRow-" + req.requestId);
+            if (shopRow) {
+                var cells = shopRow.getElementsByTagName("td");
+                cells[7].innerHTML = '<span class="badge bg-info text-dark">Dispatched</span>';
+            }
+
+            // --- Show success message, hide assign button ---
+            document.getElementById("assignVehicleBtn").style.display = "none";
+            document.getElementById("deliverySuccessMsg").style.display = "block";
+        }
+
+    </script>
 
 </body>
 </html>
