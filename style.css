@@ -1,0 +1,155 @@
+/* ========================================
+   VALAM - Supply Management System
+   Custom CSS Stylesheet
+   ======================================== */
+
+/* ---------- General Body Style ---------- */
+body {
+    background-color: #f5f5f5; /* Light grey background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ---------- Login Page Styles ---------- */
+
+/* Style for the login card */
+.card {
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+}
+
+/* ---------- Navbar Styles ---------- */
+
+/* Common style for all navbars */
+.navbar {
+    padding: 12px 0;
+}
+
+/* Navbar brand text */
+.navbar-brand {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+/* ---------- Dashboard Card Styles ---------- */
+
+/* Style for dashboard feature cards */
+.dashboard-card {
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    transition: box-shadow 0.2s; /* Smooth shadow on hover */
+}
+
+/* Add shadow when hovering over a card */
+.dashboard-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 1);
+}
+
+/* Icon circle inside cards */
+.icon-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin: 0 auto 10px auto;
+}
+
+
+/* ========================================
+   ADMIN THEME - Reddish Orange + Yellow
+   ======================================== */
+
+/* Admin navbar background */
+.admin-navbar {
+    background-color: #e8530e; /* Reddish Orange */
+}
+
+/* Admin icon circle */
+.admin-icon {
+    background-color: #fff3cd; /* Light Yellow */
+    color: #e8530e;           /* Reddish Orange text */
+}
+
+/* Admin buttons */
+.admin-btn {
+    background-color: #e8530e;
+    color: white;
+    border: none;
+}
+
+.admin-btn:hover {
+    background-color: #c9440a;
+    color: white;
+}
+
+
+/* ========================================
+   WAREHOUSE THEME - Blue + Light Green
+   ======================================== */
+
+/* Warehouse navbar background */
+.warehouse-navbar {
+    background-color: #1565c0; /* Blue */
+}
+
+/* Warehouse icon circle */
+.warehouse-icon {
+    background-color: #c8e6c9; /* Light Green */
+    color: #1565c0;            /* Blue text */
+}
+
+/* Warehouse buttons */
+.warehouse-btn {
+    background-color: #1565c0;
+    color: white;
+    border: none;
+}
+
+.warehouse-btn:hover {
+    background-color: #0d47a1;
+    color: white;
+}
+
+
+/* ========================================
+   SHOP THEME - Light Green + Pink
+   ======================================== */
+
+/* Shop navbar background */
+.shop-navbar {
+    background-color: #2e7d32; /* Green */
+}
+
+/* Shop icon circle */
+.shop-icon {
+    background-color: #f8bbd0; /* Pink */
+    color: #2e7d32;            /* Green text */
+}
+
+/* Shop buttons */
+.shop-btn {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+}
+
+.shop-btn:hover {
+    background-color: #1b5e20;
+    color: white;
+}
+
+
+/* ---------- Table Styles ---------- */
+
+/* Make tables look cleaner */
+.table th {
+    font-weight: 600;
+}
+
+/* ---------- Footer ---------- */
+.footer-text {
+    color: #888;
+    font-size: 0.85rem;
+}

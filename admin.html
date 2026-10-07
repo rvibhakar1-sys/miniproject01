@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - VALAM</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+
+    <!-- Our custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ========== ADMIN NAVBAR ========== -->
+    <!-- "admin-navbar" is our custom class for reddish-orange color -->
+    <nav class="navbar admin-navbar">
+        <div class="container">
+            <span class="navbar-brand text-white">VALAM - Admin Dashboard</span>
+            <!-- Logout button to go back to login page -->
+            <a href="index.html" class="btn btn-outline-light btn-sm">Logout</a>
+        </div>
+    </nav>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <div class="container mt-4">
+
+        <!-- Welcome Message -->
+        <h4 class="mb-1">Welcome, District Supply Officer</h4>
+        <p class="text-muted mb-4">Admin Panel — Monitor and manage all supply operations</p>
+
+        <!-- ========== FEATURE CARDS ROW 1 ========== -->
+        <div class="row g-4">
+
+            <!-- Card 1: View Warehouses -->
+            <div class="col-md-4">
+                <div class="card dashboard-card p-3 text-center">
+                    <div class="card-body">
+                        <div class="icon-circle admin-icon">🏭</div>
+                        <h5 class="card-title">View Warehouses</h5>
+                        <p class="card-text text-muted">See all warehouses and their current stock levels.</p>
+                        <button class="btn admin-btn btn-sm">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: View Shops -->
+            <div class="col-md-4">
+                <div class="card dashboard-card p-3 text-center">
+                    <div class="card-body">
+                        <div class="icon-circle admin-icon">🏪</div>
+                        <h5 class="card-title">View Shops</h5>
+                        <p class="card-text text-muted">See all fair-price shops and their details.</p>
+                        <button class="btn admin-btn btn-sm">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: View Vehicles -->
+            <div class="col-md-4">
+                <div class="card dashboard-card p-3 text-center">
+                    <div class="card-body">
+                        <div class="icon-circle admin-icon">🚚</div>
+                        <h5 class="card-title">View Vehicles</h5>
+                        <p class="card-text text-muted">Check available vehicles for delivery operations.</p>
+                        <button class="btn admin-btn btn-sm">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- ========== END ROW 1 ========== -->
+
+        <!-- ========== FEATURE CARDS ROW 2 ========== -->
+        <div class="row g-4 mt-1">
+
+            <!-- Card 4: Monitor Delivery Requests -->
+            <div class="col-md-4">
+                <div class="card dashboard-card p-3 text-center">
+                    <div class="card-body">
+                        <div class="icon-circle admin-icon">📋</div>
+                        <h5 class="card-title">Delivery Requests</h5>
+                        <p class="card-text text-muted">Monitor all incoming delivery requests from shops.</p>
+                        <button class="btn admin-btn btn-sm">View Requests</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 5: Monitor Stock -->
+            <div class="col-md-4">
+                <div class="card dashboard-card p-3 text-center">
+                    <div class="card-body">
+                        <div class="icon-circle admin-icon">📦</div>
+                        <h5 class="card-title">Monitor Stock</h5>
+                        <p class="card-text text-muted">Check overall stock levels across all locations.</p>
+                        <button class="btn admin-btn btn-sm">View Stock</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 6: Delivery Status -->
+            <div class="col-md-4">
+                <div class="card dashboard-card p-3 text-center">
+                    <div class="card-body">
+                        <div class="icon-circle admin-icon">✅</div>
+                        <h5 class="card-title">Delivery Status</h5>
+                        <p class="card-text text-muted">Track the status of all ongoing deliveries.</p>
+                        <button class="btn admin-btn btn-sm">View Status</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- ========== END ROW 2 ========== -->
+
+        <!-- ========== SAMPLE DATA TABLE ========== -->
+        <div class="card mt-4 p-3">
+            <h5 class="mb-3">Recent Delivery Requests</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Shop Name</th>
+                            <th>Commodity</th>
+                            <th>Quantity</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>REQ-001</td>
+                            <td>FPS Nagercoil</td>
+                            <td>Rice</td>
+                            <td>500 kg</td>
+                            <td><span class="badge bg-success">Delivered</span></td>
+                        </tr>
+                        <tr>
+                            <td>REQ-002</td>
+                            <td>FPS Marthandam</td>
+                            <td>Wheat</td>
+                            <td>300 kg</td>
+                            <td><span class="badge bg-warning text-dark">In Transit</span></td>
+                        </tr>
+                        <tr>
+                            <td>REQ-003</td>
+                            <td>FPS Colachel</td>
+                            <td>Sugar</td>
+                            <td>200 kg</td>
+                            <td><span class="badge bg-primary">Pending</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- ========== END TABLE ========== -->
+
+        <!-- Footer -->
+        <p class="text-center footer-text mt-4 mb-3">&copy; 2026 VALAM - Supply Management System</p>
+
+    </div>
+    <!-- ========== END MAIN CONTENT ========== -->
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

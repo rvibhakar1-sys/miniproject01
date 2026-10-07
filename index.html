@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALAM - Supply Management System</title>
+
+    <!-- Bootstrap 5 CSS from CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+
+    <!-- Our custom CSS file -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ========== MAIN CONTAINER ========== -->
+    <!-- "vh-100" makes the container full screen height -->
+    <!-- "d-flex align-items-center" centers the card vertically -->
+    <div class="container vh-100 d-flex align-items-center justify-content-center">
+
+        <div class="row justify-content-center w-100">
+            <div class="col-md-5 col-lg-4">
+
+                <!-- ========== LOGIN CARD ========== -->
+                <div class="card shadow p-4">
+                    <div class="card-body">
+                        
+                        <!-- Title Section -->
+                        <h2 class="text-center fw-bold mb-1">VALAM</h2>
+                        <p class="text-center text-muted mb-4">Supply Management System</p>
+                        
+                        <!-- ========== LOGIN FORM ========== -->
+                        <!-- "onsubmit" calls our login function when the form is submitted -->
+                        <form onsubmit="handleLogin(event)">
+                            <!-- Role Selection Dropdown -->
+                            <div class="mb-4">
+                                <label for="role" class="form-label">Select Role:</label>
+                                <select class="form-select" id="role">
+                                    <option value="admin">Admin</option>
+                                    <option value="shop">Shop User</option>
+                                    <option value="warehouse">Warehouse Staff</option>
+                                </select>
+                            </div>
+
+                            <!-- Username Field -->
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username:</label>
+                                <input type="text" class="form-control" id="username" placeholder="Enter username" required>
+                            </div>
+
+                            <!-- Password Field -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password:</label>
+                                <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+                            </div>
+
+
+                            <!-- Login Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                            </div>
+
+                        </form>
+                        <!-- ========== END LOGIN FORM ========== -->
+
+                    </div>
+                </div>
+                <!-- ========== END LOGIN CARD ========== -->
+
+                <!-- Footer text below card -->
+                <p class="text-center text-muted mt-3">
+                    &copy; Kongu Engineering College 2026
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+    <!-- ========== END MAIN CONTAINER ========== -->
+
+    <!-- Bootstrap 5 JS from CDN (needed for dropdowns and other Bootstrap features) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Our custom JavaScript file -->
+    <script src="script.js"></script>
+
+</body>
+</html>
