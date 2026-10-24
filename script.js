@@ -1,15 +1,5 @@
-// ========================================
-// VALAM - Supply Management System
-// Simple JavaScript File
-// ========================================
 
-/**
- * handleLogin(event)
- * ------------------
- * This function runs when the user clicks the Login button.
- * It reads the selected role from the dropdown and
- * opens the correct dashboard page.
- */
+
 function handleLogin(event) {
     // Prevent the form from refreshing the page
     event.preventDefault();

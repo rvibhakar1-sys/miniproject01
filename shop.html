@@ -5,16 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Dashboard - VALAM</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
 
-    <!-- Our custom CSS -->
+  
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <!-- ========== SHOP NAVBAR ========== -->
-    <!-- "shop-navbar" is our custom class for green color -->
+
     <nav class="navbar shop-navbar">
         <div class="container">
             <span class="navbar-brand text-white">VALAM - Shop Dashboard</span>
@@ -30,17 +29,10 @@
         <p class="text-muted mb-4">Fair-Price Shop — Create requests and track deliveries</p>
 
 
-        <!-- ============================================================ -->
-        <!-- DASHBOARD MAIN MENU — Shows 4 Feature Cards                  -->
-        <!-- This section is visible by default.                          -->
-        <!-- When the user clicks a button, this is hidden and the        -->
-        <!-- corresponding detail view is shown instead.                  -->
-        <!-- ============================================================ -->
-         
         <div id="dashboardMain">
             <div class="row g-4">
 
-                <!-- Card 1: Stock Request -->
+         
                 <div class="col-md-6 col-lg-3">
                     <div class="card dashboard-card p-3 text-center">
                         <div class="card-body">
@@ -54,7 +46,6 @@
                     </div>
                 </div>
 
-                <!-- Card 2: Warehouse Stock & Location -->
                 <div class="col-md-6 col-lg-3">
                     <div class="card dashboard-card p-3 text-center">
                         <div class="card-body">
@@ -66,7 +57,7 @@
                     </div>
                 </div>
 
-                <!-- Card 3: Request Status -->
+             
                 <div class="col-md-6 col-lg-3">
                     <div class="card dashboard-card p-3 text-center">
                         <div class="card-body">
@@ -79,7 +70,7 @@
                     </div>
                 </div>
 
-                <!-- Card 4: Delivery Status -->
+              
                 <div class="col-md-6 col-lg-3">
                     <div class="card dashboard-card p-3 text-center">
                         <div class="card-body">
@@ -97,45 +88,38 @@
         <!-- ========== END DASHBOARD MAIN MENU ========== -->
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 1: STOCK REQUEST                                 -->
-        <!-- Hidden by default. Shown when user clicks "Create Request".  -->
-        <!-- Contains the commodity request form + Recent Requests table.  -->
-        <!-- ============================================================ -->
+
         <div id="stockRequestView" style="display: none;">
 
-            <!-- Back Button -->
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="row g-4">
 
-                <!-- Create Commodity Request Form -->
                 <div class="col-md-6">
                     <div class="card p-4">
                         <h5 class="mb-3">Create Commodity Request</h5>
 
-                        <!-- This form lets the shop user request commodities -->
+                     
                         <form onsubmit="submitRequest(event)">
 
-                            <!-- Rice Quantity -->
+                            
                             <div class="mb-3">
                                 <label for="rice" class="form-label">Rice (kg):</label>
                                 <input type="number" class="form-control" id="rice" placeholder="Enter quantity" min="0">
                             </div>
 
-                            <!-- Wheat Quantity -->
+                     
                             <div class="mb-3">
                                 <label for="wheat" class="form-label">Wheat (kg):</label>
                                 <input type="number" class="form-control" id="wheat" placeholder="Enter quantity" min="0">
                             </div>
 
-                            <!-- Sugar Quantity -->
+                         
                             <div class="mb-3">
                                 <label for="sugar" class="form-label">Sugar (kg):</label>
                                 <input type="number" class="form-control" id="sugar" placeholder="Enter quantity" min="0">
                             </div>
 
-                            <!-- Urgency Level -->
                             <div class="mb-3">
                                 <label for="urgency" class="form-label">Select Urgency:</label>
                                 <select class="form-select" id="urgency">
@@ -145,7 +129,6 @@
                                 </select>
                             </div>
 
-                            <!-- Choose Warehouse -->
                             <div class="mb-3">
                                 <label for="warehouse" class="form-label">Choose Warehouse:</label>
                                 <select class="form-select" id="warehouse">
@@ -154,14 +137,14 @@
                                 </select>
                             </div>
 
-                            <!-- Submit Button -->
+                           
                             <button type="submit" class="btn shop-btn">Submit Request</button>
 
                         </form>
                     </div>
                 </div>
 
-                <!-- Recent Requests Table -->
+           
                 <div class="col-md-6">
                     <div class="card p-4">
                         <h5 class="mb-3">Your Recent Requests</h5>
@@ -205,23 +188,17 @@
 
             </div>
         </div>
-        <!-- ========== END STOCK REQUEST VIEW ========== -->
+  
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 2: WAREHOUSE STOCK & LOCATION                    -->
-        <!-- Hidden by default. Shown when user clicks "View Warehouse".  -->
-        <!-- Shows sample/manual warehouse data only.                     -->
-        <!-- ============================================================ -->
+ 
         <div id="warehouseView" style="display: none;">
 
-            <!-- Back Button -->
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
                 <h5 class="mb-3">Warehouse Stock &amp; Location</h5>
 
-                <!-- Nearest Warehouse Highlight -->
                 <div class="alert alert-success mb-3 py-2" role="alert">
                     <strong>Nearest Warehouse:</strong> Valam Central Warehouse (5 km)
                 </div>
@@ -254,11 +231,7 @@
         <!-- ========== END WAREHOUSE VIEW ========== -->
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 3: REQUEST STATUS                                -->
-        <!-- Hidden by default. Shown when user clicks "View Status".     -->
-        <!-- Shows sample request statuses with Bootstrap badges.         -->
-        <!-- ============================================================ -->
+        
         <div id="requestStatusView" style="display: none;">
 
             <!-- Back Button -->
@@ -304,7 +277,7 @@
                     </table>
                 </div>
 
-                <!-- Status Legend -->
+              
                 <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
                     Status Flow:
                     <span class="badge bg-secondary">Pending</span> →
@@ -314,24 +287,19 @@
                 </p>
             </div>
         </div>
-        <!-- ========== END REQUEST STATUS VIEW ========== -->
+      
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 4: DELIVERY STATUS                               -->
-        <!-- Hidden by default. Shown when user clicks "Track Delivery".  -->
-        <!-- Shows simple delivery info with sample data.                 -->
-        <!-- ============================================================ -->
         <div id="deliveryStatusView" style="display: none;">
 
-            <!-- Back Button -->
+          
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
                 <h5 class="mb-3">Delivery Status</h5>
 
                 <div id="deliveryStatusList">
-                    <!-- Delivery Entry 1 -->
+                 
                     <div class="mb-3 p-3 border rounded">
                         <h6 class="mb-1"><strong>REQ-101</strong></h6>
                         <p class="mb-1" style="font-size: 0.9rem;">
@@ -344,7 +312,6 @@
                         </p>
                     </div>
 
-                    <!-- Delivery Entry 2 -->
                     <div class="mb-3 p-3 border rounded">
                         <h6 class="mb-1"><strong>REQ-102</strong></h6>
                         <p class="mb-1" style="font-size: 0.9rem;">
@@ -358,7 +325,7 @@
                     </div>
                 </div>
 
-                <!-- Delivery Status Legend -->
+               
                 <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
                     Delivery Flow:
                     <span class="badge bg-secondary">Pending</span> →
@@ -368,7 +335,7 @@
                 </p>
             </div>
         </div>
-        <!-- ========== END DELIVERY STATUS VIEW ========== -->
+    
 
 
         <!-- Footer -->
@@ -380,18 +347,10 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ========== JAVASCRIPT FOR SHOP REQUEST FUNCTIONALITY ========== -->
+    
     <script>
 
-        // ---------------------------------------------------------------
-        // NAVIGATION: Show/Hide Sections
-        // These two simple functions handle switching between the
-        // dashboard main menu and the detail views.
-        // ---------------------------------------------------------------
 
-        // showSection() — Hides the dashboard menu and shows the
-        // selected detail view.
-        // "sectionId" is the id of the detail view to show.
         function showSection(sectionId) {
             // Hide the dashboard main menu
             document.getElementById("dashboardMain").style.display = "none";

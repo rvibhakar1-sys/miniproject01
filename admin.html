@@ -5,41 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - VALAM</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
 
-    <!-- Our custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ========== ADMIN NAVBAR ========== -->
-    <!-- "admin-navbar" is our custom class for reddish-orange color -->
+
     <nav class="navbar admin-navbar">
         <div class="container">
             <span class="navbar-brand text-white">VALAM - Admin Dashboard</span>
-            <!-- Logout button to go back to login page -->
+         
             <a href="index.html" class="btn btn-outline-light btn-sm">Logout</a>
         </div>
     </nav>
 
-    <!-- ========== MAIN CONTENT ========== -->
+
     <div class="container mt-4">
 
-        <!-- Welcome Message -->
+
         <h4 class="mb-1">Welcome, District Supply Officer</h4>
         <p class="text-muted mb-4">Admin Panel — Monitor and manage all supply operations</p>
 
-
-        <!-- ============================================================ -->
-        <!-- DASHBOARD MAIN MENU — Shows 5 Feature Cards                  -->
-        <!-- Visible by default. When user clicks a card button, this is  -->
-        <!-- hidden and the corresponding detail view is shown.           -->
-        <!-- ============================================================ -->
         <div id="dashboardMain">
             <div class="row g-4 justify-content-center">
 
-                <!-- Card 1: View Shops -->
                 <div class="col-md-6 col-lg-4">
                     <div class="card dashboard-card p-3 text-center h-100">
                         <div class="card-body d-flex flex-column justify-content-between">
@@ -55,7 +45,7 @@
                     </div>
                 </div>
 
-                <!-- Card 2: View Warehouses -->
+            
                 <div class="col-md-6 col-lg-4">
                     <div class="card dashboard-card p-3 text-center h-100">
                         <div class="card-body d-flex flex-column justify-content-between">
@@ -71,7 +61,8 @@
                     </div>
                 </div>
 
-                <!-- Card 3: View Vehicles -->
+
+
                 <div class="col-md-6 col-lg-4">
                     <div class="card dashboard-card p-3 text-center h-100">
                         <div class="card-body d-flex flex-column justify-content-between">
@@ -87,7 +78,7 @@
                     </div>
                 </div>
 
-                <!-- Card 4: View Requests -->
+              
                 <div class="col-md-6 col-lg-4">
                     <div class="card dashboard-card p-3 text-center h-100">
                         <div class="card-body d-flex flex-column justify-content-between">
@@ -103,7 +94,7 @@
                     </div>
                 </div>
 
-                <!-- Card 5: Delivery Status -->
+        
                 <div class="col-md-6 col-lg-4">
                     <div class="card dashboard-card p-3 text-center h-100">
                         <div class="card-body d-flex flex-column justify-content-between">
@@ -121,16 +112,10 @@
 
             </div>
         </div>
-        <!-- ========== END DASHBOARD MAIN MENU ========== -->
-
-
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 1: VIEW SHOPS                                    -->
-        <!-- Shows all fair-price shops and their details (S01 to S08)     -->
-        <!-- ============================================================ -->
+  
         <div id="shopsView" style="display: none;">
 
-            <!-- Back Button -->
+         
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
@@ -201,16 +186,13 @@
                 </div>
             </div>
         </div>
-        <!-- ========== END VIEW SHOPS ========== -->
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 2: VIEW WAREHOUSES                               -->
-        <!-- Shows district warehouses and their current commodity stock   -->
-        <!-- ============================================================ -->
+
+
         <div id="warehousesView" style="display: none;">
 
-            <!-- Back Button -->
+         
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
@@ -251,16 +233,13 @@
                 </div>
             </div>
         </div>
-        <!-- ========== END VIEW WAREHOUSES ========== -->
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 3: VIEW VEHICLES                                 -->
-        <!-- Shows available vehicles for commodity transport (V01 to V03) -->
-        <!-- ============================================================ -->
+
+
         <div id="vehiclesView" style="display: none;">
 
-            <!-- Back Button -->
+       
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
@@ -308,13 +287,10 @@
         <!-- ========== END VIEW VEHICLES ========== -->
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 4: VIEW REQUESTS                                 -->
-        <!-- Shows commodity requests received from fair-price shops       -->
-        <!-- ============================================================ -->
+
         <div id="requestsView" style="display: none;">
 
-            <!-- Back Button -->
+        
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
@@ -394,13 +370,9 @@
         <!-- ========== END VIEW REQUESTS ========== -->
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 5: DELIVERY STATUS                               -->
-        <!-- Monitors the status of all commodity deliveries              -->
-        <!-- ============================================================ -->
         <div id="deliveryStatusView" style="display: none;">
 
-            <!-- Back Button -->
+         
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
@@ -462,20 +434,15 @@
         <!-- ========== END DELIVERY STATUS ========== -->
 
 
-        <!-- Footer -->
         <p class="text-center footer-text mt-4 mb-3">&copy; 2026 VALAM - Supply Management System</p>
 
     </div>
     <!-- ========== END MAIN CONTENT ========== -->
 
 
-    <!-- ============================================================ -->
-    <!-- JAVASCRIPT FOR ADMIN DASHBOARD                               -->
-    <!-- Simple JavaScript functions, arrays, and objects.            -->
-    <!-- Easy to explain in a college viva.                           -->
-    <!-- ============================================================ -->
+
     <script>
-        // Array containing IDs of all detail sections for simple view switching
+    
         var adminSections = [
             "shopsView",
             "warehousesView",
@@ -484,9 +451,7 @@
             "deliveryStatusView"
         ];
 
-        // ------------------------------------------------------------
-        // NAVIGATION FUNCTIONS
-        // ------------------------------------------------------------
+
 
         // showSection(sectionId) — Hides main dashboard and shows the selected section
         function showSection(sectionId) {
@@ -522,9 +487,6 @@
             window.scrollTo(0, 0);
         }
 
-        // ------------------------------------------------------------
-        // SAMPLE DATA OBJECTS & ARRAYS (For Viva Reference)
-        // ------------------------------------------------------------
 
         // 1. 8 Fair-Price Shops (S01 to S08)
         var shopsData = [

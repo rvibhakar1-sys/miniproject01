@@ -5,16 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Dashboard - VALAM</title>
 
-    <!-- Bootstrap 5 CSS -->
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
 
-    <!-- Our custom CSS -->
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ========== WAREHOUSE NAVBAR ========== -->
-    <!-- "warehouse-navbar" is our custom class for blue color -->
+
     <nav class="navbar warehouse-navbar">
         <div class="container">
             <span class="navbar-brand text-white">VALAM - Warehouse Dashboard</span>
@@ -22,25 +21,19 @@
         </div>
     </nav>
 
-    <!-- ========== MAIN CONTENT ========== -->
+   
     <div class="container mt-4">
 
-        <!-- Welcome Message -->
+       
         <h4 class="mb-1">Welcome, Warehouse Staff</h4>
         <p class="text-muted mb-4">Manage warehouse stock and process dispatch operations</p>
 
 
-        <!-- ============================================================ -->
-        <!-- DASHBOARD MAIN MENU — Shows 4 Feature Cards                  -->
-        <!-- This section is visible by default.                          -->
-        <!-- When the user clicks a button, this is hidden and the        -->
-        <!-- corresponding detail view is shown instead.                  -->
-        <!-- ============================================================ -->
 
         <div id="dashboardMain">
             <div class="row g-4">
 
-                <!-- Card 1: Shop Requests -->
+
                 <div class="col-md-6 col-lg-3">
                     <div class="card dashboard-card p-3 text-center">
                         <div class="card-body">
@@ -54,7 +47,7 @@
                     </div>
                 </div>
 
-                <!-- Card 2: Process Request -->
+                
                 <div class="col-md-6 col-lg-3">
                     <div class="card dashboard-card p-3 text-center">
                         <div class="card-body">
@@ -68,7 +61,7 @@
                     </div>
                 </div>
 
-                <!-- Card 3: Warehouse Stock -->
+                
                 <div class="col-md-6 col-lg-3">
                     <div class="card dashboard-card p-3 text-center">
                         <div class="card-body">
@@ -82,7 +75,7 @@
                     </div>
                 </div>
 
-                <!-- Card 4: Delivery / Vehicle -->
+               
                 <div class="col-md-6 col-lg-3">
                     <div class="card dashboard-card p-3 text-center">
                         <div class="card-body">
@@ -101,14 +94,10 @@
         <!-- ========== END DASHBOARD MAIN MENU ========== -->
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 1: SHOP REQUESTS                                 -->
-        <!-- Hidden by default. Shown when user clicks "View Requests".   -->
-        <!-- Shows all requests received from shops.                      -->
-        <!-- ============================================================ -->
+        
         <div id="shopRequestsView" style="display: none;">
 
-            <!-- Back Button -->
+      
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
@@ -154,23 +143,18 @@
                 </div>
             </div>
         </div>
-        <!-- ========== END SHOP REQUESTS VIEW ========== -->
+      <!-- ========== END SHOP REQUESTS VIEW ========== -->
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 2: PROCESS REQUEST                               -->
-        <!-- Hidden by default. Shown when user clicks "Process Request". -->
-        <!-- Allows warehouse staff to process/confirm a pending request. -->
-        <!-- ============================================================ -->
         <div id="processRequestView" style="display: none;">
 
-            <!-- Back Button -->
+            
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
                 <h5 class="mb-3">Process Request</h5>
 
-                <!-- Select a Request to Process -->
+               
                 <div class="mb-3">
                     <label for="processRequestSelect" class="form-label">Select Request to Process:</label>
                     <select class="form-select" id="processRequestSelect" onchange="showRequestDetails()">
@@ -178,7 +162,7 @@
                     </select>
                 </div>
 
-                <!-- Request Details (shown after selecting a request) -->
+               
                 <div id="processRequestDetails" style="display: none;">
                     <div class="p-3 border rounded mb-3">
                         <p class="mb-1"><strong>Request ID:</strong> <span id="detailRequestId"></span></p>
@@ -193,7 +177,6 @@
 
                     <button class="btn warehouse-btn" id="processBtn" onclick="processRequest()">Confirm / Process Request</button>
 
-                    <!-- Success message (hidden by default) -->
                     <div id="processSuccessMsg" class="alert alert-success mt-3 py-2" style="display: none;">
                         ✅ Request has been processed successfully! Status changed to <strong>Reserved</strong>.
                     </div>
