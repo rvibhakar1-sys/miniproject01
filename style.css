@@ -74,8 +74,15 @@ body {
 }
 
 @keyframes pulse-dot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
 }
 
 /* ---- Hero Section ---- */
@@ -275,6 +282,7 @@ body {
     .hero-title {
         font-size: 2.2rem;
     }
+
     .login-main {
         padding: 30px 0;
     }
@@ -284,6 +292,7 @@ body {
     .hero-title {
         font-size: 1.8rem;
     }
+
     .portal-card {
         padding: 24px 20px;
     }
@@ -317,7 +326,8 @@ body {
 .dashboard-card {
     border-radius: 10px;
     border: 1px solid #dee2e6;
-    transition: box-shadow 0.2s; /* Smooth shadow on hover */
+    transition: box-shadow 0.2s;
+    /* Smooth shadow on hover */
 }
 
 /* Add shadow when hovering over a card */
@@ -339,85 +349,85 @@ body {
 
 
 /* ========================================
-   ADMIN THEME - Reddish Orange + Yellow
+   ADMIN THEME - Matched to Portal 'A'
    ======================================== */
 
 /* Admin navbar background */
 .admin-navbar {
-    background-color: #e8530e; /* Reddish Orange */
+    background-color: #d93829;
 }
 
 /* Admin icon circle */
 .admin-icon {
-    background-color: #fff3cd; /* Light Yellow */
-    color: #e8530e;           /* Reddish Orange text */
+    background-color: #fdf1ee;
+    color: #d93829;
 }
 
 /* Admin buttons */
 .admin-btn {
-    background-color: #e8530e;
+    background-color: #d93829;
     color: white;
     border: none;
 }
 
 .admin-btn:hover {
-    background-color: #c9440a;
+    background-color: #b91c1c;
     color: white;
 }
 
 
 /* ========================================
-   WAREHOUSE THEME - Blue + Light Green
+   WAREHOUSE THEME - Matched to Portal 'W'
    ======================================== */
 
 /* Warehouse navbar background */
 .warehouse-navbar {
-    background-color: #1565c0; /* Blue */
+    background-color: #2563eb;
 }
 
 /* Warehouse icon circle */
 .warehouse-icon {
-    background-color: #c8e6c9; /* Light Green */
-    color: #1565c0;            /* Blue text */
+    background-color: #edf4fe;
+    color: #2563eb;
 }
 
 /* Warehouse buttons */
 .warehouse-btn {
-    background-color: #1565c0;
+    background-color: #2563eb;
     color: white;
     border: none;
 }
 
 .warehouse-btn:hover {
-    background-color: #0d47a1;
+    background-color: #1d4ed8;
     color: white;
 }
 
 
 /* ========================================
-   SHOP THEME - Light Green + Pink
+   SHOP THEME - Matched to Portal 'S'
    ======================================== */
 
 /* Shop navbar background */
 .shop-navbar {
-    background-color: #2e7d32; /* Green */
+    background-color: #16a34a;
 }
 
 /* Shop icon circle */
 .shop-icon {
-    background-color: #f8bbd0; /* Pink */
-    color: #2e7d32;            /* Green text */
+    background-color: #ecf8f0;
+    color: #15803d;
 }
 
 /* Shop buttons */
 .shop-btn {
-    background-color: #2e7d32;
+    background-color: #16a34a;
     color: white;
     border: none;
 }
 
 .shop-btn:hover {
-    background-color: #1b5e20;
+    background-color: #15803d;
     color: white;
 }
 
