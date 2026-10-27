@@ -1,4 +1,15 @@
 
+// Portal-based navigation (new login page)
+function goToPortal(role) {
+    if (role === "admin") {
+        window.location.href = "admin.html";
+    } else if (role === "warehouse") {
+        window.location.href = "warehouse.html";
+    } else if (role === "shop") {
+        window.location.href = "shop.html";
+    }
+}
+
 
 function handleLogin(event) {
     // Prevent the form from refreshing the page

@@ -5,72 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VALAM - Supply Management System</title>
 
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="login-page">
 
-    <div class="container vh-100 d-flex align-items-center justify-content-center">
-        <div class="row justify-content-center w-100">
-            <div class="col-md-5 col-lg-4">
-
-                
-                <div class="card shadow p-4">
-                    <div class="card-body">
-                        
-                   
-                        <h2 class="text-center fw-bold mb-1">VALAM</h2> 
-                        <p class="text-center text-muted mb-4">Supply Management System</p>
-                        
-                       
-                        <form onsubmit="handleLogin(event)">
-                            
-                            <div class="mb-4">
-                                <label for="role" class="form-label">Select Role:</label>
-                                <select class="form-select" id="role">
-                                    <option value="admin">Admin</option>
-                                    <option value="shop">Shop User</option>
-                                    <option value="warehouse">Warehouse Staff</option>
-                                </select>
-                            </div>
-
-                          
-                            <div class="mb-3">
-                                <label for="username" class="form-label">Username:</label>
-                                <input type="text" class="form-control" id="username" placeholder="Enter username" required>
-                            </div>
-
-                           
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password:</label>
-                                <input type="password" class="form-control" id="password" placeholder="Enter password" required>
-                            </div>
-
-
-                        
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg">Login</button>
-                            </div>
-
-                        </form>
-                  
-     
+    <!-- ===== TOP NAVBAR ===== -->
+    <nav class="login-navbar">
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <!-- Brand -->
+                <div class="d-flex align-items-center gap-2">
+                    <div class="brand-icon">V</div>
+                    <div>
+                        <div class="brand-name">VALAM</div>
+                        <div class="brand-tagline">Supply Management System</div>
                     </div>
                 </div>
-           
+                <!-- Status -->
+                <div class="status-badge">
+                    <span class="status-dot"></span> System online
+                </div>
+            </div>
+        </div>
+    </nav>
 
-               
-                <p class="text-center text-muted mt-3">
-                    &copy; Kongu Engineering College 2026
-                </p>
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="login-main">
+        <div class="container">
+            <div class="row align-items-center justify-content-center g-5">
+
+                <!-- LEFT: Hero Text -->
+                <div class="col-lg-6">
+                    <p class="hero-label">PUBLIC DISTRIBUTION NETWORK</p>
+                    <h1 class="hero-title">
+                        Supply management,<br>
+                        <span class="hero-accent">made simpler.</span>
+                    </h1>
+                    <p class="hero-description">
+                        A dedicated workspace for fair-price shops to raise commodity
+                        requests, for warehouses to reserve and dispatch stock, and for district
+                        officers to monitor every delivery.
+                    </p>
+                    <div class="hero-feature-box">
+                        <h6 class="hero-feature-title">Role-based workspaces</h6>
+                        <p class="hero-feature-text">
+                            Each user sees only the tools and data that belong to their role,
+                            keeping operations secure and organised.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Portal Cards -->
+                <div class="col-lg-5 col-md-8">
+                    <div class="portal-card">
+                        <p class="portal-label">CHOOSE YOUR PORTAL</p>
+                        <h2 class="portal-title">Sign in to continue</h2>
+                        <p class="portal-subtitle">Select the workspace that applies to you.</p>
+
+                        <!-- Admin Portal -->
+                        <a href="#" class="portal-option" onclick="goToPortal('admin')">
+                            <div class="portal-icon admin-portal-icon">A</div>
+                            <div class="portal-info">
+                                <div class="portal-name">Admin portal</div>
+                                <div class="portal-desc">Monitor warehouses, shops and deliveries</div>
+                            </div>
+                            <div class="portal-arrow">&rarr;</div>
+                        </a>
+
+                        <!-- Shop Portal -->
+                        <a href="#" class="portal-option" onclick="goToPortal('shop')">
+                            <div class="portal-icon shop-portal-icon">S</div>
+                            <div class="portal-info">
+                                <div class="portal-name">Shop portal</div>
+                                <div class="portal-desc">Create commodity requests and track delivery</div>
+                            </div>
+                            <div class="portal-arrow">&rarr;</div>
+                        </a>
+
+                        <!-- Warehouse Portal -->
+                        <a href="#" class="portal-option" onclick="goToPortal('warehouse')">
+                            <div class="portal-icon warehouse-portal-icon">W</div>
+                            <div class="portal-info">
+                                <div class="portal-name">Warehouse portal</div>
+                                <div class="portal-desc">Manage stock, reserve and dispatch</div>
+                            </div>
+                            <div class="portal-arrow">&rarr;</div>
+                        </a>
+
+                        <p class="portal-footer">Access is restricted to authorised users only.</p>
+                    </div>
+                </div>
 
             </div>
         </div>
+    </main>
 
-    </div>
+    <!-- ===== FOOTER ===== -->
+    <footer class="login-footer">
+        <p>&copy; Kongu Engineering College 2026</p>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
