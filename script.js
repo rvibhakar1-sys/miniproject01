@@ -98,6 +98,10 @@ function handleLogin(event) {
     }
 
     if (isValid) {
+        // Save current user session
+        sessionStorage.setItem("valam_user", username);
+        sessionStorage.setItem("valam_role", selectedRole);
+
         // Correct credentials — redirect to the dashboard
         if (selectedRole === "admin") {
             window.location.href = "admin.html";

@@ -6,18 +6,18 @@
     <title>Shop Dashboard - VALAM</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
-
-  
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <!-- ========== SHOP NAVBAR ========== -->
-
     <nav class="navbar shop-navbar">
         <div class="container">
             <span class="navbar-brand text-white">VALAM - Shop Dashboard</span>
-            <a href="index.html" class="btn btn-outline-light btn-sm">Logout</a>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-white-50" style="font-size: 0.85rem;" id="shopUserBadge">Logged in: Shop01 (S01)</span>
+                <a href="index.html" class="btn btn-outline-light btn-sm" onclick="sessionStorage.clear()">Logout</a>
+            </div>
         </div>
     </nav>
 
@@ -25,60 +25,85 @@
     <div class="container mt-4">
 
         <!-- Welcome Message -->
-        <h4 class="mb-1">Welcome, Shop User</h4>
-        <p class="text-muted mb-4">Fair-Price Shop — Create requests and track deliveries</p>
+        <h4 class="mb-1" id="shopWelcomeHeading">Welcome, Shop User</h4>
+        <p class="text-muted mb-4">Fair-Price Shop — Create requests, track deliveries, and monitor lifecycle history</p>
 
-
+        <!-- ========== DASHBOARD MAIN MENU ========== -->
         <div id="dashboardMain">
             <div class="row g-4">
 
-         
-                <div class="col-md-6 col-lg-3">
-                    <div class="card dashboard-card p-3 text-center">
-                        <div class="card-body">
-                            <div class="icon-circle shop-icon">📦</div>
-                            <br>
-                            <h5 class="card-title">Stock Request</h5>
-                            <br>
-                            <p class="card-text text-muted">Create a new commodity request.</p>
-                            <button class="btn shop-btn btn-sm" onclick="showSection('stockRequestView')">Create Request</button>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle shop-icon">📦</div>
+                                <h5 class="card-title mt-2">Stock Request</h5>
+                                <p class="card-text text-muted">Create a new commodity request.</p>
+                            </div>
+                            <div>
+                                <button class="btn shop-btn btn-sm" onclick="showSection('stockRequestView')">Create Request</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6 col-lg-3">
-                    <div class="card dashboard-card p-3 text-center">
-                        <div class="card-body">
-                            <div class="icon-circle shop-icon">🏭</div>
-                            <h5 class="card-title">Warehouse Stock &amp; Location</h5>
-                            <p class="card-text text-muted">Check the nearest warehouse, location and available stock.</p>
-                            <button class="btn shop-btn btn-sm" onclick="showSection('warehouseView')">View Warehouse</button>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle shop-icon">🏭</div>
+                                <h5 class="card-title mt-2">Warehouse Stock &amp; Location</h5>
+                                <p class="card-text text-muted">Check the nearest warehouse, location and available stock.</p>
+                            </div>
+                            <div>
+                                <button class="btn shop-btn btn-sm" onclick="showSection('warehouseView')">View Warehouse</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-             
-                <div class="col-md-6 col-lg-3">
-                    <div class="card dashboard-card p-3 text-center">
-                        <div class="card-body">
-                            <div class="icon-circle shop-icon">📋</div>
-                            <br>
-                            <h5 class="card-title">Request Status</h5>
-                            <p class="card-text text-muted">Check the status of submitted requests.</p>
-                            <button class="btn shop-btn btn-sm" onclick="showSection('requestStatusView')">View Status</button>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle shop-icon">📋</div>
+                                <h5 class="card-title mt-2">Request Status</h5>
+                                <p class="card-text text-muted">Check the status of submitted requests.</p>
+                            </div>
+                            <div>
+                                <button class="btn shop-btn btn-sm" onclick="showSection('requestStatusView')">View Status</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-              
-                <div class="col-md-6 col-lg-3">
-                    <div class="card dashboard-card p-3 text-center">
-                        <div class="card-body">
-                            <div class="icon-circle shop-icon">🚚</div>
-                            <br>
-                            <h5 class="card-title">Delivery Status</h5>
-                            <p class="card-text text-muted">Track the delivery of the requested commodities.</p>
-                            <button class="btn shop-btn btn-sm" onclick="showSection('deliveryStatusView')">Track Delivery</button>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle shop-icon">🚚</div>
+                                <h5 class="card-title mt-2">Delivery Status</h5>
+                                <p class="card-text text-muted">Track the delivery of the requested commodities.</p>
+                            </div>
+                            <div>
+                                <button class="btn shop-btn btn-sm" onclick="showSection('deliveryStatusView')">Track Delivery</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: MY REQUEST HISTORY CARD -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle shop-icon">📜</div>
+                                <h5 class="card-title mt-2">My Request History</h5>
+                                <p class="card-text text-muted">Date-wise and time-wise request tracking &amp; complete timeline.</p>
+                            </div>
+                            <div>
+                                <button class="btn shop-btn btn-sm" onclick="showSection('requestHistoryView')">View History</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -88,7 +113,7 @@
         <!-- ========== END DASHBOARD MAIN MENU ========== -->
 
 
-
+        <!-- ========== DETAIL VIEW 1: STOCK REQUEST (EXISTING PRESERVED) ========== -->
         <div id="stockRequestView" style="display: none;">
 
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
@@ -99,22 +124,18 @@
                     <div class="card p-4">
                         <h5 class="mb-3">Create Commodity Request</h5>
 
-                     
                         <form onsubmit="submitRequest(event)">
 
-                            
                             <div class="mb-3">
                                 <label for="rice" class="form-label">Rice (kg):</label>
                                 <input type="number" class="form-control" id="rice" placeholder="Enter quantity" min="0">
                             </div>
 
-                     
                             <div class="mb-3">
                                 <label for="wheat" class="form-label">Wheat (kg):</label>
                                 <input type="number" class="form-control" id="wheat" placeholder="Enter quantity" min="0">
                             </div>
 
-                         
                             <div class="mb-3">
                                 <label for="sugar" class="form-label">Sugar (kg):</label>
                                 <input type="number" class="form-control" id="sugar" placeholder="Enter quantity" min="0">
@@ -137,14 +158,12 @@
                                 </select>
                             </div>
 
-                           
                             <button type="submit" class="btn shop-btn">Submit Request</button>
 
                         </form>
                     </div>
                 </div>
 
-           
                 <div class="col-md-6">
                     <div class="card p-4">
                         <h5 class="mb-3">Your Recent Requests</h5>
@@ -169,16 +188,7 @@
                                         <td>50</td>
                                         <td><span class="badge bg-danger">Critical</span></td>
                                         <td>Valam Central Warehouse</td>
-                                        <td><span class="badge bg-warning text-dark">In Transit</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>REQ-102</td>
-                                        <td>300</td>
-                                        <td>150</td>
-                                        <td>80</td>
-                                        <td><span class="badge bg-primary">Normal</span></td>
-                                        <td>Valam North Warehouse</td>
-                                        <td><span class="badge bg-success">Delivered</span></td>
+                                        <td><span class="badge bg-info text-dark">Dispatched</span></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -188,10 +198,10 @@
 
             </div>
         </div>
-  
+        <!-- ========== END STOCK REQUEST VIEW ========== -->
 
 
- 
+        <!-- ========== DETAIL VIEW 2: WAREHOUSE VIEW (EXISTING PRESERVED) ========== -->
         <div id="warehouseView" style="display: none;">
 
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
@@ -209,9 +219,9 @@
                     <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: Central Area &nbsp;|&nbsp; Distance: 5 km</p>
                     <p class="mb-0" style="font-size: 0.9rem;">
                         <strong>Available Stock:</strong><br>
-                        Rice: <span class="badge bg-success">500 kg</span> &nbsp;
-                        Wheat: <span class="badge bg-success">300 kg</span> &nbsp;
-                        Sugar: <span class="badge bg-success">200 kg</span>
+                        Rice: <span class="badge bg-success">5000 kg</span> &nbsp;
+                        Wheat: <span class="badge bg-success">3200 kg</span> &nbsp;
+                        Sugar: <span class="badge bg-success">1500 kg</span>
                     </p>
                 </div>
 
@@ -221,9 +231,9 @@
                     <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: North Area &nbsp;|&nbsp; Distance: 8 km</p>
                     <p class="mb-0" style="font-size: 0.9rem;">
                         <strong>Available Stock:</strong><br>
-                        Rice: <span class="badge bg-success">700 kg</span> &nbsp;
-                        Wheat: <span class="badge bg-success">400 kg</span> &nbsp;
-                        Sugar: <span class="badge bg-success">250 kg</span>
+                        Rice: <span class="badge bg-success">4500 kg</span> &nbsp;
+                        Wheat: <span class="badge bg-success">2800 kg</span> &nbsp;
+                        Sugar: <span class="badge bg-success">1200 kg</span>
                     </p>
                 </div>
             </div>
@@ -231,16 +241,14 @@
         <!-- ========== END WAREHOUSE VIEW ========== -->
 
 
-        
+        <!-- ========== DETAIL VIEW 3: REQUEST STATUS (EXISTING PRESERVED) ========== -->
         <div id="requestStatusView" style="display: none;">
 
-            <!-- Back Button -->
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
                 <h5 class="mb-3">Request Status</h5>
 
-                <!-- Request Status Table -->
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped mb-0">
                         <thead class="table-dark">
@@ -264,20 +272,10 @@
                                 <td>Valam Central Warehouse</td>
                                 <td><span class="badge bg-info text-dark">Dispatched</span></td>
                             </tr>
-                            <tr>
-                                <td>REQ-102</td>
-                                <td>300</td>
-                                <td>150</td>
-                                <td>80</td>
-                                <td><span class="badge bg-primary">Normal</span></td>
-                                <td>Valam North Warehouse</td>
-                                <td><span class="badge bg-success">Delivered</span></td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
 
-              
                 <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
                     Status Flow:
                     <span class="badge bg-secondary">Pending</span> →
@@ -287,19 +285,18 @@
                 </p>
             </div>
         </div>
-      
+        <!-- ========== END REQUEST STATUS VIEW ========== -->
 
 
+        <!-- ========== DETAIL VIEW 4: DELIVERY STATUS (EXISTING PRESERVED) ========== -->
         <div id="deliveryStatusView" style="display: none;">
 
-          
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
                 <h5 class="mb-3">Delivery Status</h5>
 
                 <div id="deliveryStatusList">
-                 
                     <div class="mb-3 p-3 border rounded">
                         <h6 class="mb-1"><strong>REQ-101</strong></h6>
                         <p class="mb-1" style="font-size: 0.9rem;">
@@ -308,24 +305,11 @@
                             📦 Route: Warehouse → Shop
                         </p>
                         <p class="mb-0">
-                            Status: <span class="badge bg-warning text-dark">In Transit</span>
-                        </p>
-                    </div>
-
-                    <div class="mb-3 p-3 border rounded">
-                        <h6 class="mb-1"><strong>REQ-102</strong></h6>
-                        <p class="mb-1" style="font-size: 0.9rem;">
-                            🏭 Warehouse: Valam North Warehouse<br>
-                            🚚 Vehicle: V02<br>
-                            📦 Route: Warehouse → Shop
-                        </p>
-                        <p class="mb-0">
-                            Status: <span class="badge bg-success">Delivered</span>
+                            Status: <span class="badge bg-info text-dark">Dispatched</span>
                         </p>
                     </div>
                 </div>
 
-               
                 <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
                     Delivery Flow:
                     <span class="badge bg-secondary">Pending</span> →
@@ -335,8 +319,157 @@
                 </p>
             </div>
         </div>
-    
+        <!-- ========== END DELIVERY STATUS VIEW ========== -->
 
+
+        <!-- ============================================================ -->
+        <!-- NEW DETAIL VIEW 5: MY REQUEST HISTORY & TIMELINE TRACKING     -->
+        <!-- ============================================================ -->
+        <div id="requestHistoryView" style="display: none;">
+
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <!-- Filter Controls -->
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                    <div>
+                        <h5 class="mb-1">📜 My Request History</h5>
+                        <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                            Date-wise and time-wise operation tracking for your fair-price shop.
+                        </p>
+                    </div>
+                    <div>
+                        <span class="badge bg-success px-3 py-2" id="shopActiveFilterBadge">Shop: S01</span>
+                    </div>
+                </div>
+                <hr>
+
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3 col-sm-6">
+                        <label for="shopFilterFromDate" class="form-label" style="font-weight: 500; font-size: 0.88rem;">From Date</label>
+                        <input type="date" class="form-control" id="shopFilterFromDate">
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <label for="shopFilterToDate" class="form-label" style="font-weight: 500; font-size: 0.88rem;">To Date</label>
+                        <input type="date" class="form-control" id="shopFilterToDate">
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <label for="shopStatusFilter" class="form-label" style="font-weight: 500; font-size: 0.88rem;">Filter by Status</label>
+                        <select class="form-select" id="shopStatusFilter">
+                            <option value="all">All Statuses</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Reserved">Reserved</option>
+                            <option value="Dispatched">Dispatched</option>
+                            <option value="In Transit">In Transit</option>
+                            <option value="Delivered">Delivered</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <button class="btn shop-btn btn-sm me-2" onclick="filterShopRequests()">🔍 Filter</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="resetShopFilter()">↻ Reset</button>
+                    </div>
+                </div>
+
+                <!-- Date Validation Alert -->
+                <div id="shopDateAlert" class="alert alert-danger py-2 mt-3 mb-0" style="display: none; font-size: 0.85rem;">
+                    ⚠️ "From Date" cannot be later than "To Date". Please select a valid range.
+                </div>
+            </div>
+
+            <!-- Summary Counter Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="card p-3 text-center" style="border-left: 4px solid #16a34a;">
+                        <h4 class="mb-0" id="statTotalRequests" style="color: #16a34a; font-weight: 700;">0</h4>
+                        <small class="text-muted">Total Requests</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card p-3 text-center" style="border-left: 4px solid #6c757d;">
+                        <h4 class="mb-0" id="statPendingRequests" style="color: #6c757d; font-weight: 700;">0</h4>
+                        <small class="text-muted">Pending</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card p-3 text-center" style="border-left: 4px solid #0dcaf0;">
+                        <h4 class="mb-0" id="statDispatchedRequests" style="color: #0dcaf0; font-weight: 700;">0</h4>
+                        <small class="text-muted">Dispatched / Transit</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card p-3 text-center" style="border-left: 4px solid #198754;">
+                        <h4 class="mb-0" id="statDeliveredRequests" style="color: #198754; font-weight: 700;">0</h4>
+                        <small class="text-muted">Delivered</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request History Table -->
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0" style="font-weight: 600;">Request History Log</h6>
+                    <small class="text-muted" id="shopHistoryCountText"></small>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0" id="shopHistoryTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Shop ID</th>
+                                <th>Rice (kg)</th>
+                                <th>Wheat (kg)</th>
+                                <th>Sugar (kg)</th>
+                                <th>Urgency</th>
+                                <th>Selected Warehouse</th>
+                                <th>Request Status</th>
+                                <th>Submitted Date</th>
+                                <th>Submitted Time</th>
+                                <th>Last Updated Date</th>
+                                <th>Last Updated Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopHistoryTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State Message -->
+                <div id="shopNoRecordsMsg" class="text-center py-4" style="display: none;">
+                    <div style="font-size: 2.2rem;">📭</div>
+                    <p class="text-muted mt-2 mb-0">No commodity requests found for the selected date range.<br>Submit a new request or adjust your filters.</p>
+                </div>
+            </div>
+
+            <!-- Note -->
+            <div class="alert alert-info py-2" style="font-size: 0.82rem;">
+                <strong>ℹ️ Prototype Note:</strong> History timestamps and lifecycle stages are recorded in browser memory. 
+                Timestamps are displayed in Indian Standard Time (IST). For permanent multi-user persistence across page refreshes, a Java backend &amp; database is required.
+            </div>
+
+        </div>
+        <!-- ========== END REQUEST HISTORY VIEW ========== -->
+
+
+        <!-- ===== TIMELINE MODAL ===== -->
+        <div class="modal fade" id="shopTimelineModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                    <div class="modal-header" style="background-color: #16a34a; color: white; border-radius: 14px 14px 0 0;">
+                        <div>
+                            <h6 class="modal-title mb-0" id="timelineModalTitle" style="font-weight: 700;">Request Lifecycle Timeline</h6>
+                            <small class="text-white-50" id="timelineModalSubtitle"></small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4" id="timelineModalBody">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Footer -->
         <p class="text-center footer-text mt-4 mb-3">&copy; 2026 VALAM - Supply Management System</p>
@@ -347,260 +480,671 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-    
+    <!-- JavaScript for Shop Functionality -->
     <script>
 
+        // ---------------------------------------------------------------
+        // USER SESSION & SHOP IDENTITY
+        // Reads logged-in shop username from sessionStorage (default Shop01 / S01)
+        // ---------------------------------------------------------------
+        var loggedInUser = sessionStorage.getItem("valam_user") || "Shop01";
+        
+        // Map username to Shop ID
+        var shopUserMap = {
+            "Shop01": { id: "S01", name: "FPS Nagercoil" },
+            "Shop02": { id: "S02", name: "FPS Marthandam" },
+            "Shop03": { id: "S03", name: "FPS Colachel" },
+            "Shop04": { id: "S04", name: "FPS Kanyakumari" },
+            "Shop05": { id: "S05", name: "FPS Thuckalay" }
+        };
+
+        var currentShop = shopUserMap[loggedInUser] || { id: "S01", name: "FPS Nagercoil" };
+
+        // Set UI welcome and badge
+        document.addEventListener("DOMContentLoaded", function() {
+            var badge = document.getElementById("shopUserBadge");
+            if (badge) badge.textContent = "Logged in: " + loggedInUser + " (" + currentShop.id + " - " + currentShop.name + ")";
+            var heading = document.getElementById("shopWelcomeHeading");
+            if (heading) heading.textContent = "Welcome, " + currentShop.name + " (" + currentShop.id + ")";
+            var filterBadge = document.getElementById("shopActiveFilterBadge");
+            if (filterBadge) filterBadge.textContent = "Shop: " + currentShop.id + " (" + currentShop.name + ")";
+        });
+
+        // ---------------------------------------------------------------
+        // SECTION NAVIGATION
+        // ---------------------------------------------------------------
+        var shopSections = [
+            "stockRequestView",
+            "warehouseView",
+            "requestStatusView",
+            "deliveryStatusView",
+            "requestHistoryView"
+        ];
 
         function showSection(sectionId) {
-            // Hide the dashboard main menu
             document.getElementById("dashboardMain").style.display = "none";
-
-            // Show the selected detail view
-            document.getElementById(sectionId).style.display = "block";
+            for (var i = 0; i < shopSections.length; i++) {
+                var el = document.getElementById(shopSections[i]);
+                if (el) el.style.display = "none";
+            }
+            var target = document.getElementById(sectionId);
+            if (target) {
+                target.style.display = "block";
+            }
+            if (sectionId === "requestHistoryView") {
+                renderShopHistory(getShopFilteredData());
+            }
+            window.scrollTo(0, 0);
         }
 
-        // goBack() — Hides all detail views and shows the dashboard
-        // main menu again.
         function goBack() {
-            // Hide all 4 detail views
-            document.getElementById("stockRequestView").style.display = "none";
-            document.getElementById("warehouseView").style.display = "none";
-            document.getElementById("requestStatusView").style.display = "none";
-            document.getElementById("deliveryStatusView").style.display = "none";
-
-            // Show the dashboard main menu
+            for (var i = 0; i < shopSections.length; i++) {
+                var el = document.getElementById(shopSections[i]);
+                if (el) el.style.display = "none";
+            }
             document.getElementById("dashboardMain").style.display = "block";
+            window.scrollTo(0, 0);
         }
 
         // ---------------------------------------------------------------
-        // STEP 1: Create an empty array to store all submitted requests.
-        // An array is like a list — we can add new items to it one by one.
-        // This array will hold all requests while the page is open.
-        // (When the page is closed or refreshed, the data is lost —
-        //  this is fine because this is only a prototype.)
+        // DATE & TIME HELPERS (IST)
         // ---------------------------------------------------------------
-        var requests = [];
+        function getCurrentDateIST() {
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0');
+            var day = String(now.getDate()).padStart(2, '0');
+            return year + "-" + month + "-" + day;
+        }
+
+        function getCurrentTimeIST() {
+            var now = new Date();
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+            return hours + ":" + minutes + ":" + seconds;
+        }
+
+        function formatTime12IST(timeStr) {
+            if (!timeStr) return "—";
+            var parts = timeStr.split(":");
+            var h = parseInt(parts[0]);
+            var m = parts[1];
+            var s = parts[2] || "00";
+            var ampm = h >= 12 ? "PM" : "AM";
+            var dispH = h % 12;
+            if (dispH === 0) dispH = 12;
+            return dispH + ":" + m + ":" + s + " " + ampm + " IST";
+        }
+
+        function formatDateReadable(dateStr) {
+            if (!dateStr) return "—";
+            var d = new Date(dateStr + "T00:00:00");
+            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+        }
 
         // ---------------------------------------------------------------
-        // STEP 2: Create a counter for generating Request IDs.
-        // We start at 103 because REQ-101 and REQ-102 are already
-        // shown in the table as sample/demo data.
-        // Each time a new request is submitted, this number goes up by 1.
+        // REQUEST REPOSITORY WITH COMPREHENSIVE AUDIT TIMELINES
         // ---------------------------------------------------------------
-        var requestCounter = 103;
+        var allShopRequests = [
+            // REQ-101 for S01
+            {
+                requestId: "REQ-101",
+                shopId: "S01",
+                rice: "200",
+                wheat: "100",
+                sugar: "50",
+                urgency: "critical",
+                warehouse: "Valam Central Warehouse",
+                status: "Dispatched",
+                vehicle: "V01",
+                route: "Valam Central Warehouse → FPS Nagercoil",
+                submittedDate: "2026-10-20",
+                submittedTime: "09:15:00",
+                lastUpdatedDate: "2026-10-21",
+                lastUpdatedTime: "08:30:00",
+                timeline: [
+                    {
+                        stage: "Request Submitted",
+                        date: "2026-10-20",
+                        time: "09:15:00",
+                        status: "Pending",
+                        updatedBy: "Shop01 Staff",
+                        details: "Commodity stock request submitted for Rice: 200 kg, Wheat: 100 kg, Sugar: 50 kg. Urgency: Critical."
+                    },
+                    {
+                        stage: "Request Accepted / Processed",
+                        date: "2026-10-20",
+                        time: "10:30:00",
+                        status: "Reserved",
+                        updatedBy: "Wh01 Staff",
+                        details: "Request accepted at Valam Central Warehouse. Commodity stock reserved."
+                    },
+                    {
+                        stage: "Vehicle Assigned",
+                        date: "2026-10-21",
+                        time: "08:00:00",
+                        status: "Reserved",
+                        updatedBy: "Wh01 Dispatch Staff",
+                        details: "Delivery vehicle V01 (TN-74-AA-1234, Eicher 14ft) assigned."
+                    },
+                    {
+                        stage: "Dispatched",
+                        date: "2026-10-21",
+                        time: "08:30:00",
+                        status: "Dispatched",
+                        updatedBy: "Wh01 Dispatch Staff",
+                        details: "Commodity consignment dispatched from Valam Central Warehouse to FPS Nagercoil."
+                    }
+                ]
+            },
+            // REQ-102 for S02
+            {
+                requestId: "REQ-102",
+                shopId: "S02",
+                rice: "300",
+                wheat: "150",
+                sugar: "80",
+                urgency: "normal",
+                warehouse: "Valam North Warehouse",
+                status: "Delivered",
+                vehicle: "V02",
+                route: "Valam North Warehouse → FPS Marthandam",
+                submittedDate: "2026-10-18",
+                submittedTime: "11:00:00",
+                lastUpdatedDate: "2026-10-19",
+                lastUpdatedTime: "11:45:00",
+                timeline: [
+                    {
+                        stage: "Request Submitted",
+                        date: "2026-10-18",
+                        time: "11:00:00",
+                        status: "Pending",
+                        updatedBy: "Shop02 Staff",
+                        details: "Commodity stock request submitted. Rice: 300 kg, Wheat: 150 kg, Sugar: 80 kg."
+                    },
+                    {
+                        stage: "Request Accepted / Processed",
+                        date: "2026-10-18",
+                        time: "14:20:00",
+                        status: "Reserved",
+                        updatedBy: "Wh02 Staff",
+                        details: "Request verified and approved. Stock reserved at Valam North Warehouse."
+                    },
+                    {
+                        stage: "Vehicle Assigned",
+                        date: "2026-10-19",
+                        time: "07:45:00",
+                        status: "Reserved",
+                        updatedBy: "Wh02 Dispatch",
+                        details: "Vehicle V02 (TN-74-BB-5678, Tata 407) assigned."
+                    },
+                    {
+                        stage: "Dispatched",
+                        date: "2026-10-19",
+                        time: "08:15:00",
+                        status: "Dispatched",
+                        updatedBy: "Wh02 Dispatch",
+                        details: "Shipment dispatched towards Marthandam Central."
+                    },
+                    {
+                        stage: "In Transit",
+                        date: "2026-10-19",
+                        time: "09:30:00",
+                        status: "In Transit",
+                        updatedBy: "Fleet GPS System",
+                        details: "Vehicle in transit. Estimated delivery 11:30 AM."
+                    },
+                    {
+                        stage: "Delivered",
+                        date: "2026-10-19",
+                        time: "11:45:00",
+                        status: "Delivered",
+                        updatedBy: "Shop02 Staff",
+                        details: "Consignment safely delivered and verified at FPS Marthandam."
+                    }
+                ]
+            },
+            // REQ-103 for S03
+            {
+                requestId: "REQ-103",
+                shopId: "S03",
+                rice: "500",
+                wheat: "400",
+                sugar: "50",
+                urgency: "normal",
+                warehouse: "Valam Central Warehouse",
+                status: "Pending",
+                vehicle: "Not Assigned",
+                route: "Warehouse → Shop",
+                submittedDate: "2026-10-25",
+                submittedTime: "10:00:00",
+                lastUpdatedDate: "2026-10-25",
+                lastUpdatedTime: "10:00:00",
+                timeline: [
+                    {
+                        stage: "Request Submitted",
+                        date: "2026-10-25",
+                        time: "10:00:00",
+                        status: "Pending",
+                        updatedBy: "Shop03 Staff",
+                        details: "Request submitted. Awaiting acceptance from Central Warehouse staff."
+                    }
+                ]
+            },
+            // REQ-104 for S04
+            {
+                requestId: "REQ-104",
+                shopId: "S04",
+                rice: "250",
+                wheat: "200",
+                sugar: "100",
+                urgency: "urgent",
+                warehouse: "Valam North Warehouse",
+                status: "In Transit",
+                vehicle: "V03",
+                route: "Valam North Warehouse → FPS Kanyakumari",
+                submittedDate: "2026-10-22",
+                submittedTime: "09:00:00",
+                lastUpdatedDate: "2026-10-23",
+                lastUpdatedTime: "09:15:00",
+                timeline: [
+                    {
+                        stage: "Request Submitted",
+                        date: "2026-10-22",
+                        time: "09:00:00",
+                        status: "Pending",
+                        updatedBy: "Shop04 Staff",
+                        details: "Urgent request submitted for festival quota."
+                    },
+                    {
+                        stage: "Request Accepted / Processed",
+                        date: "2026-10-22",
+                        time: "09:45:00",
+                        status: "Reserved",
+                        updatedBy: "Wh02 Staff",
+                        details: "Request expedited and approved. Stock allocated."
+                    },
+                    {
+                        stage: "Vehicle Assigned",
+                        date: "2026-10-23",
+                        time: "07:30:00",
+                        status: "Reserved",
+                        updatedBy: "Wh02 Staff",
+                        details: "Vehicle V03 (TN-74-CC-9012) assigned."
+                    },
+                    {
+                        stage: "Dispatched",
+                        date: "2026-10-23",
+                        time: "08:00:00",
+                        status: "Dispatched",
+                        updatedBy: "Wh02 Staff",
+                        details: "Dispatched towards Kanyakumari."
+                    },
+                    {
+                        stage: "In Transit",
+                        date: "2026-10-23",
+                        time: "09:15:00",
+                        status: "In Transit",
+                        updatedBy: "System",
+                        details: "Vehicle currently in transit along NH-66."
+                    }
+                ]
+            },
+            // REQ-105 for S05
+            {
+                requestId: "REQ-105",
+                shopId: "S05",
+                rice: "400",
+                wheat: "250",
+                sugar: "75",
+                urgency: "normal",
+                warehouse: "Valam Central Warehouse",
+                status: "Pending",
+                vehicle: "Not Assigned",
+                route: "Warehouse → Shop",
+                submittedDate: "2026-10-26",
+                submittedTime: "14:30:00",
+                lastUpdatedDate: "2026-10-26",
+                lastUpdatedTime: "14:30:00",
+                timeline: [
+                    {
+                        stage: "Request Submitted",
+                        date: "2026-10-26",
+                        time: "14:30:00",
+                        status: "Pending",
+                        updatedBy: "Shop05 Staff",
+                        details: "Regular monthly commodity request submitted."
+                    }
+                ]
+            }
+        ];
+
+        var requestCounter = 106;
 
         // ---------------------------------------------------------------
-        // STEP 3: The main function that runs when "Submit Request"
-        //         button is clicked.
-        // The form tag has: onsubmit="submitRequest(event)"
-        // So when the user clicks the button, this function is called.
-        // The "event" parameter lets us stop the page from refreshing.
+        // HELPER: Get requests belonging ONLY to current shop
+        // ---------------------------------------------------------------
+        function getShopFilteredData() {
+            var list = [];
+            for (var i = 0; i < allShopRequests.length; i++) {
+                if (allShopRequests[i].shopId === currentShop.id) {
+                    list.push(allShopRequests[i]);
+                }
+            }
+            return list;
+        }
+
+        // ---------------------------------------------------------------
+        // SUBMIT NEW REQUEST WITH LIVE IST TIMESTAMPS
         // ---------------------------------------------------------------
         function submitRequest(event) {
-
-            // --- 3a: Stop the page from refreshing ---
-            // When a form is submitted, the browser normally reloads the page.
-            // preventDefault() stops that from happening.
             event.preventDefault();
 
-            // --- 3b: Get the values typed by the user ---
-            // document.getElementById("rice") finds the input box with id="rice"
-            // .value gets whatever the user typed inside that box
-            var rice = document.getElementById("rice").value;
-            var wheat = document.getElementById("wheat").value;
-            var sugar = document.getElementById("sugar").value;
-
-            // --- 3c: Get the selected urgency from the dropdown ---
-            // This works the same way — it reads the <select> with id="urgency"
+            var rice = document.getElementById("rice").value.trim();
+            var wheat = document.getElementById("wheat").value.trim();
+            var sugar = document.getElementById("sugar").value.trim();
             var urgency = document.getElementById("urgency").value;
-
-            // --- 3c2: Get the selected warehouse from the dropdown ---
             var warehouse = document.getElementById("warehouse").value;
 
-            // --- 3d: Simple validation ---
-            // Check if the user entered at least one quantity.
-            // If all three fields are empty or zero, show an error message.
             if (rice === "" && wheat === "" && sugar === "") {
                 alert("Please enter at least one commodity quantity.");
-                return; // stop the function here, do not continue
+                return;
             }
 
-            // --- 3e: Create the Request ID ---
-            // We combine the text "REQ-" with the current counter number.
-            // Example: "REQ-" + 103 = "REQ-103"
+            var todayDate = getCurrentDateIST();
+            var nowTime = getCurrentTimeIST();
             var requestId = "REQ-" + requestCounter;
+            requestCounter++;
 
-            // --- 3f: Increase the counter by 1 for the next request ---
-            // So the next request will be REQ-104, then REQ-105, etc.
-            requestCounter = requestCounter + 1;
+            rice = rice === "" ? "0" : rice;
+            wheat = wheat === "" ? "0" : wheat;
+            sugar = sugar === "" ? "0" : sugar;
 
-            // --- 3g: If a field is empty, treat it as 0 ---
-            // This makes sure we always show a number in the table.
-            if (rice === "") { rice = "0"; }
-            if (wheat === "") { wheat = "0"; }
-            if (sugar === "") { sugar = "0"; }
-
-            // --- 3h: Create a request object ---
-            // An object stores multiple related values together.
-            // Think of it like a row of data with labels.
             var newRequest = {
-                requestId: requestId,   // e.g. "REQ-103"
-                rice: rice,             // e.g. "200"
-                wheat: wheat,           // e.g. "100"
-                sugar: sugar,           // e.g. "50"
-                urgency: urgency,       // e.g. "critical"
-                status: "Pending",      // all new requests start as "Pending"
-                warehouse: warehouse,   // user-selected warehouse
-                vehicle: "V01",
-                route: "Warehouse → Shop"
+                requestId: requestId,
+                shopId: currentShop.id,
+                rice: rice,
+                wheat: wheat,
+                sugar: sugar,
+                urgency: urgency,
+                warehouse: warehouse,
+                status: "Pending",
+                vehicle: "Not Assigned",
+                route: "Warehouse → Shop",
+                submittedDate: todayDate,
+                submittedTime: nowTime,
+                lastUpdatedDate: todayDate,
+                lastUpdatedTime: nowTime,
+                timeline: [
+                    {
+                        stage: "Request Submitted",
+                        date: todayDate,
+                        time: nowTime,
+                        status: "Pending",
+                        updatedBy: loggedInUser + " Staff",
+                        details: "Request " + requestId + " submitted for " + rice + "kg Rice, " + wheat + "kg Wheat, " + sugar + "kg Sugar."
+                    }
+                ]
             };
 
-            // --- 3i: Add the request to our array ---
-            // .push() adds a new item to the end of the array.
-            requests.push(newRequest);
+            // Add to repository
+            allShopRequests.push(newRequest);
 
-            // --- 3j: Add a new row to the Recent Requests HTML table ---
-            // This calls another function (defined below) that
-            // creates a new <tr> row and inserts it into the table.
-            addRowToTable(newRequest);
+            // Update Recent Requests table
+            addRecentRequestRow(newRequest);
 
-            // --- 3k: Add a new row to the Request Status table ---
+            // Update Request Status table
             addRequestStatusRow(newRequest);
 
-            // --- 3l: Add a new card to the Delivery Status page ---
+            // Update Delivery Status view
             addDeliveryStatusCard(newRequest);
 
-            // --- 3m: Clear the input fields ---
-            // Set each input back to empty so the user can enter a new request.
+            // Clear inputs
             document.getElementById("rice").value = "";
             document.getElementById("wheat").value = "";
             document.getElementById("sugar").value = "";
             document.getElementById("urgency").value = "normal";
             document.getElementById("warehouse").value = "Valam Central Warehouse";
 
-            // --- 3n: Show a success message ---
-            alert("Request submitted successfully!\n\nRequest ID: " + requestId);
+            alert("✅ Request submitted successfully!\n\nRequest ID: " + requestId + "\nSubmitted At: " + todayDate + " " + formatTime12IST(nowTime));
+
+            // Refresh history view if visible
+            renderShopHistory(getShopFilteredData());
         }
 
         // ---------------------------------------------------------------
-        // STEP 4: Function to add one new row to the Recent Requests table.
-        // This function receives the request object and creates HTML for it.
+        // TABLE ROW INSERTERS (PRESERVED)
         // ---------------------------------------------------------------
-        function addRowToTable(req) {
+        function getUrgencyBadge(urgency) {
+            if (urgency === "critical") return '<span class="badge bg-danger">Critical</span>';
+            if (urgency === "urgent") return '<span class="badge bg-warning text-dark">Urgent</span>';
+            return '<span class="badge bg-primary">Normal</span>';
+        }
 
-            // --- 4a: Decide the badge color for the urgency ---
-            // Bootstrap badges are small colored labels.
-            // We pick a color based on the urgency level.
-            var urgencyBadge = "";
-            if (req.urgency === "critical") {
-                // Red badge for critical
-                urgencyBadge = '<span class="badge bg-danger">Critical</span>';
-            } else if (req.urgency === "urgent") {
-                // Orange badge for urgent
-                urgencyBadge = '<span class="badge bg-warning text-dark">Urgent</span>';
-            } else {
-                // Blue badge for normal
-                urgencyBadge = '<span class="badge bg-primary">Normal</span>';
-            }
+        function getStatusBadge(status) {
+            if (status === "Pending") return '<span class="badge bg-secondary">Pending</span>';
+            if (status === "Reserved") return '<span class="badge bg-warning text-dark">Reserved</span>';
+            if (status === "Dispatched") return '<span class="badge bg-info text-dark">Dispatched</span>';
+            if (status === "In Transit") return '<span class="badge bg-warning text-dark">In Transit</span>';
+            if (status === "Delivered") return '<span class="badge bg-success">Delivered</span>';
+            return '<span class="badge bg-secondary">' + status + '</span>';
+        }
 
-            // --- 4b: Create the status badge ---
-            // New requests are always "Pending", so we use a secondary (grey) badge.
-            var statusBadge = '<span class="badge bg-secondary">Pending</span>';
-
-            // --- 4c: Find the Recent Requests table body in the HTML ---
-            // We use getElementById to find the <tbody> with id="recentRequestsBody".
-            // This ensures new requests are added to the correct table
-            // (not the Request Status table).
-            var tableBody = document.getElementById("recentRequestsBody");
-
-            // --- 4d: Create a new table row element ---
-            // document.createElement("tr") creates a new empty <tr> tag.
-            var newRow = document.createElement("tr");
-
-            // --- 4e: Fill the row with table cells ---
-            // innerHTML lets us put HTML content inside the <tr>.
-            // Each <td> is one cell in the row.
-            newRow.innerHTML =
+        function addRecentRequestRow(req) {
+            var tbody = document.getElementById("recentRequestsBody");
+            var row = document.createElement("tr");
+            row.innerHTML =
                 "<td>" + req.requestId + "</td>" +
                 "<td>" + req.rice + "</td>" +
                 "<td>" + req.wheat + "</td>" +
                 "<td>" + req.sugar + "</td>" +
-                "<td>" + urgencyBadge + "</td>" +
+                "<td>" + getUrgencyBadge(req.urgency) + "</td>" +
                 "<td>" + req.warehouse + "</td>" +
-                "<td>" + statusBadge + "</td>";
-
-            // --- 4f: Add the row to the table ---
-            // appendChild() puts the new row at the bottom of the table body.
-            tableBody.appendChild(newRow);
+                "<td>" + getStatusBadge(req.status) + "</td>";
+            tbody.insertBefore(row, tbody.firstChild);
         }
 
-        // ---------------------------------------------------------------
-        // STEP 5: Function to add one new row to Request Status table.
-        // ---------------------------------------------------------------
         function addRequestStatusRow(req) {
-
-            // --- 5a: Decide the badge color for the urgency ---
-            var urgencyBadge = "";
-            if (req.urgency === "critical") {
-                urgencyBadge = '<span class="badge bg-danger">Critical</span>';
-            } else if (req.urgency === "urgent") {
-                urgencyBadge = '<span class="badge bg-warning text-dark">Urgent</span>';
-            } else {
-                urgencyBadge = '<span class="badge bg-primary">Normal</span>';
-            }
-
-            // --- 5b: Create the status badge (starts at "Pending") ---
-            var statusBadge = '<span class="badge bg-secondary">Pending</span>';
-
-            // --- 5c: Find Request Status table body in the HTML ---
-            var tableBody = document.getElementById("requestStatusBody");
-
-            // --- 5d: Create a new table row element ---
-            var newRow = document.createElement("tr");
-
-            // --- 5e: Fill the row with table cells ---
-            newRow.innerHTML =
+            var tbody = document.getElementById("requestStatusBody");
+            var row = document.createElement("tr");
+            row.innerHTML =
                 "<td>" + req.requestId + "</td>" +
                 "<td>" + req.rice + "</td>" +
                 "<td>" + req.wheat + "</td>" +
                 "<td>" + req.sugar + "</td>" +
-                "<td>" + urgencyBadge + "</td>" +
+                "<td>" + getUrgencyBadge(req.urgency) + "</td>" +
                 "<td>" + req.warehouse + "</td>" +
-                "<td>" + statusBadge + "</td>";
-
-            // --- 5f: Add the row to the Request Status table ---
-            tableBody.appendChild(newRow);
+                "<td>" + getStatusBadge(req.status) + "</td>";
+            tbody.insertBefore(row, tbody.firstChild);
         }
 
-        // ---------------------------------------------------------------
-        // STEP 6: Function to add one new entry to Delivery Status view.
-        // ---------------------------------------------------------------
         function addDeliveryStatusCard(req) {
-
-            // --- 6a: Find Delivery Status container ---
-            var deliveryContainer = document.getElementById("deliveryStatusList");
-
-            // --- 6b: Create a new card container element ---
-            var newCard = document.createElement("div");
-            newCard.className = "mb-3 p-3 border rounded";
-
-            // --- 6c: Fill the card with delivery information ---
-            newCard.innerHTML =
+            var container = document.getElementById("deliveryStatusList");
+            var card = document.createElement("div");
+            card.className = "mb-3 p-3 border rounded";
+            card.innerHTML =
                 '<h6 class="mb-1"><strong>' + req.requestId + '</strong></h6>' +
                 '<p class="mb-1" style="font-size: 0.9rem;">' +
                 '🏭 Warehouse: ' + req.warehouse + '<br>' +
                 '🚚 Vehicle: ' + req.vehicle + '<br>' +
                 '📦 Route: ' + req.route +
                 '</p>' +
-                '<p class="mb-0">' +
-                'Status: <span class="badge bg-secondary">' + req.status + '</span>' +
-                '</p>';
+                '<p class="mb-0">Status: ' + getStatusBadge(req.status) + '</p>';
+            container.insertBefore(card, container.firstChild);
+        }
 
-            // --- 6d: Add the card to the Delivery Status list ---
-            deliveryContainer.appendChild(newCard);
+        // ---------------------------------------------------------------
+        // RENDER: MY REQUEST HISTORY TABLE & STATS
+        // ---------------------------------------------------------------
+        function renderShopHistory(data) {
+            var tbody = document.getElementById("shopHistoryTableBody");
+            var noMsg = document.getElementById("shopNoRecordsMsg");
+            var table = document.getElementById("shopHistoryTable");
+            var countText = document.getElementById("shopHistoryCountText");
+
+            tbody.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                table.style.display = "none";
+                noMsg.style.display = "block";
+                countText.textContent = "";
+            } else {
+                table.style.display = "table";
+                noMsg.style.display = "none";
+                countText.textContent = "Showing " + data.length + " request(s)";
+
+                for (var i = 0; i < data.length; i++) {
+                    var req = data[i];
+                    var tr = document.createElement("tr");
+                    tr.innerHTML =
+                        "<td><strong>" + req.requestId + "</strong></td>" +
+                        "<td><span class=\"badge bg-light text-dark border\">" + req.shopId + "</span></td>" +
+                        "<td>" + req.rice + "</td>" +
+                        "<td>" + req.wheat + "</td>" +
+                        "<td>" + req.sugar + "</td>" +
+                        "<td>" + getUrgencyBadge(req.urgency) + "</td>" +
+                        "<td>" + req.warehouse + "</td>" +
+                        "<td>" + getStatusBadge(req.status) + "</td>" +
+                        "<td>" + formatDateReadable(req.submittedDate) + "</td>" +
+                        "<td>" + formatTime12IST(req.submittedTime) + "</td>" +
+                        "<td>" + formatDateReadable(req.lastUpdatedDate) + "</td>" +
+                        "<td>" + formatTime12IST(req.lastUpdatedTime) + "</td>" +
+                        '<td><button class="btn btn-outline-success btn-sm text-nowrap" onclick="viewRequestTimeline(\'' + req.requestId + '\')">⏱️ View Timeline</button></td>';
+                    tbody.appendChild(tr);
+                }
+            }
+
+            // Update stats
+            var total = data ? data.length : 0;
+            var pending = 0, dispatched = 0, delivered = 0;
+            if (data) {
+                for (var j = 0; j < data.length; j++) {
+                    if (data[j].status === "Pending") pending++;
+                    else if (data[j].status === "Dispatched" || data[j].status === "In Transit" || data[j].status === "Reserved") dispatched++;
+                    else if (data[j].status === "Delivered") delivered++;
+                }
+            }
+            document.getElementById("statTotalRequests").textContent = total;
+            document.getElementById("statPendingRequests").textContent = pending;
+            document.getElementById("statDispatchedRequests").textContent = dispatched;
+            document.getElementById("statDeliveredRequests").textContent = delivered;
+        }
+
+        // ---------------------------------------------------------------
+        // FILTER: DATE RANGE & STATUS
+        // ---------------------------------------------------------------
+        function filterShopRequests() {
+            var from = document.getElementById("shopFilterFromDate").value;
+            var to = document.getElementById("shopFilterToDate").value;
+            var status = document.getElementById("shopStatusFilter").value;
+            var alertBox = document.getElementById("shopDateAlert");
+
+            if (from && to && from > to) {
+                alertBox.style.display = "block";
+                return;
+            }
+            alertBox.style.display = "none";
+
+            var shopOnly = getShopFilteredData();
+            var filtered = [];
+
+            for (var i = 0; i < shopOnly.length; i++) {
+                var r = shopOnly[i];
+                var dateOk = true;
+                var statusOk = true;
+
+                if (from && r.submittedDate < from) dateOk = false;
+                if (to && r.submittedDate > to) dateOk = false;
+                if (status !== "all" && r.status !== status) statusOk = false;
+
+                if (dateOk && statusOk) {
+                    filtered.push(r);
+                }
+            }
+
+            renderShopHistory(filtered);
+        }
+
+        function resetShopFilter() {
+            document.getElementById("shopFilterFromDate").value = "";
+            document.getElementById("shopFilterToDate").value = "";
+            document.getElementById("shopStatusFilter").value = "all";
+            document.getElementById("shopDateAlert").style.display = "none";
+            renderShopHistory(getShopFilteredData());
+        }
+
+        // ---------------------------------------------------------------
+        // VIEW TIMELINE MODAL
+        // ---------------------------------------------------------------
+        function viewRequestTimeline(reqId) {
+            var req = null;
+            for (var i = 0; i < allShopRequests.length; i++) {
+                if (allShopRequests[i].requestId === reqId) {
+                    req = allShopRequests[i];
+                    break;
+                }
+            }
+            if (!req) return;
+
+            document.getElementById("timelineModalTitle").textContent = "Request Timeline — " + req.requestId;
+            document.getElementById("timelineModalSubtitle").textContent = "Shop: " + req.shopId + " | Warehouse: " + req.warehouse;
+
+            var html = '';
+
+            // Commodity summary banner
+            html += '<div class="p-3 bg-light rounded border mb-4">';
+            html += '<div class="row text-center">';
+            html += '<div class="col-3"><strong>Rice</strong><br><span class="badge bg-success">' + req.rice + ' kg</span></div>';
+            html += '<div class="col-3"><strong>Wheat</strong><br><span class="badge bg-success">' + req.wheat + ' kg</span></div>';
+            html += '<div class="col-3"><strong>Sugar</strong><br><span class="badge bg-success">' + req.sugar + ' kg</span></div>';
+            html += '<div class="col-3"><strong>Status</strong><br>' + getStatusBadge(req.status) + '</div>';
+            html += '</div></div>';
+
+            html += '<h6 class="mb-3" style="font-weight: 600;">Chronological Event History (IST)</h6>';
+
+            // Vertical Timeline list
+            html += '<div class="list-group">';
+            for (var t = 0; t < req.timeline.length; t++) {
+                var item = req.timeline[t];
+                var isLatest = (t === req.timeline.length - 1);
+                var activeClass = isLatest ? ' border-success shadow-sm' : '';
+
+                html += '<div class="list-group-item p-3 mb-2 rounded' + activeClass + '" style="border-left: 4px solid #16a34a !important;">';
+                html += '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">';
+                html += '<div>';
+                html += '<strong style="font-size: 0.95rem;">' + (t + 1) + '. ' + item.stage + '</strong> ';
+                html += getStatusBadge(item.status);
+                html += '</div>';
+                html += '<div class="text-muted" style="font-size: 0.8rem;">';
+                html += '📅 ' + formatDateReadable(item.date) + ' &nbsp;|&nbsp; 🕒 ' + formatTime12IST(item.time);
+                html += '</div>';
+                html += '</div>';
+
+                html += '<p class="mt-2 mb-1 text-muted" style="font-size: 0.88rem;">' + item.details + '</p>';
+                html += '<small class="text-secondary">👤 Action by: <strong>' + item.updatedBy + '</strong></small>';
+                html += '</div>';
+            }
+            html += '</div>';
+
+            // Next Stage hint if not delivered
+            if (req.status !== "Delivered") {
+                html += '<div class="mt-3 p-2 bg-warning-subtle rounded border border-warning" style="font-size: 0.82rem;">';
+                html += '⏳ <strong>Current Stage:</strong> ' + req.status + '. Next updates will be recorded automatically when Warehouse operations proceed.';
+                html += '</div>';
+            } else {
+                html += '<div class="mt-3 p-2 bg-success-subtle rounded border border-success" style="font-size: 0.82rem;">';
+                html += '✅ <strong>Lifecycle Complete:</strong> Consignment successfully delivered and closed.';
+                html += '</div>';
+            }
+
+            document.getElementById("timelineModalBody").innerHTML = html;
+
+            var modal = new bootstrap.Modal(document.getElementById("shopTimelineModal"));
+            modal.show();
         }
 
     </script>
-
 </body>
 </html>

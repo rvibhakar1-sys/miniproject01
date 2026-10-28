@@ -5,86 +5,139 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Dashboard - VALAM</title>
 
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
-
-
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-
+    <!-- ========== WAREHOUSE NAVBAR ========== -->
     <nav class="navbar warehouse-navbar">
         <div class="container">
             <span class="navbar-brand text-white">VALAM - Warehouse Dashboard</span>
-            <a href="index.html" class="btn btn-outline-light btn-sm">Logout</a>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-white-50" style="font-size: 0.85rem;" id="whUserBadge">Logged in: Wh01 (W01 - Valam Central Warehouse)</span>
+                <a href="index.html" class="btn btn-outline-light btn-sm" onclick="sessionStorage.clear()">Logout</a>
+            </div>
         </div>
     </nav>
-
    
     <div class="container mt-4">
 
-       
-        <h4 class="mb-1">Welcome, Warehouse Staff</h4>
-        <p class="text-muted mb-4">Manage warehouse stock and process dispatch operations</p>
+        <h4 class="mb-1" id="whWelcomeHeading">Welcome, Warehouse Staff</h4>
+        <p class="text-muted mb-4">Manage stock, track processing timelines, record audit operations and dispatch shipments</p>
 
-
-
+        <!-- ========== DASHBOARD MAIN MENU ========== -->
         <div id="dashboardMain">
             <div class="row g-4">
 
-
-                <div class="col-md-6 col-lg-3">
-                    <div class="card dashboard-card p-3 text-center">
-                        <div class="card-body">
-                            <div class="icon-circle warehouse-icon">📋</div>
-                            <br>
-                            <h5 class="card-title">Shop Requests</h5>
-                            <br>
-                            <p class="card-text text-muted">View commodity requests received from shops.</p>
-                            <button class="btn warehouse-btn btn-sm" onclick="showSection('shopRequestsView')">View Requests</button>
+                <!-- Card 1: Shop Requests -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle warehouse-icon">📋</div>
+                                <h5 class="card-title mt-2">Shop Requests</h5>
+                                <p class="card-text text-muted">View commodity requests received from fair-price shops.</p>
+                            </div>
+                            <div>
+                                <button class="btn warehouse-btn btn-sm" onclick="showSection('shopRequestsView')">View Requests</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                
-                <div class="col-md-6 col-lg-3">
-                    <div class="card dashboard-card p-3 text-center">
-                        <div class="card-body">
-                            <div class="icon-circle warehouse-icon">⚙️</div>
-                            <br>
-                            <h5 class="card-title">Process Request</h5>
-                            <br>
-                            <p class="card-text text-muted">Review and process shop commodity requests.</p>
-                            <button class="btn warehouse-btn btn-sm" onclick="showSection('processRequestView')">Process Request</button>
+                <!-- Card 2: Process Request -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle warehouse-icon">⚙️</div>
+                                <h5 class="card-title mt-2">Process Request</h5>
+                                <p class="card-text text-muted">Review, approve and reserve stock for shop requests.</p>
+                            </div>
+                            <div>
+                                <button class="btn warehouse-btn btn-sm" onclick="showSection('processRequestView')">Process Request</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                
-                <div class="col-md-6 col-lg-3">
-                    <div class="card dashboard-card p-3 text-center">
-                        <div class="card-body">
-                            <div class="icon-circle warehouse-icon">📦</div>
-                            <br>
-                            <h5 class="card-title">Warehouse Stock</h5>
-                            <br>
-                            <p class="card-text text-muted">View and update current warehouse stock.</p>
-                            <button class="btn warehouse-btn btn-sm" onclick="showSection('warehouseStockView')">View Stock</button>
+                <!-- Card 3: Warehouse Stock -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle warehouse-icon">📦</div>
+                                <h5 class="card-title mt-2">Warehouse Stock</h5>
+                                <p class="card-text text-muted">View stock levels, summary banner and stock update history.</p>
+                            </div>
+                            <div>
+                                <button class="btn warehouse-btn btn-sm" onclick="showSection('warehouseStockView')">View Stock</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-               
-                <div class="col-md-6 col-lg-3">
-                    <div class="card dashboard-card p-3 text-center">
-                        <div class="card-body">
-                            <div class="icon-circle warehouse-icon">🚚</div>
-                            <br>
-                            <h5 class="card-title">Delivery / Vehicle</h5>
-                            <br>
-                            <p class="card-text text-muted">Assign vehicle and update delivery status.</p>
-                            <button class="btn warehouse-btn btn-sm" onclick="showSection('deliveryVehicleView')">Manage Delivery</button>
+                <!-- Card 4: Delivery / Vehicle -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle warehouse-icon">🚚</div>
+                                <h5 class="card-title mt-2">Delivery / Vehicle</h5>
+                                <p class="card-text text-muted">Assign vehicle and update dispatch delivery status.</p>
+                            </div>
+                            <div>
+                                <button class="btn warehouse-btn btn-sm" onclick="showSection('deliveryVehicleView')">Manage Delivery</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5 (NEW): Request History & Timeline -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle warehouse-icon">⏱️</div>
+                                <h5 class="card-title mt-2">Request History &amp; Timeline</h5>
+                                <p class="card-text text-muted">Date-wise received &amp; processed tracking and waiting times.</p>
+                            </div>
+                            <div>
+                                <button class="btn warehouse-btn btn-sm" onclick="showSection('requestHistoryView')">View Timelines</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6 (NEW): Stock Update History -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle warehouse-icon">📊</div>
+                                <h5 class="card-title mt-2">Stock Update History</h5>
+                                <p class="card-text text-muted">Detailed log of all stock additions and deductions.</p>
+                            </div>
+                            <div>
+                                <button class="btn warehouse-btn btn-sm" onclick="showSection('stockHistoryView')">View Stock Log</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 7 (NEW): Warehouse Operation History -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle warehouse-icon">📜</div>
+                                <h5 class="card-title mt-2">Warehouse Operation History</h5>
+                                <p class="card-text text-muted">Audit log of all warehouse actions with exact IST timestamps.</p>
+                            </div>
+                            <div>
+                                <button class="btn warehouse-btn btn-sm" onclick="showSection('operationHistoryView')">View Operation Log</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -94,10 +147,8 @@
         <!-- ========== END DASHBOARD MAIN MENU ========== -->
 
 
-        
+        <!-- ========== DETAIL VIEW 1: SHOP REQUESTS (EXISTING PRESERVED) ========== -->
         <div id="shopRequestsView" style="display: none;">
-
-      
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
@@ -129,32 +180,40 @@
                                 <td><span class="badge bg-info text-dark">Dispatched</span></td>
                             </tr>
                             <tr>
-                                <td>REQ-102</td>
-                                <td>S02</td>
-                                <td>300</td>
-                                <td>150</td>
-                                <td>80</td>
+                                <td>REQ-103</td>
+                                <td>S03</td>
+                                <td>500</td>
+                                <td>400</td>
+                                <td>50</td>
                                 <td><span class="badge bg-primary">Normal</span></td>
-                                <td>Valam North Warehouse</td>
-                                <td><span class="badge bg-success">Delivered</span></td>
+                                <td>Valam Central Warehouse</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>REQ-105</td>
+                                <td>S05</td>
+                                <td>400</td>
+                                <td>250</td>
+                                <td>75</td>
+                                <td><span class="badge bg-primary">Normal</span></td>
+                                <td>Valam Central Warehouse</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-      <!-- ========== END SHOP REQUESTS VIEW ========== -->
+        <!-- ========== END SHOP REQUESTS VIEW ========== -->
 
 
+        <!-- ========== DETAIL VIEW 2: PROCESS REQUEST (EXISTING ENHANCED) ========== -->
         <div id="processRequestView" style="display: none;">
-
-            
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
                 <h5 class="mb-3">Process Request</h5>
 
-               
                 <div class="mb-3">
                     <label for="processRequestSelect" class="form-label">Select Request to Process:</label>
                     <select class="form-select" id="processRequestSelect" onchange="showRequestDetails()">
@@ -162,7 +221,6 @@
                     </select>
                 </div>
 
-               
                 <div id="processRequestDetails" style="display: none;">
                     <div class="p-3 border rounded mb-3">
                         <p class="mb-1"><strong>Request ID:</strong> <span id="detailRequestId"></span></p>
@@ -178,7 +236,7 @@
                     <button class="btn warehouse-btn" id="processBtn" onclick="processRequest()">Confirm / Process Request</button>
 
                     <div id="processSuccessMsg" class="alert alert-success mt-3 py-2" style="display: none;">
-                        ✅ Request has been processed successfully! Status changed to <strong>Reserved</strong>.
+                        ✅ Request has been processed successfully! Status changed to <strong>Reserved</strong>. Stock deducted and audit record created.
                     </div>
                 </div>
             </div>
@@ -186,25 +244,60 @@
         <!-- ========== END PROCESS REQUEST VIEW ========== -->
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 3: WAREHOUSE STOCK                               -->
-        <!-- Hidden by default. Shown when user clicks "View Stock".      -->
-        <!-- Shows current warehouse stock levels.                        -->
-        <!-- ============================================================ -->
+        <!-- ========== DETAIL VIEW 3: WAREHOUSE STOCK (ENHANCED WITH LAST UPDATE SUMMARY) ========== -->
         <div id="warehouseStockView" style="display: none;">
-
-            <!-- Back Button -->
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
+            <!-- LAST STOCK UPDATE SUMMARY BANNER (REQUIREMENT 4) -->
+            <div class="card p-4 mb-4" style="border-left: 5px solid #2563eb;">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                    <div>
+                        <h5 class="mb-0" id="summaryWhTitle">Warehouse ID: W01 — Valam Central Warehouse</h5>
+                        <p class="text-muted mb-0" style="font-size: 0.88rem;">Official inventory balance and latest stock update summary</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addStockModal">+ Add Fresh Stock Arrival</button>
+                    </div>
+                </div>
+                <hr>
+
+                <div class="row g-3 text-center mb-3">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded border">
+                            <span class="text-muted" style="font-size: 0.82rem;">Current Rice Stock</span>
+                            <h4 class="mb-0 mt-1" style="color: #2563eb; font-weight: 700;"><span id="bannerRice">5000</span> kg</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded border">
+                            <span class="text-muted" style="font-size: 0.82rem;">Current Wheat Stock</span>
+                            <h4 class="mb-0 mt-1" style="color: #2563eb; font-weight: 700;"><span id="bannerWheat">3200</span> kg</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded border">
+                            <span class="text-muted" style="font-size: 0.82rem;">Current Sugar Stock</span>
+                            <h4 class="mb-0 mt-1" style="color: #2563eb; font-weight: 700;"><span id="bannerSugar">1500</span> kg</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-2 bg-light-subtle rounded border" style="font-size: 0.85rem;" id="lastUpdateBannerText">
+                    🕒 <strong>Last Stock Updated:</strong> <span id="lastUpdateDate">2026-10-24</span> at <span id="lastUpdateTime">01:16:00 PM IST</span> | <strong>Updated By:</strong> <span id="lastUpdateUser">Wh01 Staff</span>
+                </div>
+            </div>
+
+            <!-- Current Stock Table -->
             <div class="card p-4">
-                <h5 class="mb-3">Current Warehouse Stock</h5>
+                <h5 class="mb-3">Warehouse Stock Breakdown</h5>
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-bordered table-striped mb-0">
                         <thead class="table-dark">
                             <tr>
                                 <th>Commodity</th>
                                 <th>Available Stock</th>
                                 <th>Reserved</th>
+                                <th>Total On-Hand</th>
                                 <th>Unit</th>
                             </tr>
                         </thead>
@@ -213,18 +306,21 @@
                                 <td>Rice</td>
                                 <td id="stockRice">5000</td>
                                 <td id="reservedRice">800</td>
+                                <td id="totalRice">5800</td>
                                 <td>kg</td>
                             </tr>
                             <tr>
                                 <td>Wheat</td>
                                 <td id="stockWheat">3200</td>
                                 <td id="reservedWheat">400</td>
+                                <td id="totalWheat">3600</td>
                                 <td>kg</td>
                             </tr>
                             <tr>
                                 <td>Sugar</td>
                                 <td id="stockSugar">1500</td>
                                 <td id="reservedSugar">200</td>
+                                <td id="totalSugar">1700</td>
                                 <td>kg</td>
                             </tr>
                         </tbody>
@@ -235,20 +331,13 @@
         <!-- ========== END WAREHOUSE STOCK VIEW ========== -->
 
 
-        <!-- ============================================================ -->
-        <!-- DETAIL VIEW 4: DELIVERY / VEHICLE                            -->
-        <!-- Hidden by default. Shown when user clicks "Manage Delivery". -->
-        <!-- Allows assigning a vehicle and updating delivery status.     -->
-        <!-- ============================================================ -->
+        <!-- ========== DETAIL VIEW 4: DELIVERY / VEHICLE (EXISTING PRESERVED) ========== -->
         <div id="deliveryVehicleView" style="display: none;">
-
-            <!-- Back Button -->
             <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
 
             <div class="card p-4">
                 <h5 class="mb-3">Delivery / Vehicle Management</h5>
 
-                <!-- Select a Processed Request for Delivery -->
                 <div class="mb-3">
                     <label for="deliveryRequestSelect" class="form-label">Select Processed Request:</label>
                     <select class="form-select" id="deliveryRequestSelect" onchange="showDeliveryDetails()">
@@ -256,7 +345,6 @@
                     </select>
                 </div>
 
-                <!-- Delivery Details (shown after selecting a request) -->
                 <div id="deliveryDetails" style="display: none;">
                     <div class="p-3 border rounded mb-3">
                         <p class="mb-1"><strong>Request ID:</strong> <span id="delRequestId"></span></p>
@@ -266,25 +354,22 @@
                         <p class="mb-0"><strong>Delivery Status:</strong> <span id="delStatus"></span></p>
                     </div>
 
-                    <!-- Vehicle Selection -->
                     <div class="mb-3">
                         <label for="vehicleSelect" class="form-label">Assign Vehicle:</label>
                         <select class="form-select" id="vehicleSelect">
-                            <option value="V01">V01</option>
-                            <option value="V02">V02</option>
-                            <option value="V03">V03</option>
+                            <option value="V01">V01 - TN-74-AA-1234 (Eicher 14ft)</option>
+                            <option value="V02">V02 - TN-74-BB-5678 (Tata 407)</option>
+                            <option value="V03">V03 - TN-74-CC-9012 (Ashok Leyland)</option>
                         </select>
                     </div>
 
-                    <button class="btn warehouse-btn" id="assignVehicleBtn" onclick="assignVehicle()">Assign Vehicle</button>
+                    <button class="btn warehouse-btn" id="assignVehicleBtn" onclick="assignVehicle()">Assign Vehicle &amp; Dispatch</button>
 
-                    <!-- Success message (hidden by default) -->
                     <div id="deliverySuccessMsg" class="alert alert-success mt-3 py-2" style="display: none;">
-                        ✅ Vehicle assigned! Delivery status updated to <strong>Dispatched</strong>.
+                        ✅ Vehicle assigned! Consignment dispatched and recorded in operation history.
                     </div>
                 </div>
 
-                <!-- Delivery Status Legend -->
                 <p class="text-muted mt-3 mb-0" style="font-size: 0.8rem;">
                     Delivery Flow:
                     <span class="badge bg-secondary">Pending</span> →
@@ -297,6 +382,347 @@
         <!-- ========== END DELIVERY / VEHICLE VIEW ========== -->
 
 
+        <!-- ============================================================ -->
+        <!-- NEW DETAIL VIEW 5: REQUEST HISTORY & PROCESSING TIMELINE     -->
+        <!-- ============================================================ -->
+        <div id="requestHistoryView" style="display: none;">
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <!-- Filters -->
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                    <div>
+                        <h5 class="mb-1">⏱️ Request History &amp; Processing Timeline</h5>
+                        <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                            Date-wise received &amp; processed timestamps, wait durations, and lifecycle timelines.
+                        </p>
+                    </div>
+                    <div>
+                        <span class="badge bg-primary px-3 py-2" id="whReqHistoryBadge">Warehouse: W01</span>
+                    </div>
+                </div>
+                <hr>
+
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3 col-sm-6">
+                        <label for="whReqFromDate" class="form-label" style="font-weight: 500; font-size: 0.88rem;">From Date</label>
+                        <input type="date" class="form-control" id="whReqFromDate">
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <label for="whReqToDate" class="form-label" style="font-weight: 500; font-size: 0.88rem;">To Date</label>
+                        <input type="date" class="form-control" id="whReqToDate">
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <label for="whReqStatusFilter" class="form-label" style="font-weight: 500; font-size: 0.88rem;">Status</label>
+                        <select class="form-select" id="whReqStatusFilter">
+                            <option value="all">All Statuses</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Reserved">Reserved</option>
+                            <option value="Dispatched">Dispatched</option>
+                            <option value="Delivered">Delivered</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <button class="btn warehouse-btn btn-sm me-2" onclick="filterWarehouseRequests()">🔍 Filter</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="resetWarehouseRequestsFilter()">↻ Reset</button>
+                    </div>
+                </div>
+
+                <div id="whReqDateAlert" class="alert alert-danger py-2 mt-3 mb-0" style="display: none; font-size: 0.85rem;">
+                    ⚠️ "From Date" cannot be later than "To Date".
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="card p-3 text-center" style="border-left: 4px solid #2563eb;">
+                        <h4 class="mb-0" id="statWhTotalReceived" style="color: #2563eb; font-weight: 700;">0</h4>
+                        <small class="text-muted">Total Received</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card p-3 text-center" style="border-left: 4px solid #16a34a;">
+                        <h4 class="mb-0" id="statWhTotalProcessed" style="color: #16a34a; font-weight: 700;">0</h4>
+                        <small class="text-muted">Total Processed</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card p-3 text-center" style="border-left: 4px solid #f59e0b;">
+                        <h4 class="mb-0" id="statWhTotalPending" style="color: #f59e0b; font-weight: 700;">0</h4>
+                        <small class="text-muted">Total Pending</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card p-3 text-center" style="border-left: 4px solid #059669;">
+                        <h4 class="mb-0" id="statWhTotalDelivered" style="color: #059669; font-weight: 700;">0</h4>
+                        <small class="text-muted">Total Delivered</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0" style="font-weight: 600;">Request Processing History</h6>
+                    <small class="text-muted" id="whReqCountText"></small>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0" id="whReqHistoryTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Shop ID</th>
+                                <th>Rice (kg)</th>
+                                <th>Wheat (kg)</th>
+                                <th>Sugar (kg)</th>
+                                <th>Urgency</th>
+                                <th>Received Date</th>
+                                <th>Received Time</th>
+                                <th>Processed Date</th>
+                                <th>Processed Time</th>
+                                <th>Current Status</th>
+                                <th>Wait Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="whReqHistoryTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="whReqNoRecordsMsg" class="text-center py-4" style="display: none;">
+                    <div style="font-size: 2.2rem;">📭</div>
+                    <p class="text-muted mt-2 mb-0">No requests found for the selected date range.</p>
+                </div>
+            </div>
+        </div>
+        <!-- ========== END REQUEST HISTORY VIEW ========== -->
+
+
+        <!-- ============================================================ -->
+        <!-- NEW DETAIL VIEW 6: STOCK UPDATE HISTORY                      -->
+        <!-- ============================================================ -->
+        <div id="stockHistoryView" style="display: none;">
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <!-- Filters -->
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                    <div>
+                        <h5 class="mb-1">📊 Stock Update History</h5>
+                        <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                            Audit log of all stock deductions (processed requests) and fresh additions.
+                        </p>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addStockModal">+ Record Stock Arrival</button>
+                    </div>
+                </div>
+                <hr>
+
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3 col-sm-6">
+                        <label for="stockFilterFromDate" class="form-label" style="font-weight: 500; font-size: 0.88rem;">From Date</label>
+                        <input type="date" class="form-control" id="stockFilterFromDate">
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <label for="stockFilterToDate" class="form-label" style="font-weight: 500; font-size: 0.88rem;">To Date</label>
+                        <input type="date" class="form-control" id="stockFilterToDate">
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <label for="stockFilterCommodity" class="form-label" style="font-weight: 500; font-size: 0.88rem;">Commodity</label>
+                        <select class="form-select" id="stockFilterCommodity">
+                            <option value="all">All Commodities</option>
+                            <option value="Rice">Rice</option>
+                            <option value="Wheat">Wheat</option>
+                            <option value="Sugar">Sugar</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <button class="btn warehouse-btn btn-sm me-2" onclick="filterStockHistory()">🔍 Filter</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="resetStockFilter()">↻ Reset</button>
+                    </div>
+                </div>
+
+                <div id="stockDateAlert" class="alert alert-danger py-2 mt-3 mb-0" style="display: none; font-size: 0.85rem;">
+                    ⚠️ "From Date" cannot be later than "To Date".
+                </div>
+            </div>
+
+            <!-- Stock Log Table -->
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0" style="font-weight: 600;">Stock Transaction Log (Latest First)</h6>
+                    <small class="text-muted" id="stockLogCountText"></small>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0" id="stockHistoryTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Update ID</th>
+                                <th>Warehouse ID</th>
+                                <th>Commodity</th>
+                                <th>Previous Stock (kg)</th>
+                                <th>Added (kg)</th>
+                                <th>Deducted (kg)</th>
+                                <th>Current Stock (kg)</th>
+                                <th>Reason / Operation</th>
+                                <th>Updated Date</th>
+                                <th>Updated Time</th>
+                                <th>Updated By</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockHistoryTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="stockNoRecordsMsg" class="text-center py-4" style="display: none;">
+                    <div style="font-size: 2.2rem;">📭</div>
+                    <p class="text-muted mt-2 mb-0">No stock updates recorded for the selected criteria.</p>
+                </div>
+            </div>
+        </div>
+        <!-- ========== END STOCK UPDATE HISTORY VIEW ========== -->
+
+
+        <!-- ============================================================ -->
+        <!-- NEW DETAIL VIEW 7: WAREHOUSE OPERATION HISTORY               -->
+        <!-- ============================================================ -->
+        <div id="operationHistoryView" style="display: none;">
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4 mb-4">
+                <h5 class="mb-1">📜 Warehouse Operation History / Audit Log</h5>
+                <p class="text-muted mb-3" style="font-size: 0.9rem;">
+                    Complete tracking of all warehouse actions: request receipt, processing, stock deductions, additions, and vehicle dispatches.
+                </p>
+
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3 col-sm-6">
+                        <label for="opFilterFromDate" class="form-label" style="font-weight: 500; font-size: 0.88rem;">From Date</label>
+                        <input type="date" class="form-control" id="opFilterFromDate">
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <label for="opFilterToDate" class="form-label" style="font-weight: 500; font-size: 0.88rem;">To Date</label>
+                        <input type="date" class="form-control" id="opFilterToDate">
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <label for="opFilterType" class="form-label" style="font-weight: 500; font-size: 0.88rem;">Operation Type</label>
+                        <select class="form-select" id="opFilterType">
+                            <option value="all">All Operations</option>
+                            <option value="Request Received">Request Received</option>
+                            <option value="Request Accepted">Request Accepted</option>
+                            <option value="Stock Deducted">Stock Deducted</option>
+                            <option value="Stock Added">Stock Added</option>
+                            <option value="Vehicle Assigned">Vehicle Assigned</option>
+                            <option value="Dispatched">Dispatched</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <button class="btn warehouse-btn btn-sm me-2" onclick="filterWarehouseOperations()">🔍 Filter</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="resetWarehouseOperationsFilter()">↻ Reset</button>
+                    </div>
+                </div>
+
+                <div id="opDateAlert" class="alert alert-danger py-2 mt-3 mb-0" style="display: none; font-size: 0.85rem;">
+                    ⚠️ "From Date" cannot be later than "To Date".
+                </div>
+            </div>
+
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0" style="font-weight: 600;">Operation Audit Log</h6>
+                    <small class="text-muted" id="opCountText"></small>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0" id="warehouseOpTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Operation ID</th>
+                                <th>Request ID</th>
+                                <th>Warehouse ID</th>
+                                <th>Operation Type</th>
+                                <th>Previous Value</th>
+                                <th>New Value</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Updated By</th>
+                            </tr>
+                        </thead>
+                        <tbody id="warehouseOpTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="opNoRecordsMsg" class="text-center py-4" style="display: none;">
+                    <div style="font-size: 2.2rem;">📭</div>
+                    <p class="text-muted mt-2 mb-0">No operations found for the selected date range.</p>
+                </div>
+            </div>
+        </div>
+        <!-- ========== END WAREHOUSE OPERATION HISTORY VIEW ========== -->
+
+
+        <!-- ===== TIMELINE MODAL ===== -->
+        <div class="modal fade" id="whTimelineModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                    <div class="modal-header" style="background-color: #2563eb; color: white; border-radius: 14px 14px 0 0;">
+                        <div>
+                            <h6 class="modal-title mb-0" id="whTimelineModalTitle" style="font-weight: 700;">Request Processing Lifecycle</h6>
+                            <small class="text-white-50" id="whTimelineModalSubtitle"></small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4" id="whTimelineModalBody">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ADD STOCK MODAL ===== -->
+        <div class="modal fade" id="addStockModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 14px;">
+                    <div class="modal-header" style="background-color: #2563eb; color: white;">
+                        <h6 class="modal-title mb-0">Record Fresh Stock Arrival</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form onsubmit="handleManualStockAdd(event)">
+                            <div class="mb-3">
+                                <label for="addCommodity" class="form-label" style="font-weight: 500;">Select Commodity</label>
+                                <select class="form-select" id="addCommodity" required>
+                                    <option value="rice">Rice</option>
+                                    <option value="wheat">Wheat</option>
+                                    <option value="sugar">Sugar</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="addQuantity" class="form-label" style="font-weight: 500;">Quantity Added (kg)</label>
+                                <input type="number" class="form-control" id="addQuantity" placeholder="e.g. 1000" min="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="addReason" class="form-label" style="font-weight: 500;">Arrival Source / Reason</label>
+                                <input type="text" class="form-control" id="addReason" value="Fresh consignment received from FCI Central Depot" required>
+                            </div>
+                            <button type="submit" class="btn warehouse-btn w-100">Confirm &amp; Update Stock</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <!-- Footer -->
         <p class="text-center footer-text mt-4 mb-3">&copy; 2026 VALAM - Supply Management System</p>
 
@@ -306,77 +732,184 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ========== JAVASCRIPT FOR WAREHOUSE FUNCTIONALITY ========== -->
+    <!-- JavaScript for Warehouse Functionality -->
     <script>
 
         // ---------------------------------------------------------------
+        // USER SESSION & WAREHOUSE IDENTITY
+        // Reads logged-in warehouse user (default Wh01 / W01)
+        // ---------------------------------------------------------------
+        var loggedInUser = sessionStorage.getItem("valam_user") || "Wh01";
+        
+        var whUserMap = {
+            "Wh01": { id: "W01", name: "Valam Central Warehouse", location: "Central Area (Nagercoil)" },
+            "Wh02": { id: "W02", name: "Valam North Warehouse", location: "North Area (Marthandam)" },
+            "Wh03": { id: "W03", name: "Valam South Warehouse", location: "South Area (Kanyakumari)" }
+        };
+
+        var currentWarehouse = whUserMap[loggedInUser] || { id: "W01", name: "Valam Central Warehouse", location: "Central Area (Nagercoil)" };
+
+        // Set UI headers
+        document.addEventListener("DOMContentLoaded", function() {
+            var badge = document.getElementById("whUserBadge");
+            if (badge) badge.textContent = "Logged in: " + loggedInUser + " (" + currentWarehouse.id + " - " + currentWarehouse.name + ")";
+            var heading = document.getElementById("whWelcomeHeading");
+            if (heading) heading.textContent = "Welcome, " + currentWarehouse.name + " (" + currentWarehouse.id + ")";
+            var reqBadge = document.getElementById("whReqHistoryBadge");
+            if (reqBadge) reqBadge.textContent = "Warehouse: " + currentWarehouse.id;
+            var summaryTitle = document.getElementById("summaryWhTitle");
+            if (summaryTitle) summaryTitle.textContent = "Warehouse ID: " + currentWarehouse.id + " — " + currentWarehouse.name;
+        });
+
+        // ---------------------------------------------------------------
         // NAVIGATION: Show/Hide Sections
-        // These two simple functions handle switching between the
-        // dashboard main menu and the detail views.
         // ---------------------------------------------------------------
+        var warehouseSections = [
+            "shopRequestsView",
+            "processRequestView",
+            "warehouseStockView",
+            "deliveryVehicleView",
+            "requestHistoryView",
+            "stockHistoryView",
+            "operationHistoryView"
+        ];
 
-        // showSection() — Hides the dashboard menu and shows the
-        // selected detail view.
-        // "sectionId" is the id of the detail view to show.
         function showSection(sectionId) {
-            // Hide the dashboard main menu
             document.getElementById("dashboardMain").style.display = "none";
-
-            // Show the selected detail view
-            document.getElementById(sectionId).style.display = "block";
-
-            // If opening the Process Request view, populate its dropdown
-            if (sectionId === "processRequestView") {
-                populateProcessDropdown();
+            for (var i = 0; i < warehouseSections.length; i++) {
+                var el = document.getElementById(warehouseSections[i]);
+                if (el) el.style.display = "none";
             }
+            var target = document.getElementById(sectionId);
+            if (target) target.style.display = "block";
 
-            // If opening the Delivery view, populate its dropdown
-            if (sectionId === "deliveryVehicleView") {
-                populateDeliveryDropdown();
-            }
+            if (sectionId === "processRequestView") populateProcessDropdown();
+            if (sectionId === "deliveryVehicleView") populateDeliveryDropdown();
+            if (sectionId === "requestHistoryView") renderWarehouseRequestsHistory(getWarehouseRequestsFiltered());
+            if (sectionId === "stockHistoryView") renderStockHistory(stockHistoryData);
+            if (sectionId === "operationHistoryView") renderWarehouseOperations(warehouseOperationsData);
+
+            window.scrollTo(0, 0);
         }
 
-        // goBack() — Hides all detail views and shows the dashboard
-        // main menu again.
         function goBack() {
-            // Hide all 4 detail views
-            document.getElementById("shopRequestsView").style.display = "none";
-            document.getElementById("processRequestView").style.display = "none";
-            document.getElementById("warehouseStockView").style.display = "none";
-            document.getElementById("deliveryVehicleView").style.display = "none";
-
-            // Show the dashboard main menu
+            for (var i = 0; i < warehouseSections.length; i++) {
+                var el = document.getElementById(warehouseSections[i]);
+                if (el) el.style.display = "none";
+            }
             document.getElementById("dashboardMain").style.display = "block";
+            window.scrollTo(0, 0);
         }
 
+        // ---------------------------------------------------------------
+        // TIME HELPERS (IST)
+        // ---------------------------------------------------------------
+        function getCurrentDateIST() {
+            var now = new Date();
+            var y = now.getFullYear();
+            var m = String(now.getMonth() + 1).padStart(2, '0');
+            var d = String(now.getDate()).padStart(2, '0');
+            return y + "-" + m + "-" + d;
+        }
+
+        function getCurrentTimeIST() {
+            var now = new Date();
+            var h = String(now.getHours()).padStart(2, '0');
+            var m = String(now.getMinutes()).padStart(2, '0');
+            var s = String(now.getSeconds()).padStart(2, '0');
+            return h + ":" + m + ":" + s;
+        }
+
+        function formatTime12IST(timeStr) {
+            if (!timeStr) return "—";
+            var parts = timeStr.split(":");
+            var h = parseInt(parts[0]);
+            var m = parts[1];
+            var s = parts[2] || "00";
+            var ampm = h >= 12 ? "PM" : "AM";
+            var dispH = h % 12;
+            if (dispH === 0) dispH = 12;
+            return dispH + ":" + m + ":" + s + " " + ampm + " IST";
+        }
+
+        function formatDateReadable(dateStr) {
+            if (!dateStr) return "—";
+            var d = new Date(dateStr + "T00:00:00");
+            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+        }
+
+        function calculateWaitTime(receivedDate, receivedTime, procDate, procTime) {
+            if (!procDate || !procTime || procDate === "—" || procTime === "—") {
+                return '<span class="badge bg-warning text-dark">Awaiting Processing</span>';
+            }
+            try {
+                var start = new Date(receivedDate + "T" + receivedTime);
+                var end = new Date(procDate + "T" + procTime);
+                var diffMs = end - start;
+                if (isNaN(diffMs) || diffMs < 0) return '<span class="badge bg-secondary">Immediate</span>';
+                var diffMinutes = Math.floor(diffMs / (1000 * 60));
+                var hours = Math.floor(diffMinutes / 60);
+                var mins = diffMinutes % 60;
+                if (hours === 0) {
+                    return '<span class="badge bg-success">' + mins + ' min(s)</span>';
+                }
+                return '<span class="badge bg-info text-dark">' + hours + ' hr ' + mins + ' min</span>';
+            } catch(e) {
+                return '<span class="badge bg-secondary">Recorded</span>';
+            }
+        }
 
         // ---------------------------------------------------------------
-        // WAREHOUSE DATA
+        // WAREHOUSE STOCK DATA & LAST UPDATE SUMMARY
         // ---------------------------------------------------------------
-
-        // --- Warehouse Stock ---
-        // These variables track the current stock levels.
-        // When a request is processed, stock is reduced.
         var warehouseStock = {
             rice: 5000,
             wheat: 3200,
             sugar: 1500
         };
 
-        // --- Reserved Stock ---
-        // Tracks how much stock has been reserved for processed requests.
         var reservedStock = {
             rice: 800,
             wheat: 400,
             sugar: 200
         };
 
+        var lastStockUpdate = {
+            date: "2026-10-24",
+            time: "13:16:00",
+            updatedBy: "Wh01 Staff",
+            reason: "Request REQ-106 processed"
+        };
+
+        function updateStockDisplays() {
+            document.getElementById("stockRice").textContent = warehouseStock.rice;
+            document.getElementById("stockWheat").textContent = warehouseStock.wheat;
+            document.getElementById("stockSugar").textContent = warehouseStock.sugar;
+
+            document.getElementById("reservedRice").textContent = reservedStock.rice;
+            document.getElementById("reservedWheat").textContent = reservedStock.wheat;
+            document.getElementById("reservedSugar").textContent = reservedStock.sugar;
+
+            document.getElementById("totalRice").textContent = warehouseStock.rice + reservedStock.rice;
+            document.getElementById("totalWheat").textContent = warehouseStock.wheat + reservedStock.wheat;
+            document.getElementById("totalSugar").textContent = warehouseStock.sugar + reservedStock.sugar;
+
+            document.getElementById("bannerRice").textContent = warehouseStock.rice;
+            document.getElementById("bannerWheat").textContent = warehouseStock.wheat;
+            document.getElementById("bannerSugar").textContent = warehouseStock.sugar;
+
+            if (lastStockUpdate.date) {
+                document.getElementById("lastUpdateDate").textContent = formatDateReadable(lastStockUpdate.date);
+                document.getElementById("lastUpdateTime").textContent = formatTime12IST(lastStockUpdate.time);
+                document.getElementById("lastUpdateUser").textContent = lastStockUpdate.updatedBy;
+            } else {
+                document.getElementById("lastUpdateBannerText").innerHTML = "<em>No stock updates recorded yet</em>";
+            }
+        }
 
         // ---------------------------------------------------------------
-        // REQUEST DATA
-        // This array stores all requests received from shops.
-        // In a real system, this data would come from a database.
-        // For this prototype, we use sample/manual data.
+        // REQUEST REPOSITORY
         // ---------------------------------------------------------------
         var warehouseRequests = [
             {
@@ -387,117 +920,241 @@
                 sugar: "50",
                 urgency: "critical",
                 warehouse: "Valam Central Warehouse",
+                warehouseId: "W01",
                 status: "Dispatched",
-                vehicle: "V01"
+                vehicle: "V01",
+                receivedDate: "2026-10-20",
+                receivedTime: "09:15:00",
+                processedDate: "2026-10-20",
+                processedTime: "10:30:00",
+                timeline: [
+                    { stage: "Request Received", date: "2026-10-20", time: "09:15:00", status: "Pending", actor: "Shop S01", note: "Urgent quota requested." },
+                    { stage: "Request Accepted / Processed", date: "2026-10-20", time: "10:30:00", status: "Reserved", actor: "Wh01 Staff", note: "Commodity stock reserved." },
+                    { stage: "Vehicle Assigned", date: "2026-10-21", time: "08:00:00", status: "Reserved", actor: "Wh01 Staff", note: "Vehicle V01 assigned." },
+                    { stage: "Dispatched", date: "2026-10-21", time: "08:30:00", status: "Dispatched", actor: "Wh01 Staff", note: "Dispatched to FPS Nagercoil." }
+                ]
             },
             {
-                requestId: "REQ-102",
-                shopId: "S02",
-                rice: "300",
-                wheat: "150",
-                sugar: "80",
+                requestId: "REQ-103",
+                shopId: "S03",
+                rice: "500",
+                wheat: "400",
+                sugar: "50",
                 urgency: "normal",
-                warehouse: "Valam North Warehouse",
-                status: "Delivered",
-                vehicle: "V02"
+                warehouse: "Valam Central Warehouse",
+                warehouseId: "W01",
+                status: "Pending",
+                vehicle: "Not Assigned",
+                receivedDate: "2026-10-25",
+                receivedTime: "10:00:00",
+                processedDate: "—",
+                processedTime: "—",
+                timeline: [
+                    { stage: "Request Received", date: "2026-10-25", time: "10:00:00", status: "Pending", actor: "Shop S03", note: "Regular monthly request received." }
+                ]
+            },
+            {
+                requestId: "REQ-105",
+                shopId: "S05",
+                rice: "400",
+                wheat: "250",
+                sugar: "75",
+                urgency: "normal",
+                warehouse: "Valam Central Warehouse",
+                warehouseId: "W01",
+                status: "Pending",
+                vehicle: "Not Assigned",
+                receivedDate: "2026-10-26",
+                receivedTime: "14:30:00",
+                processedDate: "—",
+                processedTime: "—",
+                timeline: [
+                    { stage: "Request Received", date: "2026-10-26", time: "14:30:00", status: "Pending", actor: "Shop S05", note: "Received from Thuckalay." }
+                ]
+            },
+            {
+                requestId: "REQ-106",
+                shopId: "S06",
+                rice: "350",
+                wheat: "200",
+                sugar: "60",
+                urgency: "normal",
+                warehouse: "Valam Central Warehouse",
+                warehouseId: "W01",
+                status: "Dispatched",
+                vehicle: "V01",
+                receivedDate: "2026-10-24",
+                receivedTime: "11:00:00",
+                processedDate: "2026-10-24",
+                processedTime: "13:15:00",
+                timeline: [
+                    { stage: "Request Received", date: "2026-10-24", time: "11:00:00", status: "Pending", actor: "Shop S06", note: "Request submitted." },
+                    { stage: "Request Accepted / Processed", date: "2026-10-24", time: "13:15:00", status: "Reserved", actor: "Wh01 Staff", note: "Stock reserved." },
+                    { stage: "Vehicle Assigned", date: "2026-10-25", time: "07:00:00", status: "Reserved", actor: "Wh01 Staff", note: "Vehicle V01 assigned." },
+                    { stage: "Dispatched", date: "2026-10-25", time: "07:30:00", status: "Dispatched", actor: "Wh01 Staff", note: "Dispatched to Padmanabhapuram." }
+                ]
             }
         ];
 
-        // Request counter for new requests (starts at 103 to match shop page)
-        var warehouseRequestCounter = 103;
-
-
-        // ---------------------------------------------------------------
-        // SHOP REQUESTS VIEW FUNCTIONS
-        // ---------------------------------------------------------------
-
-        // addShopRequestRow() — Adds a new row to the Shop Requests table.
-        function addShopRequestRow(req) {
-
-            // --- Decide the badge color for urgency ---
-            var urgencyBadge = "";
-            if (req.urgency === "critical") {
-                urgencyBadge = '<span class="badge bg-danger">Critical</span>';
-            } else if (req.urgency === "urgent") {
-                urgencyBadge = '<span class="badge bg-warning text-dark">Urgent</span>';
-            } else {
-                urgencyBadge = '<span class="badge bg-primary">Normal</span>';
+        // Filter requests for currently logged-in warehouse
+        function getWarehouseRequestsFiltered() {
+            var list = [];
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                if (warehouseRequests[i].warehouseId === currentWarehouse.id || warehouseRequests[i].warehouse === currentWarehouse.name) {
+                    list.push(warehouseRequests[i]);
+                }
             }
-
-            // --- Decide the badge color for status ---
-            var statusBadge = "";
-            if (req.status === "Pending") {
-                statusBadge = '<span class="badge bg-secondary">Pending</span>';
-            } else if (req.status === "Reserved") {
-                statusBadge = '<span class="badge bg-warning text-dark">Reserved</span>';
-            } else if (req.status === "Dispatched") {
-                statusBadge = '<span class="badge bg-info text-dark">Dispatched</span>';
-            } else if (req.status === "In Transit") {
-                statusBadge = '<span class="badge bg-warning text-dark">In Transit</span>';
-            } else {
-                statusBadge = '<span class="badge bg-success">Delivered</span>';
-            }
-
-            // --- Find Shop Requests table body ---
-            var tableBody = document.getElementById("shopRequestsBody");
-
-            // --- Create a new table row ---
-            var newRow = document.createElement("tr");
-            newRow.setAttribute("id", "shopRow-" + req.requestId);
-
-            // --- Fill the row with cells ---
-            newRow.innerHTML =
-                "<td>" + req.requestId + "</td>" +
-                "<td>" + req.shopId + "</td>" +
-                "<td>" + req.rice + "</td>" +
-                "<td>" + req.wheat + "</td>" +
-                "<td>" + req.sugar + "</td>" +
-                "<td>" + urgencyBadge + "</td>" +
-                "<td>" + req.warehouse + "</td>" +
-                "<td>" + statusBadge + "</td>";
-
-            // --- Add the row to the table ---
-            tableBody.appendChild(newRow);
+            return list;
         }
 
+        // ---------------------------------------------------------------
+        // STOCK UPDATE HISTORY DATA (REQUIREMENT 3)
+        // ---------------------------------------------------------------
+        var stockHistoryCounter = 1004;
+        var stockHistoryData = [
+            {
+                updateId: "STK-1003",
+                warehouseId: "W01",
+                commodity: "Sugar",
+                previousStock: 1560,
+                quantityAdded: 0,
+                quantityDeducted: 60,
+                currentStock: 1500,
+                reason: "Request REQ-106 processed (Shop S06)",
+                date: "2026-10-24",
+                time: "13:16:00",
+                updatedBy: "Wh01 Staff"
+            },
+            {
+                updateId: "STK-1002",
+                warehouseId: "W01",
+                commodity: "Wheat",
+                previousStock: 3400,
+                quantityAdded: 0,
+                quantityDeducted: 200,
+                currentStock: 3200,
+                reason: "Request REQ-106 processed (Shop S06)",
+                date: "2026-10-24",
+                time: "13:16:00",
+                updatedBy: "Wh01 Staff"
+            },
+            {
+                updateId: "STK-1001",
+                warehouseId: "W01",
+                commodity: "Rice",
+                previousStock: 5350,
+                quantityAdded: 0,
+                quantityDeducted: 350,
+                currentStock: 5000,
+                reason: "Request REQ-106 processed (Shop S06)",
+                date: "2026-10-24",
+                time: "13:16:00",
+                updatedBy: "Wh01 Staff"
+            },
+            {
+                updateId: "STK-1000",
+                warehouseId: "W01",
+                commodity: "Rice",
+                previousStock: 4000,
+                quantityAdded: 1550,
+                quantityDeducted: 0,
+                currentStock: 5550,
+                reason: "Fresh consignment received from FCI Tirunelveli Hub",
+                date: "2026-10-15",
+                time: "09:00:00",
+                updatedBy: "Wh01 Depot Incharge"
+            }
+        ];
 
         // ---------------------------------------------------------------
-        // PROCESS REQUEST FUNCTIONS
+        // WAREHOUSE OPERATION AUDIT LOG (REQUIREMENT 5)
         // ---------------------------------------------------------------
+        var opCounter = 505;
+        var warehouseOperationsData = [
+            {
+                opId: "WH-OP-504",
+                requestId: "REQ-106",
+                warehouseId: "W01",
+                operationType: "Dispatched",
+                prevValue: "Reserved",
+                newValue: "Dispatched (Vehicle V01)",
+                date: "2026-10-25",
+                time: "07:30:00",
+                updatedBy: "Wh01 Staff"
+            },
+            {
+                opId: "WH-OP-503",
+                requestId: "REQ-106",
+                warehouseId: "W01",
+                operationType: "Vehicle Assigned",
+                prevValue: "Available",
+                newValue: "On Trip (V01)",
+                date: "2026-10-25",
+                time: "07:00:00",
+                updatedBy: "Wh01 Staff"
+            },
+            {
+                opId: "WH-OP-502",
+                requestId: "REQ-106",
+                warehouseId: "W01",
+                operationType: "Stock Deducted",
+                prevValue: "Rice: 5350, Wheat: 3400, Sugar: 1560",
+                newValue: "Rice: 5000, Wheat: 3200, Sugar: 1500",
+                date: "2026-10-24",
+                time: "13:16:00",
+                updatedBy: "Wh01 Staff"
+            },
+            {
+                opId: "WH-OP-501",
+                requestId: "REQ-106",
+                warehouseId: "W01",
+                operationType: "Request Accepted",
+                prevValue: "Pending",
+                newValue: "Reserved",
+                date: "2026-10-24",
+                time: "13:15:00",
+                updatedBy: "Wh01 Staff"
+            },
+            {
+                opId: "WH-OP-500",
+                requestId: "REQ-106",
+                warehouseId: "W01",
+                operationType: "Request Received",
+                prevValue: "—",
+                newValue: "Pending",
+                date: "2026-10-24",
+                time: "11:00:00",
+                updatedBy: "Shop S06"
+            }
+        ];
 
-        // populateProcessDropdown() — Fills the dropdown with pending requests.
+        // ---------------------------------------------------------------
+        // PROCESS REQUEST: ENHANCED WITH REAL AUDIT & STOCK TRANSACTIONS
+        // ---------------------------------------------------------------
         function populateProcessDropdown() {
             var select = document.getElementById("processRequestSelect");
-
-            // Clear existing options
             select.innerHTML = '<option value="">-- Select a Request --</option>';
 
-            // Add only "Pending" requests to the dropdown
-            for (var i = 0; i < warehouseRequests.length; i++) {
-                if (warehouseRequests[i].status === "Pending") {
+            var list = getWarehouseRequestsFiltered();
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].status === "Pending") {
                     var option = document.createElement("option");
-                    option.value = warehouseRequests[i].requestId;
-                    option.textContent = warehouseRequests[i].requestId + " — " + warehouseRequests[i].shopId;
+                    option.value = list[i].requestId;
+                    option.textContent = list[i].requestId + " — " + list[i].shopId + " (" + list[i].rice + "kg Rice, " + list[i].wheat + "kg Wheat, " + list[i].sugar + "kg Sugar)";
                     select.appendChild(option);
                 }
             }
-
-            // Hide the details section and success message
             document.getElementById("processRequestDetails").style.display = "none";
             document.getElementById("processSuccessMsg").style.display = "none";
         }
 
-        // showRequestDetails() — Shows the details of the selected request.
         function showRequestDetails() {
             var selectedId = document.getElementById("processRequestSelect").value;
-
-            // If nothing selected, hide details
             if (selectedId === "") {
                 document.getElementById("processRequestDetails").style.display = "none";
                 return;
             }
 
-            // Find the request in the array
             var req = null;
             for (var i = 0; i < warehouseRequests.length; i++) {
                 if (warehouseRequests[i].requestId === selectedId) {
@@ -505,33 +1162,24 @@
                     break;
                 }
             }
+            if (!req) return;
 
-            if (req === null) { return; }
-
-            // Fill in the details
             document.getElementById("detailRequestId").textContent = req.requestId;
             document.getElementById("detailShopId").textContent = req.shopId;
             document.getElementById("detailRice").textContent = req.rice;
             document.getElementById("detailWheat").textContent = req.wheat;
             document.getElementById("detailSugar").textContent = req.sugar;
-            document.getElementById("detailUrgency").textContent = req.urgency.charAt(0).toUpperCase() + req.urgency.slice(1);
+            document.getElementById("detailUrgency").textContent = req.urgency.toUpperCase();
             document.getElementById("detailWarehouse").textContent = req.warehouse;
             document.getElementById("detailStatus").innerHTML = '<span class="badge bg-secondary">' + req.status + '</span>';
 
-            // Show the details section
             document.getElementById("processRequestDetails").style.display = "block";
-
-            // Show the process button, hide old success message
             document.getElementById("processBtn").style.display = "inline-block";
             document.getElementById("processSuccessMsg").style.display = "none";
         }
 
-        // processRequest() — Processes the selected request.
-        // Changes status to "Reserved" and updates warehouse stock.
         function processRequest() {
             var selectedId = document.getElementById("processRequestSelect").value;
-
-            // Find the request in the array
             var req = null;
             for (var i = 0; i < warehouseRequests.length; i++) {
                 if (warehouseRequests[i].requestId === selectedId) {
@@ -539,84 +1187,218 @@
                     break;
                 }
             }
+            if (!req) return;
 
-            if (req === null) { return; }
+            var today = getCurrentDateIST();
+            var timeNow = getCurrentTimeIST();
 
-            // --- Change status to "Reserved" ---
+            // 1. Update Request status and timestamps
             req.status = "Reserved";
+            req.processedDate = today;
+            req.processedTime = timeNow;
 
-            // --- Update the status display ---
-            document.getElementById("detailStatus").innerHTML = '<span class="badge bg-warning text-dark">Reserved</span>';
+            // 2. Append to request timeline
+            req.timeline.push({
+                stage: "Request Accepted / Processed",
+                date: today,
+                time: timeNow,
+                status: "Reserved",
+                actor: loggedInUser + " Staff",
+                note: "Request approved and stock allocated."
+            });
 
-            // --- Update warehouse stock ---
-            // Reduce available stock by the requested quantities
-            warehouseStock.rice = warehouseStock.rice - parseInt(req.rice);
-            warehouseStock.wheat = warehouseStock.wheat - parseInt(req.wheat);
-            warehouseStock.sugar = warehouseStock.sugar - parseInt(req.sugar);
+            // 3. Update stock levels & record separate deductions for each commodity
+            var riceQty = parseInt(req.rice) || 0;
+            var wheatQty = parseInt(req.wheat) || 0;
+            var sugarQty = parseInt(req.sugar) || 0;
 
-            // Increase reserved stock
-            reservedStock.rice = reservedStock.rice + parseInt(req.rice);
-            reservedStock.wheat = reservedStock.wheat + parseInt(req.wheat);
-            reservedStock.sugar = reservedStock.sugar + parseInt(req.sugar);
-
-            // --- Update the stock table display ---
-            document.getElementById("stockRice").textContent = warehouseStock.rice;
-            document.getElementById("stockWheat").textContent = warehouseStock.wheat;
-            document.getElementById("stockSugar").textContent = warehouseStock.sugar;
-            document.getElementById("reservedRice").textContent = reservedStock.rice;
-            document.getElementById("reservedWheat").textContent = reservedStock.wheat;
-            document.getElementById("reservedSugar").textContent = reservedStock.sugar;
-
-            // --- Update the Shop Requests table row status ---
-            var shopRow = document.getElementById("shopRow-" + req.requestId);
-            if (shopRow) {
-                var cells = shopRow.getElementsByTagName("td");
-                cells[7].innerHTML = '<span class="badge bg-warning text-dark">Reserved</span>';
+            if (riceQty > 0) {
+                var prevRice = warehouseStock.rice;
+                warehouseStock.rice -= riceQty;
+                reservedStock.rice += riceQty;
+                stockHistoryData.unshift({
+                    updateId: "STK-" + stockHistoryCounter++,
+                    warehouseId: currentWarehouse.id,
+                    commodity: "Rice",
+                    previousStock: prevRice,
+                    quantityAdded: 0,
+                    quantityDeducted: riceQty,
+                    currentStock: warehouseStock.rice,
+                    reason: "Request " + req.requestId + " processed (Shop " + req.shopId + ")",
+                    date: today,
+                    time: timeNow,
+                    updatedBy: loggedInUser + " Staff"
+                });
             }
 
-            // --- Show success message, hide process button ---
+            if (wheatQty > 0) {
+                var prevWheat = warehouseStock.wheat;
+                warehouseStock.wheat -= wheatQty;
+                reservedStock.wheat += wheatQty;
+                stockHistoryData.unshift({
+                    updateId: "STK-" + stockHistoryCounter++,
+                    warehouseId: currentWarehouse.id,
+                    commodity: "Wheat",
+                    previousStock: prevWheat,
+                    quantityAdded: 0,
+                    quantityDeducted: wheatQty,
+                    currentStock: warehouseStock.wheat,
+                    reason: "Request " + req.requestId + " processed (Shop " + req.shopId + ")",
+                    date: today,
+                    time: timeNow,
+                    updatedBy: loggedInUser + " Staff"
+                });
+            }
+
+            if (sugarQty > 0) {
+                var prevSugar = warehouseStock.sugar;
+                warehouseStock.sugar -= sugarQty;
+                reservedStock.sugar += sugarQty;
+                stockHistoryData.unshift({
+                    updateId: "STK-" + stockHistoryCounter++,
+                    warehouseId: currentWarehouse.id,
+                    commodity: "Sugar",
+                    previousStock: prevSugar,
+                    quantityAdded: 0,
+                    quantityDeducted: sugarQty,
+                    currentStock: warehouseStock.sugar,
+                    reason: "Request " + req.requestId + " processed (Shop " + req.shopId + ")",
+                    date: today,
+                    time: timeNow,
+                    updatedBy: loggedInUser + " Staff"
+                });
+            }
+
+            // 4. Update Last Stock Update banner
+            lastStockUpdate = {
+                date: today,
+                time: timeNow,
+                updatedBy: loggedInUser + " Staff",
+                reason: "Request " + req.requestId + " processed"
+            };
+            updateStockDisplays();
+
+            // 5. Add to Warehouse Operation History
+            warehouseOperationsData.unshift({
+                opId: "WH-OP-" + opCounter++,
+                requestId: req.requestId,
+                warehouseId: currentWarehouse.id,
+                operationType: "Request Accepted",
+                prevValue: "Pending",
+                newValue: "Reserved",
+                date: today,
+                time: timeNow,
+                updatedBy: loggedInUser + " Staff"
+            });
+            warehouseOperationsData.unshift({
+                opId: "WH-OP-" + opCounter++,
+                requestId: req.requestId,
+                warehouseId: currentWarehouse.id,
+                operationType: "Stock Deducted",
+                prevValue: "Available Stock Reduced",
+                newValue: "Rice: -" + riceQty + "kg, Wheat: -" + wheatQty + "kg, Sugar: -" + sugarQty + "kg",
+                date: today,
+                time: timeNow,
+                updatedBy: loggedInUser + " Staff"
+            });
+
+            // UI updates
+            document.getElementById("detailStatus").innerHTML = '<span class="badge bg-warning text-dark">Reserved</span>';
             document.getElementById("processBtn").style.display = "none";
             document.getElementById("processSuccessMsg").style.display = "block";
         }
 
+        // ---------------------------------------------------------------
+        // MANUAL STOCK ADDITION
+        // ---------------------------------------------------------------
+        function handleManualStockAdd(event) {
+            event.preventDefault();
+            var comm = document.getElementById("addCommodity").value;
+            var qty = parseInt(document.getElementById("addQuantity").value) || 0;
+            var reason = document.getElementById("addReason").value.trim();
+
+            if (qty <= 0) {
+                alert("Please enter a valid quantity.");
+                return;
+            }
+
+            var today = getCurrentDateIST();
+            var timeNow = getCurrentTimeIST();
+            var prev = warehouseStock[comm];
+            warehouseStock[comm] += qty;
+
+            var commName = comm.charAt(0).toUpperCase() + comm.slice(1);
+
+            stockHistoryData.unshift({
+                updateId: "STK-" + stockHistoryCounter++,
+                warehouseId: currentWarehouse.id,
+                commodity: commName,
+                previousStock: prev,
+                quantityAdded: qty,
+                quantityDeducted: 0,
+                currentStock: warehouseStock[comm],
+                reason: reason,
+                date: today,
+                time: timeNow,
+                updatedBy: loggedInUser + " Staff"
+            });
+
+            lastStockUpdate = {
+                date: today,
+                time: timeNow,
+                updatedBy: loggedInUser + " Staff",
+                reason: reason
+            };
+            updateStockDisplays();
+
+            warehouseOperationsData.unshift({
+                opId: "WH-OP-" + opCounter++,
+                requestId: "—",
+                warehouseId: currentWarehouse.id,
+                operationType: "Stock Added",
+                prevValue: prev + " kg",
+                newValue: warehouseStock[comm] + " kg (+" + qty + ")",
+                date: today,
+                time: timeNow,
+                updatedBy: loggedInUser + " Staff"
+            });
+
+            // Close modal
+            var modalEl = document.getElementById("addStockModal");
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            alert("✅ Successfully added " + qty + " kg of " + commName + " to stock!");
+            renderStockHistory(stockHistoryData);
+        }
 
         // ---------------------------------------------------------------
-        // DELIVERY / VEHICLE FUNCTIONS
+        // DELIVERY ASSIGNMENT
         // ---------------------------------------------------------------
-
-        // populateDeliveryDropdown() — Fills the dropdown with processed (Reserved) requests.
         function populateDeliveryDropdown() {
             var select = document.getElementById("deliveryRequestSelect");
-
-            // Clear existing options
             select.innerHTML = '<option value="">-- Select a Request --</option>';
 
-            // Add only "Reserved" requests to the dropdown
-            for (var i = 0; i < warehouseRequests.length; i++) {
-                if (warehouseRequests[i].status === "Reserved") {
+            var list = getWarehouseRequestsFiltered();
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].status === "Reserved") {
                     var option = document.createElement("option");
-                    option.value = warehouseRequests[i].requestId;
-                    option.textContent = warehouseRequests[i].requestId + " — " + warehouseRequests[i].shopId;
+                    option.value = list[i].requestId;
+                    option.textContent = list[i].requestId + " — " + list[i].shopId;
                     select.appendChild(option);
                 }
             }
-
-            // Hide the details section and success message
             document.getElementById("deliveryDetails").style.display = "none";
             document.getElementById("deliverySuccessMsg").style.display = "none";
         }
 
-        // showDeliveryDetails() — Shows the delivery details of the selected request.
         function showDeliveryDetails() {
             var selectedId = document.getElementById("deliveryRequestSelect").value;
-
-            // If nothing selected, hide details
             if (selectedId === "") {
                 document.getElementById("deliveryDetails").style.display = "none";
                 return;
             }
 
-            // Find the request in the array
             var req = null;
             for (var i = 0; i < warehouseRequests.length; i++) {
                 if (warehouseRequests[i].requestId === selectedId) {
@@ -624,30 +1406,23 @@
                     break;
                 }
             }
+            if (!req) return;
 
-            if (req === null) { return; }
-
-            // Fill in the delivery details
             document.getElementById("delRequestId").textContent = req.requestId;
             document.getElementById("delShopId").textContent = req.shopId;
             document.getElementById("delWarehouse").textContent = req.warehouse;
             document.getElementById("delVehicle").textContent = req.vehicle || "Not Assigned";
             document.getElementById("delStatus").innerHTML = '<span class="badge bg-warning text-dark">' + req.status + '</span>';
 
-            // Show the details section
             document.getElementById("deliveryDetails").style.display = "block";
-
-            // Show the assign button, hide old success message
             document.getElementById("assignVehicleBtn").style.display = "inline-block";
             document.getElementById("deliverySuccessMsg").style.display = "none";
         }
 
-        // assignVehicle() — Assigns a vehicle and updates delivery status.
         function assignVehicle() {
             var selectedId = document.getElementById("deliveryRequestSelect").value;
             var selectedVehicle = document.getElementById("vehicleSelect").value;
 
-            // Find the request in the array
             var req = null;
             for (var i = 0; i < warehouseRequests.length; i++) {
                 if (warehouseRequests[i].requestId === selectedId) {
@@ -655,30 +1430,387 @@
                     break;
                 }
             }
+            if (!req) return;
 
-            if (req === null) { return; }
+            var today = getCurrentDateIST();
+            var timeNow = getCurrentTimeIST();
 
-            // --- Update request data ---
             req.vehicle = selectedVehicle;
             req.status = "Dispatched";
 
-            // --- Update the display ---
+            req.timeline.push({
+                stage: "Vehicle Assigned",
+                date: today,
+                time: timeNow,
+                status: "Reserved",
+                actor: loggedInUser + " Staff",
+                note: "Vehicle " + selectedVehicle + " assigned."
+            });
+            req.timeline.push({
+                stage: "Dispatched",
+                date: today,
+                time: timeNow,
+                status: "Dispatched",
+                actor: loggedInUser + " Staff",
+                note: "Consignment dispatched from " + req.warehouse + "."
+            });
+
+            warehouseOperationsData.unshift({
+                opId: "WH-OP-" + opCounter++,
+                requestId: req.requestId,
+                warehouseId: currentWarehouse.id,
+                operationType: "Vehicle Assigned",
+                prevValue: "Not Assigned",
+                newValue: selectedVehicle,
+                date: today,
+                time: timeNow,
+                updatedBy: loggedInUser + " Staff"
+            });
+            warehouseOperationsData.unshift({
+                opId: "WH-OP-" + opCounter++,
+                requestId: req.requestId,
+                warehouseId: currentWarehouse.id,
+                operationType: "Dispatched",
+                prevValue: "Reserved",
+                newValue: "Dispatched",
+                date: today,
+                time: timeNow,
+                updatedBy: loggedInUser + " Staff"
+            });
+
             document.getElementById("delVehicle").textContent = selectedVehicle;
             document.getElementById("delStatus").innerHTML = '<span class="badge bg-info text-dark">Dispatched</span>';
-
-            // --- Update the Shop Requests table row status ---
-            var shopRow = document.getElementById("shopRow-" + req.requestId);
-            if (shopRow) {
-                var cells = shopRow.getElementsByTagName("td");
-                cells[7].innerHTML = '<span class="badge bg-info text-dark">Dispatched</span>';
-            }
-
-            // --- Show success message, hide assign button ---
             document.getElementById("assignVehicleBtn").style.display = "none";
             document.getElementById("deliverySuccessMsg").style.display = "block";
         }
 
-    </script>
+        // ---------------------------------------------------------------
+        // RENDER 1: REQUEST HISTORY & PROCESSING TIMELINE TABLE (REQ 1 & 2)
+        // ---------------------------------------------------------------
+        function renderWarehouseRequestsHistory(data) {
+            var tbody = document.getElementById("whReqHistoryTableBody");
+            var table = document.getElementById("whReqHistoryTable");
+            var noMsg = document.getElementById("whReqNoRecordsMsg");
+            var countText = document.getElementById("whReqCountText");
 
+            tbody.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                table.style.display = "none";
+                noMsg.style.display = "block";
+                countText.textContent = "";
+            } else {
+                table.style.display = "table";
+                noMsg.style.display = "none";
+                countText.textContent = "Showing " + data.length + " request(s)";
+
+                for (var i = 0; i < data.length; i++) {
+                    var req = data[i];
+                    var tr = document.createElement("tr");
+
+                    var statusBadge = '';
+                    if (req.status === "Pending") statusBadge = '<span class="badge bg-secondary">Pending</span>';
+                    else if (req.status === "Reserved") statusBadge = '<span class="badge bg-warning text-dark">Reserved</span>';
+                    else if (req.status === "Dispatched") statusBadge = '<span class="badge bg-info text-dark">Dispatched</span>';
+                    else if (req.status === "Delivered") statusBadge = '<span class="badge bg-success">Delivered</span>';
+                    else statusBadge = '<span class="badge bg-light text-dark">' + req.status + '</span>';
+
+                    var waitHtml = calculateWaitTime(req.receivedDate, req.receivedTime, req.processedDate, req.processedTime);
+
+                    tr.innerHTML =
+                        "<td><strong>" + req.requestId + "</strong></td>" +
+                        "<td><span class=\"badge bg-light text-dark border\">" + req.shopId + "</span></td>" +
+                        "<td>" + req.rice + "</td>" +
+                        "<td>" + req.wheat + "</td>" +
+                        "<td>" + req.sugar + "</td>" +
+                        "<td>" + (req.urgency === 'critical' ? '<span class="badge bg-danger">Critical</span>' : '<span class="badge bg-primary">Normal</span>') + "</td>" +
+                        "<td>" + formatDateReadable(req.receivedDate) + "</td>" +
+                        "<td>" + formatTime12IST(req.receivedTime) + "</td>" +
+                        "<td>" + (req.processedDate !== '—' ? formatDateReadable(req.processedDate) : '<span class=\"text-muted\">—</span>') + "</td>" +
+                        "<td>" + (req.processedTime !== '—' ? formatTime12IST(req.processedTime) : '<span class=\"text-muted\">—</span>') + "</td>" +
+                        "<td>" + statusBadge + "</td>" +
+                        "<td>" + waitHtml + "</td>" +
+                        '<td><button class="btn btn-outline-primary btn-sm text-nowrap" onclick="viewWarehouseTimeline(\'' + req.requestId + '\')">⏱️ View Timeline</button></td>';
+                    tbody.appendChild(tr);
+                }
+            }
+
+            // Update stats
+            var total = data ? data.length : 0;
+            var processed = 0, pending = 0, delivered = 0;
+            if (data) {
+                for (var k = 0; k < data.length; k++) {
+                    if (data[k].status === "Pending") pending++;
+                    if (data[k].status === "Reserved" || data[k].status === "Dispatched" || data[k].status === "Delivered") processed++;
+                    if (data[k].status === "Delivered") delivered++;
+                }
+            }
+            document.getElementById("statWhTotalReceived").textContent = total;
+            document.getElementById("statWhTotalProcessed").textContent = processed;
+            document.getElementById("statWhTotalPending").textContent = pending;
+            document.getElementById("statWhTotalDelivered").textContent = delivered;
+        }
+
+        function filterWarehouseRequests() {
+            var from = document.getElementById("whReqFromDate").value;
+            var to = document.getElementById("whReqToDate").value;
+            var status = document.getElementById("whReqStatusFilter").value;
+            var alertBox = document.getElementById("whReqDateAlert");
+
+            if (from && to && from > to) {
+                alertBox.style.display = "block";
+                return;
+            }
+            alertBox.style.display = "none";
+
+            var whList = getWarehouseRequestsFiltered();
+            var filtered = [];
+
+            for (var i = 0; i < whList.length; i++) {
+                var r = whList[i];
+                var dateOk = true;
+                var statusOk = true;
+
+                if (from && r.receivedDate < from) dateOk = false;
+                if (to && r.receivedDate > to) dateOk = false;
+                if (status !== "all" && r.status !== status) statusOk = false;
+
+                if (dateOk && statusOk) filtered.push(r);
+            }
+
+            renderWarehouseRequestsHistory(filtered);
+        }
+
+        function resetWarehouseRequestsFilter() {
+            document.getElementById("whReqFromDate").value = "";
+            document.getElementById("whReqToDate").value = "";
+            document.getElementById("whReqStatusFilter").value = "all";
+            document.getElementById("whReqDateAlert").style.display = "none";
+            renderWarehouseRequestsHistory(getWarehouseRequestsFiltered());
+        }
+
+        // ---------------------------------------------------------------
+        // VIEW TIMELINE MODAL (REQUIREMENT 1)
+        // ---------------------------------------------------------------
+        function viewWarehouseTimeline(reqId) {
+            var req = null;
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                if (warehouseRequests[i].requestId === reqId) {
+                    req = warehouseRequests[i];
+                    break;
+                }
+            }
+            if (!req) return;
+
+            document.getElementById("whTimelineModalTitle").textContent = "Lifecycle Timeline — " + req.requestId;
+            document.getElementById("whTimelineModalSubtitle").textContent = "Shop: " + req.shopId + " | Warehouse: " + req.warehouse;
+
+            var waitBadge = calculateWaitTime(req.receivedDate, req.receivedTime, req.processedDate, req.processedTime);
+
+            var html = '';
+            html += '<div class="p-3 bg-light rounded border mb-3">';
+            html += '<div class="row align-items-center">';
+            html += '<div class="col-md-8">';
+            html += '<p class="mb-1"><strong>Commodities Requested:</strong> Rice: ' + req.rice + ' kg | Wheat: ' + req.wheat + ' kg | Sugar: ' + req.sugar + ' kg</p>';
+            html += '<p class="mb-0 text-muted" style="font-size: 0.88rem;"><strong>Received:</strong> ' + formatDateReadable(req.receivedDate) + ' at ' + formatTime12IST(req.receivedTime) + '</p>';
+            html += '</div>';
+            html += '<div class="col-md-4 text-md-end mt-2 mt-md-0">';
+            html += '<div><span class="text-muted" style="font-size:0.8rem;">Processing Wait Time:</span><br>' + waitBadge + '</div>';
+            html += '</div>';
+            html += '</div></div>';
+
+            html += '<h6 class="mb-3" style="font-weight: 600;">Chronological Event History (IST)</h6>';
+            html += '<div class="list-group">';
+
+            for (var t = 0; t < req.timeline.length; t++) {
+                var item = req.timeline[t];
+                var isLatest = (t === req.timeline.length - 1);
+                var activeClass = isLatest ? ' border-primary shadow-sm' : '';
+
+                html += '<div class="list-group-item p-3 mb-2 rounded' + activeClass + '" style="border-left: 4px solid #2563eb !important;">';
+                html += '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">';
+                html += '<div>';
+                html += '<strong style="font-size: 0.95rem;">' + (t + 1) + '. ' + item.stage + '</strong> ';
+                html += '<span class="badge bg-secondary">' + item.status + '</span>';
+                html += '</div>';
+                html += '<div class="text-muted" style="font-size: 0.8rem;">';
+                html += '📅 ' + formatDateReadable(item.date) + ' &nbsp;|&nbsp; 🕒 ' + formatTime12IST(item.time);
+                html += '</div>';
+                html += '</div>';
+                html += '<p class="mt-2 mb-1 text-muted" style="font-size: 0.88rem;">' + item.note + '</p>';
+                html += '<small class="text-secondary">👤 Logged by: <strong>' + item.actor + '</strong></small>';
+                html += '</div>';
+            }
+
+            html += '</div>';
+
+            document.getElementById("whTimelineModalBody").innerHTML = html;
+
+            var modal = new bootstrap.Modal(document.getElementById("whTimelineModal"));
+            modal.show();
+        }
+
+        // ---------------------------------------------------------------
+        // RENDER 2: STOCK UPDATE HISTORY TABLE (REQUIREMENT 3)
+        // ---------------------------------------------------------------
+        function renderStockHistory(data) {
+            var tbody = document.getElementById("stockHistoryTableBody");
+            var table = document.getElementById("stockHistoryTable");
+            var noMsg = document.getElementById("stockNoRecordsMsg");
+            var countText = document.getElementById("stockLogCountText");
+
+            tbody.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                table.style.display = "none";
+                noMsg.style.display = "block";
+                countText.textContent = "";
+            } else {
+                table.style.display = "table";
+                noMsg.style.display = "none";
+                countText.textContent = "Showing " + data.length + " stock update(s)";
+
+                for (var i = 0; i < data.length; i++) {
+                    var s = data[i];
+                    var tr = document.createElement("tr");
+
+                    var addedBadge = s.quantityAdded > 0 ? '<span class="badge bg-success">+' + s.quantityAdded + ' kg</span>' : '<span class="text-muted">—</span>';
+                    var deductedBadge = s.quantityDeducted > 0 ? '<span class="badge bg-danger">-' + s.quantityDeducted + ' kg</span>' : '<span class="text-muted">—</span>';
+
+                    tr.innerHTML =
+                        "<td><strong>" + s.updateId + "</strong></td>" +
+                        "<td><span class=\"badge bg-light text-dark border\">" + s.warehouseId + "</span></td>" +
+                        "<td><strong>" + s.commodity + "</strong></td>" +
+                        "<td>" + s.previousStock + " kg</td>" +
+                        "<td>" + addedBadge + "</td>" +
+                        "<td>" + deductedBadge + "</td>" +
+                        "<td><strong>" + s.currentStock + " kg</strong></td>" +
+                        "<td>" + s.reason + "</td>" +
+                        "<td>" + formatDateReadable(s.date) + "</td>" +
+                        "<td>" + formatTime12IST(s.time) + "</td>" +
+                        "<td>" + s.updatedBy + "</td>";
+                    tbody.appendChild(tr);
+                }
+            }
+        }
+
+        function filterStockHistory() {
+            var from = document.getElementById("stockFilterFromDate").value;
+            var to = document.getElementById("stockFilterToDate").value;
+            var comm = document.getElementById("stockFilterCommodity").value;
+            var alertBox = document.getElementById("stockDateAlert");
+
+            if (from && to && from > to) {
+                alertBox.style.display = "block";
+                return;
+            }
+            alertBox.style.display = "none";
+
+            var filtered = [];
+            for (var i = 0; i < stockHistoryData.length; i++) {
+                var s = stockHistoryData[i];
+                var dateOk = true;
+                var commOk = true;
+
+                if (from && s.date < from) dateOk = false;
+                if (to && s.date > to) dateOk = false;
+                if (comm !== "all" && s.commodity !== comm) commOk = false;
+
+                if (dateOk && commOk) filtered.push(s);
+            }
+
+            renderStockHistory(filtered);
+        }
+
+        function resetStockFilter() {
+            document.getElementById("stockFilterFromDate").value = "";
+            document.getElementById("stockFilterToDate").value = "";
+            document.getElementById("stockFilterCommodity").value = "all";
+            document.getElementById("stockDateAlert").style.display = "none";
+            renderStockHistory(stockHistoryData);
+        }
+
+        // ---------------------------------------------------------------
+        // RENDER 3: WAREHOUSE OPERATION AUDIT LOG (REQUIREMENT 5)
+        // ---------------------------------------------------------------
+        function renderWarehouseOperations(data) {
+            var tbody = document.getElementById("warehouseOpTableBody");
+            var table = document.getElementById("warehouseOpTable");
+            var noMsg = document.getElementById("opNoRecordsMsg");
+            var countText = document.getElementById("opCountText");
+
+            tbody.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                table.style.display = "none";
+                noMsg.style.display = "block";
+                countText.textContent = "";
+            } else {
+                table.style.display = "table";
+                noMsg.style.display = "none";
+                countText.textContent = "Showing " + data.length + " audit record(s)";
+
+                for (var i = 0; i < data.length; i++) {
+                    var op = data[i];
+                    var tr = document.createElement("tr");
+
+                    var typeBadge = '<span class="badge bg-secondary">' + op.operationType + '</span>';
+                    if (op.operationType === "Request Accepted") typeBadge = '<span class="badge bg-primary">Request Accepted</span>';
+                    else if (op.operationType === "Stock Deducted") typeBadge = '<span class="badge bg-danger">Stock Deducted</span>';
+                    else if (op.operationType === "Stock Added") typeBadge = '<span class="badge bg-success">Stock Added</span>';
+                    else if (op.operationType === "Vehicle Assigned" || op.operationType === "Dispatched") typeBadge = '<span class="badge bg-info text-dark">' + op.operationType + '</span>';
+
+                    tr.innerHTML =
+                        "<td><strong>" + op.opId + "</strong></td>" +
+                        "<td>" + (op.requestId !== '—' ? '<strong>' + op.requestId + '</strong>' : '<span class="text-muted">—</span>') + "</td>" +
+                        "<td>" + op.warehouseId + "</td>" +
+                        "<td>" + typeBadge + "</td>" +
+                        "<td>" + op.prevValue + "</td>" +
+                        "<td>" + op.newValue + "</td>" +
+                        "<td>" + formatDateReadable(op.date) + "</td>" +
+                        "<td>" + formatTime12IST(op.time) + "</td>" +
+                        "<td>" + op.updatedBy + "</td>";
+                    tbody.appendChild(tr);
+                }
+            }
+        }
+
+        function filterWarehouseOperations() {
+            var from = document.getElementById("opFilterFromDate").value;
+            var to = document.getElementById("opFilterToDate").value;
+            var type = document.getElementById("opFilterType").value;
+            var alertBox = document.getElementById("opDateAlert");
+
+            if (from && to && from > to) {
+                alertBox.style.display = "block";
+                return;
+            }
+            alertBox.style.display = "none";
+
+            var filtered = [];
+            for (var i = 0; i < warehouseOperationsData.length; i++) {
+                var o = warehouseOperationsData[i];
+                var dateOk = true;
+                var typeOk = true;
+
+                if (from && o.date < from) dateOk = false;
+                if (to && o.date > to) dateOk = false;
+                if (type !== "all" && o.operationType !== type) typeOk = false;
+
+                if (dateOk && typeOk) filtered.push(o);
+            }
+
+            renderWarehouseOperations(filtered);
+        }
+
+        function resetWarehouseOperationsFilter() {
+            document.getElementById("opFilterFromDate").value = "";
+            document.getElementById("opFilterToDate").value = "";
+            document.getElementById("opFilterType").value = "all";
+            document.getElementById("opDateAlert").style.display = "none";
+            renderWarehouseOperations(warehouseOperationsData);
+        }
+
+    </script>
 </body>
 </html>
