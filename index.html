@@ -105,6 +105,46 @@
         </div>
     </main>
 
+    <!-- ===== LOGIN MODAL ===== -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 8px 32px rgba(0,0,0,0.12);">
+                <div class="modal-header border-0 pb-0" style="padding: 28px 32px 0;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div id="modalPortalIcon" class="portal-icon"></div>
+                        <div>
+                            <h5 class="modal-title mb-0" id="loginModalLabel" style="font-weight: 700; color: #0f1f2e;">Sign in</h5>
+                            <p class="mb-0" style="font-size: 0.85rem; color: #7a8a9c;" id="modalPortalName"></p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 24px 32px 32px;">
+                    <form id="loginForm" onsubmit="handleLogin(event)">
+                        <div class="mb-3">
+                            <label for="username" class="form-label" style="font-weight: 500; font-size: 0.9rem;">Username</label>
+                            <input type="text" class="form-control" id="username" placeholder="Enter your username" required
+                                   style="border-radius: 10px; padding: 10px 14px; border: 1px solid #d0d5dd;">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label" style="font-weight: 500; font-size: 0.9rem;">Password</label>
+                            <input type="password" class="form-control" id="password" placeholder="Enter your password" required
+                                   style="border-radius: 10px; padding: 10px 14px; border: 1px solid #d0d5dd;">
+                        </div>
+                        <div id="loginError" class="alert alert-danger py-2" style="display: none; font-size: 0.85rem; border-radius: 10px;"></div>
+                        <button type="submit" class="btn w-100 mt-2" id="loginBtn"
+                                style="border-radius: 10px; padding: 10px; font-weight: 600; color: white;">
+                            Sign in
+                        </button>
+                    </form>
+                    <p class="text-center mt-3 mb-0" style="font-size: 0.8rem; color: #9aa5b0;">
+                        Use the credentials provided by your administrator.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== FOOTER ===== -->
     <footer class="login-footer">
         <p>&copy; Kongu Engineering College 2026</p>
