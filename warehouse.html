@@ -751,6 +751,7 @@
 
         // Set UI headers
         document.addEventListener("DOMContentLoaded", function() {
+            loadWarehouseStock();
             var badge = document.getElementById("whUserBadge");
             if (badge) badge.textContent = "Logged in: " + loggedInUser + " (" + currentWarehouse.id + " - " + currentWarehouse.name + ")";
             var heading = document.getElementById("whWelcomeHeading");
@@ -908,10 +909,60 @@
             }
         }
 
+        async function loadWarehouseStock() {
+
+    // Convert frontend warehouse codes into MySQL warehouse IDs
+    var warehouseIds = {
+        W01: 1,
+        W02: 2
+    };
+
+    var databaseId = warehouseIds[currentWarehouse.id];
+
+    if (!databaseId) {
+        alert("Invalid warehouse ID: " + currentWarehouse.id);
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `http://localhost:8080/api/warehouses/${databaseId}/stock`
+        );
+
+        if (!response.ok) {
+            throw new Error("Could not fetch warehouse stock");
+        }
+
+        const stockRows = await response.json();
+
+        // Reset stock values before loading database values
+        warehouseStock = {
+            rice: 0,
+            wheat: 0,
+            sugar: 0
+        };
+
+        stockRows.forEach(function(row) {
+            var commodity = row.commodity_name.toLowerCase();
+
+            if (commodity in warehouseStock) {
+                warehouseStock[commodity] = Number(row.quantity_kg);
+            }
+        });
+
+        updateStockDisplays();
+
+        console.log("Warehouse stock loaded from MySQL:", warehouseStock);
+
+    } catch (error) {
+        console.error("Stock loading error:", error);
+        alert("Unable to load warehouse stock from the database.");
+    }
+}
         // ---------------------------------------------------------------
         // REQUEST REPOSITORY
         // ---------------------------------------------------------------
-        var warehouseRequests = [
+            var warehouseRequests = [
             {
                 requestId: "REQ-101",
                 shopId: "S01",
