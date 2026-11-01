@@ -186,22 +186,21 @@ public class WarehouseHandler implements HttpHandler {
 
                 // 3. Insert into stock_update_history for each commodity added
                 String logSql = "INSERT INTO stock_update_history (update_id, warehouse_id, commodity, previous_stock, quantity_added, quantity_deducted, current_stock, reason, log_date, log_time, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-                long nextLogId = System.currentTimeMillis() % 100000;
                 try (PreparedStatement ps = conn.prepareStatement(logSql)) {
                     if (riceAdd > 0) {
-                        insertStockHistory(ps, "STK-" + (nextLogId++), whId, "Rice", prevRice, riceAdd, 0, newRice, reason, currentDate, currentTime, updatedBy);
+                        insertStockHistory(ps, RequestHandler.getNextStockUpdateId(conn), whId, "Rice", prevRice, riceAdd, 0, newRice, reason, currentDate, currentTime, updatedBy);
                     }
                     if (wheatAdd > 0) {
-                        insertStockHistory(ps, "STK-" + (nextLogId++), whId, "Wheat", prevWheat, wheatAdd, 0, newWheat, reason, currentDate, currentTime, updatedBy);
+                        insertStockHistory(ps, RequestHandler.getNextStockUpdateId(conn), whId, "Wheat", prevWheat, wheatAdd, 0, newWheat, reason, currentDate, currentTime, updatedBy);
                     }
                     if (sugarAdd > 0) {
-                        insertStockHistory(ps, "STK-" + (nextLogId++), whId, "Sugar", prevSugar, sugarAdd, 0, newSugar, reason, currentDate, currentTime, updatedBy);
+                        insertStockHistory(ps, RequestHandler.getNextStockUpdateId(conn), whId, "Sugar", prevSugar, sugarAdd, 0, newSugar, reason, currentDate, currentTime, updatedBy);
                     }
                 }
 
                 // 4. Insert into operation_history
                 String opSql = "INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-                String opId = "OP-" + String.format("%03d", (int)(Math.random() * 900 + 100));
+                String opId = RequestHandler.getNextOpId(conn);
                 try (PreparedStatement ps = conn.prepareStatement(opSql)) {
                     ps.setString(1, opId);
                     ps.setString(2, "—");

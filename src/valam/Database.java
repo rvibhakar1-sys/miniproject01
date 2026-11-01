@@ -1,14 +1,12 @@
 package valam;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Database {
-    private static final String DB_DIR = "database";
-    private static final String DB_FILE = "database/valam.db";
-    private static final String DB_URL = "jdbc:sqlite:" + DB_FILE;
+    private static File dbFile;
+    private static String dbUrl;
 
     static {
         try {
@@ -18,12 +16,64 @@ public class Database {
         }
     }
 
-    public static Connection getConnection() throws SQLException {
-        File dir = new File(DB_DIR);
-        if (!dir.exists()) {
-            dir.mkdirs();
+    /**
+     * Resolves the single, authoritative SQLite database file.
+     * Ensures all Java modules and threads access the exact same database file
+     * regardless of the working directory from which Java was launched.
+     */
+    public static synchronized File getDbFile() {
+        if (dbFile == null) {
+            String override = System.getProperty("valam.db.path");
+            if (override != null && !override.trim().isEmpty()) {
+                dbFile = new File(override.trim()).getAbsoluteFile();
+            } else {
+                // Check if running from project root (miniproject01)
+                File f1 = new File("database/valam.db").getAbsoluteFile();
+                // Check if running from parent repository (d:\M0001)
+                File f2 = new File("miniproject01/database/valam.db").getAbsoluteFile();
+                // Check relative to parent directory
+                File f3 = new File("../database/valam.db").getAbsoluteFile();
+
+                if (f2.exists()) {
+                    dbFile = f2;
+                } else if (f1.exists()) {
+                    dbFile = f1;
+                } else if (f3.exists()) {
+                    dbFile = f3;
+                } else {
+                    // Default to database/valam.db
+                    dbFile = f1;
+                }
+            }
+
+            try {
+                dbFile = dbFile.getCanonicalFile();
+            } catch (IOException ignored) {}
+
+            File parentDir = dbFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+
+            dbUrl = "jdbc:sqlite:" + dbFile.getAbsolutePath();
         }
-        Connection conn = DriverManager.getConnection(DB_URL);
+        return dbFile;
+    }
+
+    public static String getDbUrl() {
+        if (dbUrl == null) {
+            getDbFile();
+        }
+        return dbUrl;
+    }
+
+    /**
+     * Obtains a fresh SQLite database connection.
+     * Always configures foreign keys and WAL mode for high concurrency and data consistency.
+     */
+    public static Connection getConnection() throws SQLException {
+        getDbFile();
+        Connection conn = DriverManager.getConnection(getDbUrl());
         try (Statement s = conn.createStatement()) {
             s.execute("PRAGMA foreign_keys = ON;");
             s.execute("PRAGMA journal_mode = WAL;");
@@ -31,19 +81,23 @@ public class Database {
         return conn;
     }
 
+    /**
+     * Verifies connectivity, logs the absolute path, and creates tables if they do not exist.
+     * Never overwrites existing committed records.
+     */
     public static void init() {
-        System.out.println("[Database] Initializing SQLite database at: " + DB_FILE);
-        File dir = new File(DB_DIR);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+        File file = getDbFile();
+        System.out.println("=============================================================");
+        System.out.println("[Database] SQLite Database File Absolute Path:");
+        System.out.println("           " + file.getAbsolutePath());
+        System.out.println("=============================================================");
 
         try (Connection conn = getConnection()) {
             createTables(conn);
-            seedInitialData(conn);
-            System.out.println("[Database] Initialization complete.");
+            seedInitialDataIfEmpty(conn);
+            System.out.println("[Database] SQLite Database verified and ready. Single source of truth active.\n");
         } catch (SQLException e) {
-            System.err.println("[Database] Initialization failed: " + e.getMessage());
+            System.err.println("[Database] Critical Error during SQLite initialization: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -170,21 +224,21 @@ public class Database {
         }
     }
 
-    private static void seedInitialData(Connection conn) throws SQLException {
-        // Check if users table already has data
+    private static void seedInitialDataIfEmpty(Connection conn) throws SQLException {
+        // STRICT RULE: If database already contains user accounts, DO NOT overwrite or reseed.
         try (Statement s = conn.createStatement();
              ResultSet rs = s.executeQuery("SELECT COUNT(*) FROM users;")) {
             if (rs.next() && rs.getInt(1) > 0) {
-                // Already seeded
+                System.out.println("[Database] Existing records found in SQLite (" + rs.getInt(1) + " users). Preserving all persistent records.");
                 return;
             }
         }
 
-        System.out.println("[Database] Seeding initial data for 3 Warehouses, 8 Shops, Vehicles, Requests, and Audit History...");
+        System.out.println("[Database] Empty database detected. Performing initial baseline setup for VALAM system...");
 
         conn.setAutoCommit(false);
         try {
-            // 1. Seed Users with Salted Hashed Passwords
+            // 1. Users with Salted Hashed Passwords
             insertUser(conn, "Admin", "admin@01", "admin", "ADMIN", "VALAM Headquarters");
             insertUser(conn, "Wh01", "wh@01", "warehouse", "W01", "Valam Central Warehouse");
             insertUser(conn, "Wh02", "wh@02", "warehouse", "W02", "Valam North Warehouse");
@@ -195,7 +249,7 @@ public class Database {
             insertUser(conn, "Shop04", "shop@04", "shop", "S04", "FPS Kanyakumari");
             insertUser(conn, "Shop05", "shop@05", "shop", "S05", "FPS Thuckalay");
 
-            // 2. Seed 3 Warehouses
+            // 2. 3 Warehouses
             String whSql = "INSERT INTO warehouses (id, name, location, distance, rice_available, wheat_available, sugar_available, rice_reserved, wheat_reserved, sugar_reserved, last_update_date, last_update_time, last_update_by, last_update_reason) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
             try (PreparedStatement ps = conn.prepareStatement(whSql)) {
@@ -251,7 +305,7 @@ public class Database {
                 ps.executeUpdate();
             }
 
-            // 3. Seed 8 Shops
+            // 3. 8 Fair-Price Shops
             String shopSql = "INSERT INTO shops (id, name, location, nearest_wh, nearest_wh_name, distance, status) VALUES (?, ?, ?, ?, ?, ?, ?);";
             try (PreparedStatement ps = conn.prepareStatement(shopSql)) {
                 String[][] shops = {
@@ -276,7 +330,7 @@ public class Database {
                 }
             }
 
-            // 4. Seed 3 Vehicles
+            // 4. 3 Vehicles
             String vehSql = "INSERT INTO vehicles (id, vehicle_number, vehicle_type, capacity, availability, status, assigned_request) VALUES (?, ?, ?, ?, ?, ?, ?);";
             try (PreparedStatement ps = conn.prepareStatement(vehSql)) {
                 ps.setString(1, "V01");
@@ -307,38 +361,28 @@ public class Database {
                 ps.executeUpdate();
             }
 
-            // 5. Seed Requests (REQ-101 to REQ-108)
+            // 5. Baseline Requests (REQ-101 to REQ-108)
             String reqSql = "INSERT INTO requests (id, shop_id, warehouse_id, warehouse_name, rice, wheat, sugar, urgency, status, vehicle, route, submitted_date, submitted_time, processed_date, processed_time, updated_date, updated_time) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
             try (PreparedStatement ps = conn.prepareStatement(reqSql)) {
-                // REQ-101
                 insertReq(ps, "REQ-101", "S01", "W01", "Valam Central Warehouse", 200, 100, 50, "critical", "Dispatched", "V01", "Valam Central Warehouse → FPS Nagercoil", "2026-10-20", "09:15:00", "2026-10-20", "10:30:00", "2026-10-21", "08:30:00");
-                // REQ-102
                 insertReq(ps, "REQ-102", "S02", "W02", "Valam North Warehouse", 300, 150, 80, "normal", "Delivered", "V02", "Valam North Warehouse → FPS Marthandam", "2026-10-18", "11:00:00", "2026-10-18", "14:20:00", "2026-10-19", "11:45:00");
-                // REQ-103
                 insertReq(ps, "REQ-103", "S03", "W01", "Valam Central Warehouse", 500, 400, 50, "normal", "Pending", "Not Assigned", "Valam Central Warehouse → FPS Colachel", "2026-10-25", "10:00:00", null, null, "2026-10-25", "10:00:00");
-                // REQ-104
                 insertReq(ps, "REQ-104", "S04", "W03", "Valam South Warehouse", 250, 200, 100, "urgent", "In Transit", "V03", "Valam South Warehouse → FPS Kanyakumari", "2026-10-22", "09:00:00", "2026-10-22", "09:45:00", "2026-10-23", "09:15:00");
-                // REQ-105
                 insertReq(ps, "REQ-105", "S05", "W01", "Valam Central Warehouse", 400, 250, 75, "normal", "Pending", "Not Assigned", "Valam Central Warehouse → FPS Thuckalay", "2026-10-26", "14:30:00", null, null, "2026-10-26", "14:30:00");
-                // REQ-106
                 insertReq(ps, "REQ-106", "S06", "W01", "Valam Central Warehouse", 350, 200, 60, "normal", "Dispatched", "V01", "Valam Central Warehouse → FPS Padmanabhapuram", "2026-10-24", "11:00:00", "2026-10-24", "13:15:00", "2026-10-25", "07:30:00");
-                // REQ-107
                 insertReq(ps, "REQ-107", "S07", "W02", "Valam North Warehouse", 200, 100, 40, "normal", "Delivered", "V02", "Valam North Warehouse → FPS Karungal", "2026-10-15", "08:30:00", "2026-10-15", "10:00:00", "2026-10-17", "16:00:00");
-                // REQ-108
                 insertReq(ps, "REQ-108", "S08", "W03", "Valam South Warehouse", 300, 200, 120, "normal", "Pending", "Not Assigned", "Valam South Warehouse → FPS Kulasekharam", "2026-10-27", "15:45:00", null, null, "2026-10-27", "15:45:00");
             }
 
-            // 6. Seed Request Timeline
+            // 6. Request Timeline
             String tlSql = "INSERT INTO request_timeline (request_id, stage_title, event_date, event_time, status, performed_by, details, stage_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
             try (PreparedStatement ps = conn.prepareStatement(tlSql)) {
-                // REQ-101
                 insertTimeline(ps, "REQ-101", "Request Submitted", "2026-10-20", "09:15:00", "Pending", "Shop01", "Commodity request submitted: Rice: 200 kg, Wheat: 100 kg, Sugar: 50 kg.", 1);
                 insertTimeline(ps, "REQ-101", "Request Accepted / Reserved", "2026-10-20", "10:30:00", "Reserved", "Wh01", "Warehouse staff accepted request. Stock reserved.", 2);
                 insertTimeline(ps, "REQ-101", "Vehicle Assigned", "2026-10-21", "08:00:00", "Reserved", "Wh01", "Vehicle V01 (TN-74-AA-1234, Eicher 14ft) assigned.", 3);
                 insertTimeline(ps, "REQ-101", "Dispatched", "2026-10-21", "08:30:00", "Dispatched", "Wh01", "Consignment dispatched via Vehicle V01 to FPS Nagercoil.", 4);
 
-                // REQ-102
                 insertTimeline(ps, "REQ-102", "Request Submitted", "2026-10-18", "11:00:00", "Pending", "Shop02", "Commodity request submitted: Rice: 300 kg, Wheat: 150 kg, Sugar: 80 kg.", 1);
                 insertTimeline(ps, "REQ-102", "Request Accepted / Reserved", "2026-10-18", "14:20:00", "Reserved", "Wh02", "Stock reserved at Valam North Warehouse.", 2);
                 insertTimeline(ps, "REQ-102", "Vehicle Assigned", "2026-10-19", "07:45:00", "Reserved", "Wh02", "Vehicle V02 (TN-74-BB-5678, Tata 407) assigned.", 3);
@@ -346,36 +390,30 @@ public class Database {
                 insertTimeline(ps, "REQ-102", "In Transit", "2026-10-19", "09:30:00", "In Transit", "System", "Vehicle V02 en route to FPS Marthandam.", 5);
                 insertTimeline(ps, "REQ-102", "Delivered", "2026-10-19", "11:45:00", "Delivered", "Shop02", "Delivery confirmed and accepted by Shop S02 staff.", 6);
 
-                // REQ-103
                 insertTimeline(ps, "REQ-103", "Request Submitted", "2026-10-25", "10:00:00", "Pending", "Shop03", "Commodity request submitted: Rice: 500 kg, Wheat: 400 kg, Sugar: 50 kg.", 1);
 
-                // REQ-104
                 insertTimeline(ps, "REQ-104", "Request Submitted", "2026-10-22", "09:00:00", "Pending", "Shop04", "Commodity request submitted: Rice: 250 kg, Wheat: 200 kg, Sugar: 100 kg.", 1);
                 insertTimeline(ps, "REQ-104", "Request Accepted / Reserved", "2026-10-22", "09:45:00", "Reserved", "Wh03", "Stock reserved at Valam South Warehouse.", 2);
                 insertTimeline(ps, "REQ-104", "Vehicle Assigned", "2026-10-23", "07:30:00", "Reserved", "Wh03", "Vehicle V03 (TN-74-CC-9012, Ashok Leyland) assigned.", 3);
                 insertTimeline(ps, "REQ-104", "Dispatched", "2026-10-23", "08:00:00", "Dispatched", "Wh03", "Dispatched from Valam South Warehouse via V03.", 4);
                 insertTimeline(ps, "REQ-104", "In Transit", "2026-10-23", "09:15:00", "In Transit", "System", "Vehicle V03 en route to FPS Kanyakumari.", 5);
 
-                // REQ-105
                 insertTimeline(ps, "REQ-105", "Request Submitted", "2026-10-26", "14:30:00", "Pending", "Shop05", "Commodity request submitted: Rice: 400 kg, Wheat: 250 kg, Sugar: 75 kg.", 1);
 
-                // REQ-106
                 insertTimeline(ps, "REQ-106", "Request Submitted", "2026-10-24", "11:00:00", "Pending", "Shop01", "Commodity request submitted for Shop S06: Rice: 350 kg, Wheat: 200 kg, Sugar: 60 kg.", 1);
                 insertTimeline(ps, "REQ-106", "Request Accepted / Reserved", "2026-10-24", "13:15:00", "Reserved", "Wh01", "Stock reserved at Valam Central Warehouse.", 2);
                 insertTimeline(ps, "REQ-106", "Vehicle Assigned", "2026-10-25", "07:00:00", "Reserved", "Wh01", "Vehicle V01 assigned to REQ-106.", 3);
                 insertTimeline(ps, "REQ-106", "Dispatched", "2026-10-25", "07:30:00", "Dispatched", "Wh01", "Dispatched from Valam Central Warehouse to FPS Padmanabhapuram.", 4);
 
-                // REQ-107
                 insertTimeline(ps, "REQ-107", "Request Submitted", "2026-10-15", "08:30:00", "Pending", "Shop01", "Commodity request submitted for Shop S07: Rice: 200 kg, Wheat: 100 kg, Sugar: 40 kg.", 1);
                 insertTimeline(ps, "REQ-107", "Request Accepted / Reserved", "2026-10-15", "10:00:00", "Reserved", "Wh02", "Stock reserved at Valam North Warehouse.", 2);
                 insertTimeline(ps, "REQ-107", "Dispatched", "2026-10-16", "08:00:00", "Dispatched", "Wh02", "Dispatched via Vehicle V02.", 3);
                 insertTimeline(ps, "REQ-107", "Delivered", "2026-10-17", "16:00:00", "Delivered", "Shop01", "Delivery confirmed by FPS Karungal staff.", 4);
 
-                // REQ-108
                 insertTimeline(ps, "REQ-108", "Request Submitted", "2026-10-27", "15:45:00", "Pending", "Shop01", "Commodity request submitted for Shop S08: Rice: 300 kg, Wheat: 200 kg, Sugar: 120 kg.", 1);
             }
 
-            // 7. Seed Stock Update History
+            // 7. Stock Update History
             String stSql = "INSERT INTO stock_update_history (update_id, warehouse_id, commodity, previous_stock, quantity_added, quantity_deducted, current_stock, reason, log_date, log_time, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
             try (PreparedStatement ps = conn.prepareStatement(stSql)) {
                 insertStockLog(ps, "STK-3001", "W01", "Rice", 5200, 0, 200, 5000, "Stock reserved for REQ-101 (Shop S01)", "2026-10-20", "10:31:00", "Wh01 Staff");
@@ -394,17 +432,15 @@ public class Database {
                 insertStockLog(ps, "STK-3011", "W03", "Rice", 3500, 500, 0, 4000, "Routine stock replenishment", "2026-10-28", "10:00:00", "Wh03 Staff");
             }
 
-            // 8. Seed Operation History (OP-001 to OP-030)
+            // 8. Operation History (OP-001 to OP-030)
             String opSql = "INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
             try (PreparedStatement ps = conn.prepareStatement(opSql)) {
-                // OP-001 to OP-005: REQ-101
                 insertOp(ps, "OP-001", "REQ-101", "S01", "request", "Request Received", "—", "Pending", "2026-10-20", "09:15:00", "Shop01", "Shop S01 (FPS Nagercoil) submitted commodity request REQ-101. Rice: 200 kg, Wheat: 100 kg, Sugar: 50 kg. Urgency: Critical. Warehouse: Valam Central Warehouse.");
                 insertOp(ps, "OP-002", "REQ-101", "S01", "request", "Request Accepted", "Pending", "Reserved", "2026-10-20", "10:30:00", "Wh01", "Warehouse staff accepted request REQ-101 from Shop S01. Status changed from Pending to Reserved.");
                 insertOp(ps, "OP-003", "REQ-101", "W01", "warehouse", "Stock Updated", "Rice: 5200 kg", "Rice: 5000 kg", "2026-10-20", "10:31:00", "Wh01", "Stock reserved for REQ-101 at Valam Central Warehouse (W01). Rice: 5200→5000 kg (-200), Wheat: 3300→3200 kg (-100), Sugar: 1550→1500 kg (-50).");
                 insertOp(ps, "OP-004", "REQ-101", "V01", "vehicle", "Vehicle Assigned", "Available", "On Trip", "2026-10-21", "08:00:00", "Wh01", "Vehicle V01 (TN-74-AA-1234, Eicher 14ft) assigned to REQ-101. Route: Valam Central Warehouse → FPS Nagercoil (S01).");
                 insertOp(ps, "OP-005", "REQ-101", "S01", "delivery", "Dispatched", "Reserved", "Dispatched", "2026-10-21", "08:30:00", "Wh01", "REQ-101 dispatched from Valam Central Warehouse via Vehicle V01 to Shop S01 (FPS Nagercoil). Delivery status: Dispatched.");
 
-                // OP-006 to OP-013: REQ-102
                 insertOp(ps, "OP-006", "REQ-102", "S02", "request", "Request Received", "—", "Pending", "2026-10-18", "11:00:00", "Shop02", "Shop S02 (FPS Marthandam) submitted commodity request REQ-102. Rice: 300 kg, Wheat: 150 kg, Sugar: 80 kg. Urgency: Normal. Warehouse: Valam North Warehouse.");
                 insertOp(ps, "OP-007", "REQ-102", "S02", "request", "Request Accepted", "Pending", "Reserved", "2026-10-18", "14:20:00", "Wh02", "Warehouse staff accepted request REQ-102 from Shop S02. Status changed from Pending to Reserved.");
                 insertOp(ps, "OP-008", "REQ-102", "W02", "warehouse", "Stock Updated", "Rice: 4800 kg", "Rice: 4500 kg", "2026-10-18", "14:21:00", "Wh02", "Stock reserved for REQ-102 at Valam North Warehouse (W02). Rice: 4800→4500 kg (-300), Wheat: 2950→2800 kg (-150), Sugar: 1280→1200 kg (-80).");
@@ -414,10 +450,8 @@ public class Database {
                 insertOp(ps, "OP-012", "REQ-102", "S02", "delivery", "Delivered", "In Transit", "Delivered", "2026-10-19", "11:45:00", "Shop02", "REQ-102 successfully delivered to FPS Marthandam (S02). Vehicle V02 returned. Delivery confirmed by shop staff.");
                 insertOp(ps, "OP-013", "REQ-102", "V02", "vehicle", "Vehicle Released", "On Trip", "Available", "2026-10-19", "12:30:00", "Wh02", "Vehicle V02 (TN-74-BB-5678) released after completing delivery of REQ-102. Status: Available / Idle.");
 
-                // OP-014: REQ-103
                 insertOp(ps, "OP-014", "REQ-103", "S03", "request", "Request Received", "—", "Pending", "2026-10-25", "10:00:00", "Shop03", "Shop S03 (FPS Colachel) submitted commodity request REQ-103. Rice: 500 kg, Wheat: 400 kg, Sugar: 50 kg. Urgency: Normal. Warehouse: Valam Central Warehouse. Awaiting processing.");
 
-                // OP-015 to OP-020: REQ-104 (W03 Valam South Warehouse)
                 insertOp(ps, "OP-015", "REQ-104", "S04", "request", "Request Received", "—", "Pending", "2026-10-22", "09:00:00", "Shop04", "Shop S04 (FPS Kanyakumari) submitted commodity request REQ-104. Rice: 250 kg, Wheat: 200 kg, Sugar: 100 kg. Urgency: Urgent. Warehouse: Valam South Warehouse.");
                 insertOp(ps, "OP-016", "REQ-104", "S04", "request", "Request Accepted", "Pending", "Reserved", "2026-10-22", "09:45:00", "Wh03", "Warehouse staff accepted urgent request REQ-104 from Shop S04 at Valam South Warehouse. Status changed from Pending to Reserved.");
                 insertOp(ps, "OP-017", "REQ-104", "W03", "warehouse", "Stock Updated", "Rice: 4250 kg", "Rice: 4000 kg", "2026-10-22", "09:46:00", "Wh03", "Stock reserved for REQ-104 at Valam South Warehouse (W03). Rice: 4250→4000 kg (-250), Wheat: 2700→2500 kg (-200), Sugar: 1100→1000 kg (-100).");
@@ -425,24 +459,19 @@ public class Database {
                 insertOp(ps, "OP-019", "REQ-104", "S04", "delivery", "Dispatched", "Reserved", "Dispatched", "2026-10-23", "08:00:00", "Wh03", "REQ-104 dispatched from Valam South Warehouse via Vehicle V03 to Shop S04 (FPS Kanyakumari).");
                 insertOp(ps, "OP-020", "REQ-104", "S04", "delivery", "In Transit", "Dispatched", "In Transit", "2026-10-23", "09:15:00", "System", "REQ-104 delivery is in transit. Vehicle V03 en route from Valam South Warehouse to FPS Kanyakumari.");
 
-                // OP-021: REQ-105
                 insertOp(ps, "OP-021", "REQ-105", "S05", "request", "Request Received", "—", "Pending", "2026-10-26", "14:30:00", "Shop05", "Shop S05 (FPS Thuckalay) submitted commodity request REQ-105. Rice: 400 kg, Wheat: 250 kg, Sugar: 75 kg. Urgency: Normal. Warehouse: Valam Central Warehouse. Awaiting processing.");
 
-                // OP-022 to OP-026: REQ-106
                 insertOp(ps, "OP-022", "REQ-106", "S06", "request", "Request Received", "—", "Pending", "2026-10-24", "11:00:00", "Shop01", "Shop S06 (FPS Padmanabhapuram) submitted commodity request REQ-106. Rice: 350 kg, Wheat: 200 kg, Sugar: 60 kg. Urgency: Normal. Warehouse: Valam Central Warehouse.");
                 insertOp(ps, "OP-023", "REQ-106", "S06", "request", "Request Accepted", "Pending", "Reserved", "2026-10-24", "13:15:00", "Wh01", "Warehouse staff accepted request REQ-106 from Shop S06. Status changed from Pending to Reserved.");
                 insertOp(ps, "OP-024", "REQ-106", "W01", "warehouse", "Stock Updated", "Rice: 5350 kg", "Rice: 5000 kg", "2026-10-24", "13:16:00", "Wh01", "Stock reserved for REQ-106 at Valam Central Warehouse (W01). Rice: 5350→5000 kg (-350), Wheat: 3400→3200 kg (-200), Sugar: 1560→1500 kg (-60).");
                 insertOp(ps, "OP-025", "REQ-106", "V01", "vehicle", "Vehicle Assigned", "Available", "On Trip", "2026-10-25", "07:00:00", "Wh01", "Vehicle V01 (TN-74-AA-1234) assigned to REQ-106. Route: Valam Central Warehouse → FPS Padmanabhapuram (S06).");
                 insertOp(ps, "OP-026", "REQ-106", "S06", "delivery", "Dispatched", "Reserved", "Dispatched", "2026-10-25", "07:30:00", "Wh01", "REQ-106 dispatched from Valam Central Warehouse via Vehicle V01 to Shop S06 (FPS Padmanabhapuram).");
 
-                // OP-027, OP-028: REQ-107
                 insertOp(ps, "OP-027", "REQ-107", "S07", "request", "Request Received", "—", "Pending", "2026-10-15", "08:30:00", "Shop01", "Shop S07 (FPS Karungal) submitted commodity request REQ-107. Rice: 200 kg, Wheat: 100 kg, Sugar: 40 kg. Urgency: Normal. Warehouse: Valam North Warehouse.");
                 insertOp(ps, "OP-028", "REQ-107", "S07", "delivery", "Delivered", "In Transit", "Delivered", "2026-10-17", "16:00:00", "Shop01", "REQ-107 successfully delivered to FPS Karungal (S07). Delivery confirmed by shop staff.");
 
-                // OP-029: REQ-108
                 insertOp(ps, "OP-029", "REQ-108", "S08", "request", "Request Received", "—", "Pending", "2026-10-27", "15:45:00", "Shop01", "Shop S08 (FPS Kulasekharam) submitted commodity request REQ-108. Rice: 300 kg, Wheat: 200 kg, Sugar: 120 kg. Urgency: Normal. Warehouse: Valam South Warehouse. Awaiting processing.");
 
-                // OP-030: Routine stock replenishment W03
                 insertOp(ps, "OP-030", "REQ-108", "W03", "warehouse", "Stock Updated", "Rice: 4000 kg", "Rice: 4500 kg", "2026-10-28", "10:00:00", "Wh03", "Routine stock replenishment received at Valam South Warehouse (W03). Rice: +500 kg, Wheat: +300 kg, Sugar: +200 kg.");
             }
 
@@ -537,4 +566,3 @@ public class Database {
         ps.executeUpdate();
     }
 }
-

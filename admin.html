@@ -150,54 +150,7 @@
                             </tr>
                         </thead>
                         <tbody id="shopsTableBody">
-                            <tr>
-                                <td>S01</td>
-                                <td>FPS Nagercoil</td>
-                                <td>Nagercoil Town</td>
-                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
-                            </tr>
-                            <tr>
-                                <td>S02</td>
-                                <td>FPS Marthandam</td>
-                                <td>Marthandam Central</td>
-                                <td><span class="badge bg-success">Delivered</span></td>
-                            </tr>
-                            <tr>
-                                <td>S03</td>
-                                <td>FPS Colachel</td>
-                                <td>Colachel Port</td>
-                                <td><span class="badge bg-secondary">Pending</span></td>
-                            </tr>
-                            <tr>
-                                <td>S04</td>
-                                <td>FPS Kanyakumari</td>
-                                <td>Kanyakumari Beach Road</td>
-                                <td><span class="badge bg-warning text-dark">In Transit</span></td>
-                            </tr>
-                            <tr>
-                                <td>S05</td>
-                                <td>FPS Thuckalay</td>
-                                <td>Thuckalay Market</td>
-                                <td><span class="badge bg-secondary">Pending</span></td>
-                            </tr>
-                            <tr>
-                                <td>S06</td>
-                                <td>FPS Padmanabhapuram</td>
-                                <td>Padmanabhapuram Fort</td>
-                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
-                            </tr>
-                            <tr>
-                                <td>S07</td>
-                                <td>FPS Karungal</td>
-                                <td>Karungal Junction</td>
-                                <td><span class="badge bg-success">Delivered</span></td>
-                            </tr>
-                            <tr>
-                                <td>S08</td>
-                                <td>FPS Kulasekharam</td>
-                                <td>Kulasekharam Bus Stand</td>
-                                <td><span class="badge bg-secondary">Pending</span></td>
-                            </tr>
+                            <!-- Populated dynamically from SQLite database -->
                         </tbody>
                     </table>
                 </div>
@@ -229,30 +182,7 @@
                             </tr>
                         </thead>
                         <tbody id="warehousesTableBody">
-                            <tr>
-                                <td>W01</td>
-                                <td>Valam Central Warehouse</td>
-                                <td>Central Area (Nagercoil)</td>
-                                <td>5000 kg</td>
-                                <td>3200 kg</td>
-                                <td>1500 kg</td>
-                            </tr>
-                            <tr>
-                                <td>W02</td>
-                                <td>Valam North Warehouse</td>
-                                <td>North Area (Marthandam)</td>
-                                <td>4500 kg</td>
-                                <td>2800 kg</td>
-                                <td>1200 kg</td>
-                            </tr>
-                            <tr>
-                                <td>W03</td>
-                                <td>Valam South Warehouse</td>
-                                <td>South Area (Kanyakumari)</td>
-                                <td>4000 kg</td>
-                                <td>2500 kg</td>
-                                <td>1000 kg</td>
-                            </tr>
+                            <!-- Populated dynamically from SQLite database -->
                         </tbody>
                     </table>
                 </div>
@@ -283,27 +213,7 @@
                             </tr>
                         </thead>
                         <tbody id="vehiclesTableBody">
-                            <tr>
-                                <td>V01</td>
-                                <td>TN-74-AA-1234 (Eicher 14ft)</td>
-                                <td>3000 kg</td>
-                                <td><span class="badge bg-warning text-dark">On Trip</span></td>
-                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
-                            </tr>
-                            <tr>
-                                <td>V02</td>
-                                <td>TN-74-BB-5678 (Tata 407)</td>
-                                <td>2500 kg</td>
-                                <td><span class="badge bg-success">Available</span></td>
-                                <td><span class="badge bg-success">Idle / Ready</span></td>
-                            </tr>
-                            <tr>
-                                <td>V03</td>
-                                <td>TN-74-CC-9012 (Ashok Leyland)</td>
-                                <td>1500 kg</td>
-                                <td><span class="badge bg-warning text-dark">On Trip</span></td>
-                                <td><span class="badge bg-warning text-dark">In Transit</span></td>
-                            </tr>
+                            <!-- Populated dynamically from SQLite database -->
                         </tbody>
                     </table>
                 </div>
@@ -338,66 +248,7 @@
                             </tr>
                         </thead>
                         <tbody id="requestsTableBody">
-                            <tr>
-                                <td>REQ-101</td>
-                                <td>S01</td>
-                                <td>200</td>
-                                <td>100</td>
-                                <td>50</td>
-                                <td><span class="badge bg-danger">Critical</span></td>
-                                <td>Valam Central Warehouse</td>
-                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-102</td>
-                                <td>S02</td>
-                                <td>300</td>
-                                <td>150</td>
-                                <td>80</td>
-                                <td><span class="badge bg-primary">Normal</span></td>
-                                <td>Valam North Warehouse</td>
-                                <td><span class="badge bg-success">Delivered</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-103</td>
-                                <td>S03</td>
-                                <td>500</td>
-                                <td>400</td>
-                                <td>50</td>
-                                <td><span class="badge bg-primary">Normal</span></td>
-                                <td>Valam Central Warehouse</td>
-                                <td><span class="badge bg-secondary">Pending</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-104</td>
-                                <td>S04</td>
-                                <td>250</td>
-                                <td>200</td>
-                                <td>100</td>
-                                <td><span class="badge bg-warning text-dark">Urgent</span></td>
-                                <td>Valam South Warehouse</td>
-                                <td><span class="badge bg-warning text-dark">In Transit</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-105</td>
-                                <td>S05</td>
-                                <td>400</td>
-                                <td>250</td>
-                                <td>75</td>
-                                <td><span class="badge bg-primary">Normal</span></td>
-                                <td>Valam Central Warehouse</td>
-                                <td><span class="badge bg-secondary">Pending</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-108</td>
-                                <td>S08</td>
-                                <td>300</td>
-                                <td>200</td>
-                                <td>120</td>
-                                <td><span class="badge bg-primary">Normal</span></td>
-                                <td>Valam South Warehouse</td>
-                                <td><span class="badge bg-secondary">Pending</span></td>
-                            </tr>
+                            <!-- Populated dynamically from SQLite database -->
                         </tbody>
                     </table>
                 </div>
@@ -428,48 +279,7 @@
                             </tr>
                         </thead>
                         <tbody id="deliveryStatusTableBody">
-                            <tr>
-                                <td>REQ-101</td>
-                                <td>S01</td>
-                                <td>Valam Central Warehouse</td>
-                                <td>V01</td>
-                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-102</td>
-                                <td>S02</td>
-                                <td>Valam North Warehouse</td>
-                                <td>V02</td>
-                                <td><span class="badge bg-success">Delivered</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-103</td>
-                                <td>S03</td>
-                                <td>Valam Central Warehouse</td>
-                                <td>Not Assigned</td>
-                                <td><span class="badge bg-secondary">Pending</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-104</td>
-                                <td>S04</td>
-                                <td>Valam South Warehouse</td>
-                                <td>V03</td>
-                                <td><span class="badge bg-warning text-dark">In Transit</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-105</td>
-                                <td>S05</td>
-                                <td>Valam Central Warehouse</td>
-                                <td>Not Assigned</td>
-                                <td><span class="badge bg-secondary">Pending</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-108</td>
-                                <td>S08</td>
-                                <td>Valam South Warehouse</td>
-                                <td>Not Assigned</td>
-                                <td><span class="badge bg-secondary">Pending</span></td>
-                            </tr>
+                            <!-- Populated dynamically from SQLite database -->
                         </tbody>
                     </table>
                 </div>
@@ -657,35 +467,81 @@
             "operationHistoryView"
         ];
 
-        
-        // ---------------------------------------------------------------
-        // DYNAMIC SYNC: Warehouses & Requests Live Data
-        // ---------------------------------------------------------------
+        var operationHistoryData = [];
+
+        function showSection(sectionId) {
+            document.getElementById("dashboardMain").style.display = "none";
+            for (var i = 0; i < adminSections.length; i++) {
+                var el = document.getElementById(adminSections[i]);
+                if (el) el.style.display = "none";
+            }
+            var target = document.getElementById(sectionId);
+            if (target) {
+                target.style.display = "block";
+            }
+
+            if (sectionId === "shopsView") renderAdminShops();
+            else if (sectionId === "warehousesView") renderAdminWarehouses();
+            else if (sectionId === "vehiclesView") renderAdminVehicles();
+            else if (sectionId === "requestsView" || sectionId === "deliveryStatusView") renderAdminRequests();
+            else if (sectionId === "operationHistoryView") loadAdminOperations();
+
+            window.scrollTo(0, 0);
+        }
+
+        function goBack() {
+            for (var i = 0; i < adminSections.length; i++) {
+                var el = document.getElementById(adminSections[i]);
+                if (el) el.style.display = "none";
+            }
+            document.getElementById("dashboardMain").style.display = "block";
+            window.scrollTo(0, 0);
+        }
+
+        async function renderAdminShops() {
+            var tbody = document.getElementById("shopsTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Loading shops from SQLite database...</td></tr>';
+            var shops = await valamApiCall("/api/shops", "GET");
+            if (shops && shops.error) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger py-3">⚠️ Database Error: ' + shops.error + '</td></tr>';
+                return;
+            }
+            tbody.innerHTML = "";
+            if (!shops || !Array.isArray(shops) || shops.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No shops found in database.</td></tr>';
+                return;
+            }
+            for (var i = 0; i < shops.length; i++) {
+                var s = shops[i];
+                var tr = document.createElement("tr");
+                tr.innerHTML = "<td>" + s.id + "</td>" +
+                    "<td>" + s.name + "</td>" +
+                    "<td>" + s.location + "</td>" +
+                    "<td>" + getStatusBadge(s.status) + "</td>";
+                tbody.appendChild(tr);
+            }
+        }
+
         async function renderAdminWarehouses() {
             var tbody = document.getElementById("warehousesTableBody");
             if (!tbody) return;
-            var list = null;
-            if (typeof valamApiCall === "function") {
-                try {
-                    var apiWhs = await valamApiCall("/api/warehouses", "GET");
-                    if (apiWhs && Array.isArray(apiWhs) && apiWhs.length > 0) {
-                        list = apiWhs;
-                    }
-                } catch (e) {}
-            }
-            if (!list) {
-                list = (typeof WAREHOUSES_MASTER !== "undefined") ? WAREHOUSES_MASTER : [
-                    { id: "W01", name: "Valam Central Warehouse", location: "Central Area (Nagercoil)" },
-                    { id: "W02", name: "Valam North Warehouse", location: "North Area (Marthandam)" },
-                    { id: "W03", name: "Valam South Warehouse", location: "South Area (Kanyakumari)" }
-                ];
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Loading warehouses from SQLite database...</td></tr>';
+            var whs = await valamApiCall("/api/warehouses", "GET");
+            if (whs && whs.error) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-3">⚠️ Database Error: ' + whs.error + '</td></tr>';
+                return;
             }
             tbody.innerHTML = "";
-            for (var i = 0; i < list.length; i++) {
-                var wh = list[i];
-                var rice = (wh.available ? wh.available.rice : (wh.rice != null ? wh.rice : (wh.initialStock ? wh.initialStock.rice : 0))) + " kg";
-                var wheat = (wh.available ? wh.available.wheat : (wh.wheat != null ? wh.wheat : (wh.initialStock ? wh.initialStock.wheat : 0))) + " kg";
-                var sugar = (wh.available ? wh.available.sugar : (wh.sugar != null ? wh.sugar : (wh.initialStock ? wh.initialStock.sugar : 0))) + " kg";
+            if (!whs || !Array.isArray(whs) || whs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">No warehouses found in database.</td></tr>';
+                return;
+            }
+            for (var i = 0; i < whs.length; i++) {
+                var wh = whs[i];
+                var rice = (wh.available ? wh.available.rice : wh.rice) + " kg";
+                var wheat = (wh.available ? wh.available.wheat : wh.wheat) + " kg";
+                var sugar = (wh.available ? wh.available.sugar : wh.sugar) + " kg";
                 var tr = document.createElement("tr");
                 tr.innerHTML = "<td>" + (wh.id || wh.warehouseId) + "</td>" +
                     "<td>" + (wh.name || wh.warehouseName) + "</td>" +
@@ -697,46 +553,73 @@
             }
         }
 
+        async function renderAdminVehicles() {
+            var tbody = document.getElementById("vehiclesTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Loading vehicles from SQLite database...</td></tr>';
+            var vehs = await valamApiCall("/api/vehicles", "GET");
+            if (vehs && vehs.error) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-3">⚠️ Database Error: ' + vehs.error + '</td></tr>';
+                return;
+            }
+            tbody.innerHTML = "";
+            if (!vehs || !Array.isArray(vehs) || vehs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No vehicles found in database.</td></tr>';
+                return;
+            }
+            for (var i = 0; i < vehs.length; i++) {
+                var v = vehs[i];
+                var tr = document.createElement("tr");
+                tr.innerHTML = "<td>" + v.id + "</td>" +
+                    "<td>" + v.vehicleName + "</td>" +
+                    "<td>" + v.capacity + "</td>" +
+                    "<td>" + getStatusBadge(v.availability) + "</td>" +
+                    "<td>" + getStatusBadge(v.status) + "</td>";
+                tbody.appendChild(tr);
+            }
+        }
+
         async function renderAdminRequests() {
             var tbody = document.getElementById("requestsTableBody");
             var delTbody = document.getElementById("deliveryStatusTableBody");
-            if (!tbody) return;
-            var allReqs = null;
-            if (typeof valamApiCall === "function") {
-                try {
-                    var apiReqs = await valamApiCall("/api/requests", "GET");
-                    if (apiReqs && Array.isArray(apiReqs) && apiReqs.length > 0) {
-                        allReqs = apiReqs;
-                    }
-                } catch (e) {}
-            }
-            if (!allReqs) {
-                allReqs = (typeof getValamRequests === "function") ? getValamRequests() : requestsData;
-            }
-            if (!allReqs || allReqs.length === 0) return;
+            if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">Loading requests from SQLite database...</td></tr>';
+            if (delTbody) delTbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Loading deliveries from SQLite database...</td></tr>';
 
-            tbody.innerHTML = "";
+            var reqs = await valamApiCall("/api/requests", "GET");
+            if (reqs && reqs.error) {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-3">⚠️ Database Error: ' + reqs.error + '</td></tr>';
+                if (delTbody) delTbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-3">⚠️ Database Error: ' + reqs.error + '</td></tr>';
+                return;
+            }
+
+            if (tbody) tbody.innerHTML = "";
             if (delTbody) delTbody.innerHTML = "";
 
-            for (var i = 0; i < allReqs.length; i++) {
-                var r = allReqs[i];
+            if (!reqs || !Array.isArray(reqs) || reqs.length === 0) {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">No requests found in database.</td></tr>';
+                if (delTbody) delTbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No deliveries found in database.</td></tr>';
+                return;
+            }
+
+            for (var i = 0; i < reqs.length; i++) {
+                var r = reqs[i];
                 var reqId = r.id || r.requestId;
-                var urg = r.urgency || "Normal";
-                var urgBadge = urg.toLowerCase() === "critical" ? '<span class="badge bg-danger">Critical</span>' :
-                               (urg.toLowerCase() === "urgent" ? '<span class="badge bg-warning text-dark">Urgent</span>' : '<span class="badge bg-primary">Normal</span>');
+                var urgBadge = getUrgencyBadge(r.urgency);
                 var statusBadge = getStatusBadge(r.status);
                 var whName = r.warehouse || r.warehouseName || (r.warehouseId === "W01" ? "Valam Central Warehouse" : (r.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
 
-                var tr = document.createElement("tr");
-                tr.innerHTML = "<td>" + reqId + "</td>" +
-                    "<td>" + r.shopId + "</td>" +
-                    "<td>" + r.rice + "</td>" +
-                    "<td>" + r.wheat + "</td>" +
-                    "<td>" + r.sugar + "</td>" +
-                    "<td>" + urgBadge + "</td>" +
-                    "<td>" + whName + "</td>" +
-                    "<td>" + statusBadge + "</td>";
-                tbody.appendChild(tr);
+                if (tbody) {
+                    var tr = document.createElement("tr");
+                    tr.innerHTML = "<td>" + reqId + "</td>" +
+                        "<td>" + r.shopId + "</td>" +
+                        "<td>" + r.rice + "</td>" +
+                        "<td>" + r.wheat + "</td>" +
+                        "<td>" + r.sugar + "</td>" +
+                        "<td>" + urgBadge + "</td>" +
+                        "<td>" + whName + "</td>" +
+                        "<td>" + statusBadge + "</td>";
+                    tbody.appendChild(tr);
+                }
 
                 if (delTbody) {
                     var delTr = document.createElement("tr");
@@ -750,390 +633,32 @@
             }
         }
 
-        async function renderAdminShops() {
-            var tbody = document.getElementById("shopsTableBody");
-            if (!tbody || typeof valamApiCall !== "function") return;
-            try {
-                var shops = await valamApiCall("/api/shops", "GET");
-                if (shops && Array.isArray(shops) && shops.length > 0) {
-                    tbody.innerHTML = "";
-                    for (var i = 0; i < shops.length; i++) {
-                        var s = shops[i];
-                        var tr = document.createElement("tr");
-                        tr.innerHTML = "<td>" + s.id + "</td>" +
-                            "<td>" + s.name + "</td>" +
-                            "<td>" + s.location + "</td>" +
-                            "<td>" + getStatusBadge(s.status) + "</td>";
-                        tbody.appendChild(tr);
-                    }
-                }
-            } catch (e) {}
-        }
-
-        async function renderAdminVehicles() {
-            var tbody = document.getElementById("vehiclesTableBody");
-            if (!tbody || typeof valamApiCall !== "function") return;
-            try {
-                var vehs = await valamApiCall("/api/vehicles", "GET");
-                if (vehs && Array.isArray(vehs) && vehs.length > 0) {
-                    tbody.innerHTML = "";
-                    for (var i = 0; i < vehs.length; i++) {
-                        var v = vehs[i];
-                        var tr = document.createElement("tr");
-                        tr.innerHTML = "<td>" + v.id + "</td>" +
-                            "<td>" + v.vehicleName + "</td>" +
-                            "<td>" + v.capacity + "</td>" +
-                            "<td>" + getStatusBadge(v.availability) + "</td>" +
-                            "<td>" + getStatusBadge(v.status) + "</td>";
-                        tbody.appendChild(tr);
-                    }
-                }
-            } catch (e) {}
-        }
-
         async function loadAdminOperations() {
-            if (typeof valamApiCall !== "function") return;
             var from = document.getElementById("filterFromDate").value;
             var to = document.getElementById("filterToDate").value;
             var cat = document.getElementById("filterCategory").value;
             var url = "/api/operations?category=" + encodeURIComponent(cat);
             if (from) url += "&fromDate=" + encodeURIComponent(from);
             if (to) url += "&toDate=" + encodeURIComponent(to);
-            try {
-                var ops = await valamApiCall(url, "GET");
-                if (ops && Array.isArray(ops)) {
-                    operationHistoryData = ops;
-                    renderOperationHistory(ops);
-                }
-            } catch (e) {}
-        }
 
-        function showSection(sectionId) {
-            if (sectionId === "warehousesView") renderAdminWarehouses();
-            if (sectionId === "requestsView" || sectionId === "deliveryStatusView") renderAdminRequests();
-            if (sectionId === "shopsView") renderAdminShops();
-            if (sectionId === "vehiclesView") renderAdminVehicles();
-            if (sectionId === "operationHistoryView") loadAdminOperations();
-            document.getElementById("dashboardMain").style.display = "none";
-            for (var i = 0; i < adminSections.length; i++) {
-                document.getElementById(adminSections[i]).style.display = "none";
+            var ops = await valamApiCall(url, "GET");
+            if (ops && ops.error) {
+                var tbody = document.getElementById("operationHistoryBody");
+                if (tbody) tbody.innerHTML = '<tr><td colspan="11" class="text-center text-danger py-3">⚠️ Database Error: ' + ops.error + '</td></tr>';
+                document.getElementById("operationHistoryTable").style.display = "table";
+                document.getElementById("noRecordsMsg").style.display = "none";
+                return;
             }
-            var target = document.getElementById(sectionId);
-            if (target) {
-                target.style.display = "block";
+
+            if (ops && Array.isArray(ops)) {
+                operationHistoryData = ops;
+                renderOperationHistory(ops);
+            } else {
+                operationHistoryData = [];
+                renderOperationHistory([]);
             }
-            // If opening operation history, render it
-            if (sectionId === "operationHistoryView") {
-                renderOperationHistory(operationHistoryData);
-            }
-            window.scrollTo(0, 0);
         }
 
-        function goBack() {
-            for (var i = 0; i < adminSections.length; i++) {
-                document.getElementById(adminSections[i]).style.display = "none";
-            }
-            document.getElementById("dashboardMain").style.display = "block";
-            window.scrollTo(0, 0);
-        }
-
-
-        // ---------------------------------------------------------------
-        // EXISTING DATA (PRESERVED — unchanged)
-        // ---------------------------------------------------------------
-
-        // 1. 8 Fair-Price Shops (S01 to S08)
-        var shopsData = [
-            { shopId: "S01", shopName: "FPS Nagercoil", location: "Nagercoil Town", status: "Dispatched" },
-            { shopId: "S02", shopName: "FPS Marthandam", location: "Marthandam Central", status: "Delivered" },
-            { shopId: "S03", shopName: "FPS Colachel", location: "Colachel Port", status: "Pending" },
-            { shopId: "S04", shopName: "FPS Kanyakumari", location: "Kanyakumari Beach Road", status: "In Transit" },
-            { shopId: "S05", shopName: "FPS Thuckalay", location: "Thuckalay Market", status: "Pending" },
-            { shopId: "S06", shopName: "FPS Padmanabhapuram", location: "Padmanabhapuram Fort", status: "Dispatched" },
-            { shopId: "S07", shopName: "FPS Karungal", location: "Karungal Junction", status: "Delivered" },
-            { shopId: "S08", shopName: "FPS Kulasekharam", location: "Kulasekharam Bus Stand", status: "Pending" }
-        ];
-
-        // 2. 2 Warehouses and current stock
-        var warehousesData = [
-            { warehouseId: "W01", warehouseName: "Valam Central Warehouse", location: "Central Area (Nagercoil)", rice: "5000 kg", wheat: "3200 kg", sugar: "1500 kg" },
-            { warehouseId: "W02", warehouseName: "Valam North Warehouse", location: "North Area (Marthandam)", rice: "4500 kg", wheat: "2800 kg", sugar: "1200 kg" },
-            { warehouseId: "W03", warehouseName: "Valam South Warehouse", location: "South Area (Kanyakumari)", rice: "4000 kg", wheat: "2500 kg", sugar: "1000 kg" }
-        ];
-
-        // 3. 3 Available Vehicles (V01, V02, V03)
-        var vehiclesData = [
-            { vehicleId: "V01", vehicleName: "TN-74-AA-1234 (Eicher 14ft)", capacity: "3000 kg", availability: "On Trip", status: "Dispatched" },
-            { vehicleId: "V02", vehicleName: "TN-74-BB-5678 (Tata 407)", capacity: "2500 kg", availability: "Available", status: "Idle / Ready" },
-            { vehicleId: "V03", vehicleName: "TN-74-CC-9012 (Ashok Leyland)", capacity: "1500 kg", availability: "On Trip", status: "In Transit" }
-        ];
-
-        // 4. Commodity Requests received from shops (matches Shop & Warehouse data)
-        var requestsData = [
-            { requestId: "REQ-101", shopId: "S01", rice: "200", wheat: "100", sugar: "50", urgency: "critical", warehouse: "Valam Central Warehouse", status: "Dispatched" },
-            { requestId: "REQ-102", shopId: "S02", rice: "300", wheat: "150", sugar: "80", urgency: "normal", warehouse: "Valam North Warehouse", status: "Delivered" },
-            { requestId: "REQ-103", shopId: "S03", rice: "500", wheat: "400", sugar: "50", urgency: "normal", warehouse: "Valam Central Warehouse", status: "Pending" },
-            { requestId: "REQ-104", shopId: "S04", rice: "250", wheat: "200", sugar: "100", urgency: "urgent", warehouse: "Valam South Warehouse", status: "In Transit" },
-            { requestId: "REQ-105", shopId: "S05", rice: "400", wheat: "250", sugar: "75", urgency: "normal", warehouse: "Valam Central Warehouse", status: "Pending" },
-            { requestId: "REQ-108", shopId: "S08", rice: "300", wheat: "200", sugar: "120", urgency: "normal", warehouse: "Valam South Warehouse", status: "Pending" }
-        ];
-
-        // 5. Delivery Status monitoring records
-        var deliveryStatusData = [
-            { requestId: "REQ-101", shopId: "S01", warehouse: "Valam Central Warehouse", vehicle: "V01", status: "Dispatched" },
-            { requestId: "REQ-102", shopId: "S02", warehouse: "Valam North Warehouse", vehicle: "V02", status: "Delivered" },
-            { requestId: "REQ-103", shopId: "S03", warehouse: "Valam Central Warehouse", vehicle: "Not Assigned", status: "Pending" },
-            { requestId: "REQ-104", shopId: "S04", warehouse: "Valam South Warehouse", vehicle: "V03", status: "In Transit" },
-            { requestId: "REQ-105", shopId: "S05", warehouse: "Valam Central Warehouse", vehicle: "Not Assigned", status: "Pending" },
-            { requestId: "REQ-108", shopId: "S08", warehouse: "Valam South Warehouse", vehicle: "Not Assigned", status: "Pending" }
-        ];
-
-
-        // ---------------------------------------------------------------
-        // NEW: OPERATION HISTORY DATA
-        // Comprehensive audit log with timestamps based on existing data.
-        // Each record stores the actual date and time of the operation.
-        // In a real system, these would come from a database table.
-        // ---------------------------------------------------------------
-
-        var operationHistoryData = [
-            // --- REQ-101 (S01 → W01, V01) — Full lifecycle: Received → Accepted → Stock Updated → Vehicle Assigned → Dispatched ---
-            {
-                opId: "OP-001", requestId: "REQ-101", entityId: "S01", category: "request",
-                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
-                date: "2026-10-20", time: "09:15:00", updatedBy: "Shop01",
-                details: "Shop S01 (FPS Nagercoil) submitted commodity request REQ-101. Rice: 200 kg, Wheat: 100 kg, Sugar: 50 kg. Urgency: Critical. Warehouse: Valam Central Warehouse."
-            },
-            {
-                opId: "OP-002", requestId: "REQ-101", entityId: "S01", category: "request",
-                operationType: "Request Accepted", prevStatus: "Pending", newStatus: "Reserved",
-                date: "2026-10-20", time: "10:30:00", updatedBy: "Wh01",
-                details: "Warehouse staff accepted request REQ-101 from Shop S01. Status changed from Pending to Reserved."
-            },
-            {
-                opId: "OP-003", requestId: "REQ-101", entityId: "W01", category: "warehouse",
-                operationType: "Stock Updated", prevStatus: "Rice: 5200 kg", newStatus: "Rice: 5000 kg",
-                date: "2026-10-20", time: "10:31:00", updatedBy: "Wh01",
-                details: "Stock reserved for REQ-101 at Valam Central Warehouse (W01). Rice: 5200→5000 kg (-200), Wheat: 3300→3200 kg (-100), Sugar: 1550→1500 kg (-50)."
-            },
-            {
-                opId: "OP-004", requestId: "REQ-101", entityId: "V01", category: "vehicle",
-                operationType: "Vehicle Assigned", prevStatus: "Available", newStatus: "On Trip",
-                date: "2026-10-21", time: "08:00:00", updatedBy: "Wh01",
-                details: "Vehicle V01 (TN-74-AA-1234, Eicher 14ft) assigned to REQ-101. Route: Valam Central Warehouse → FPS Nagercoil (S01)."
-            },
-            {
-                opId: "OP-005", requestId: "REQ-101", entityId: "S01", category: "delivery",
-                operationType: "Dispatched", prevStatus: "Reserved", newStatus: "Dispatched",
-                date: "2026-10-21", time: "08:30:00", updatedBy: "Wh01",
-                details: "REQ-101 dispatched from Valam Central Warehouse via Vehicle V01 to Shop S01 (FPS Nagercoil). Delivery status: Dispatched."
-            },
-
-            // --- REQ-102 (S02 → W02, V02) — Full lifecycle: Received → Accepted → Stock Updated → Vehicle Assigned → Dispatched → In Transit → Delivered ---
-            {
-                opId: "OP-006", requestId: "REQ-102", entityId: "S02", category: "request",
-                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
-                date: "2026-10-18", time: "11:00:00", updatedBy: "Shop02",
-                details: "Shop S02 (FPS Marthandam) submitted commodity request REQ-102. Rice: 300 kg, Wheat: 150 kg, Sugar: 80 kg. Urgency: Normal. Warehouse: Valam North Warehouse."
-            },
-            {
-                opId: "OP-007", requestId: "REQ-102", entityId: "S02", category: "request",
-                operationType: "Request Accepted", prevStatus: "Pending", newStatus: "Reserved",
-                date: "2026-10-18", time: "14:20:00", updatedBy: "Wh02",
-                details: "Warehouse staff accepted request REQ-102 from Shop S02. Status changed from Pending to Reserved."
-            },
-            {
-                opId: "OP-008", requestId: "REQ-102", entityId: "W02", category: "warehouse",
-                operationType: "Stock Updated", prevStatus: "Rice: 4800 kg", newStatus: "Rice: 4500 kg",
-                date: "2026-10-18", time: "14:21:00", updatedBy: "Wh02",
-                details: "Stock reserved for REQ-102 at Valam North Warehouse (W02). Rice: 4800→4500 kg (-300), Wheat: 2950→2800 kg (-150), Sugar: 1280→1200 kg (-80)."
-            },
-            {
-                opId: "OP-009", requestId: "REQ-102", entityId: "V02", category: "vehicle",
-                operationType: "Vehicle Assigned", prevStatus: "Available", newStatus: "On Trip",
-                date: "2026-10-19", time: "07:45:00", updatedBy: "Wh02",
-                details: "Vehicle V02 (TN-74-BB-5678, Tata 407) assigned to REQ-102. Route: Valam North Warehouse → FPS Marthandam (S02)."
-            },
-            {
-                opId: "OP-010", requestId: "REQ-102", entityId: "S02", category: "delivery",
-                operationType: "Dispatched", prevStatus: "Reserved", newStatus: "Dispatched",
-                date: "2026-10-19", time: "08:15:00", updatedBy: "Wh02",
-                details: "REQ-102 dispatched from Valam North Warehouse via Vehicle V02 to Shop S02 (FPS Marthandam)."
-            },
-            {
-                opId: "OP-011", requestId: "REQ-102", entityId: "S02", category: "delivery",
-                operationType: "In Transit", prevStatus: "Dispatched", newStatus: "In Transit",
-                date: "2026-10-19", time: "09:30:00", updatedBy: "System",
-                details: "REQ-102 delivery is in transit. Vehicle V02 en route from Valam North Warehouse to FPS Marthandam."
-            },
-            {
-                opId: "OP-012", requestId: "REQ-102", entityId: "S02", category: "delivery",
-                operationType: "Delivered", prevStatus: "In Transit", newStatus: "Delivered",
-                date: "2026-10-19", time: "11:45:00", updatedBy: "Shop02",
-                details: "REQ-102 successfully delivered to FPS Marthandam (S02). Vehicle V02 returned. Delivery confirmed by shop staff."
-            },
-            {
-                opId: "OP-013", requestId: "REQ-102", entityId: "V02", category: "vehicle",
-                operationType: "Vehicle Released", prevStatus: "On Trip", newStatus: "Available",
-                date: "2026-10-19", time: "12:30:00", updatedBy: "Wh02",
-                details: "Vehicle V02 (TN-74-BB-5678) released after completing delivery of REQ-102. Status: Available / Idle."
-            },
-
-            // --- REQ-103 (S03 → W01) — Only received, still pending ---
-            {
-                opId: "OP-014", requestId: "REQ-103", entityId: "S03", category: "request",
-                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
-                date: "2026-10-25", time: "10:00:00", updatedBy: "Shop03",
-                details: "Shop S03 (FPS Colachel) submitted commodity request REQ-103. Rice: 500 kg, Wheat: 400 kg, Sugar: 50 kg. Urgency: Normal. Warehouse: Valam Central Warehouse. Awaiting processing."
-            },
-
-            // --- REQ-104 (S04 → W02, V03) — Received → Accepted → Stock Updated → Vehicle Assigned → Dispatched → In Transit ---
-            {
-                opId: "OP-015", requestId: "REQ-104", entityId: "S04", category: "request",
-                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
-                date: "2026-10-22", time: "09:00:00", updatedBy: "Shop04",
-                details: "Shop S04 (FPS Kanyakumari) submitted commodity request REQ-104. Rice: 250 kg, Wheat: 200 kg, Sugar: 100 kg. Urgency: Urgent. Warehouse: Valam South Warehouse."
-            },
-            {
-                opId: "OP-016", requestId: "REQ-104", entityId: "S04", category: "request",
-                operationType: "Request Accepted", prevStatus: "Pending", newStatus: "Reserved",
-                date: "2026-10-22", time: "09:45:00", updatedBy: "Wh03",
-                details: "Warehouse staff accepted urgent request REQ-104 from Shop S04 at Valam South Warehouse. Status changed from Pending to Reserved."
-            },
-            {
-                opId: "OP-017", requestId: "REQ-104", entityId: "W03", category: "warehouse",
-                operationType: "Stock Updated", prevStatus: "Rice: 4250 kg", newStatus: "Rice: 4000 kg",
-                date: "2026-10-22", time: "09:46:00", updatedBy: "Wh03",
-                details: "Stock reserved for REQ-104 at Valam South Warehouse (W03). Rice: 4250→4000 kg (-250), Wheat: 2700→2500 kg (-200), Sugar: 1100→1000 kg (-100)."
-            },
-            {
-                opId: "OP-018", requestId: "REQ-104", entityId: "V03", category: "vehicle",
-                operationType: "Vehicle Assigned", prevStatus: "Available", newStatus: "On Trip",
-                date: "2026-10-23", time: "07:30:00", updatedBy: "Wh02",
-                details: "Vehicle V03 (TN-74-CC-9012, Ashok Leyland) assigned to REQ-104. Route: Valam South Warehouse → FPS Kanyakumari (S04)."
-            },
-            {
-                opId: "OP-019", requestId: "REQ-104", entityId: "S04", category: "delivery",
-                operationType: "Dispatched", prevStatus: "Reserved", newStatus: "Dispatched",
-                date: "2026-10-23", time: "08:00:00", updatedBy: "Wh02",
-                details: "REQ-104 dispatched from Valam South Warehouse via Vehicle V03 to Shop S04 (FPS Kanyakumari)."
-            },
-            {
-                opId: "OP-020", requestId: "REQ-104", entityId: "S04", category: "delivery",
-                operationType: "In Transit", prevStatus: "Dispatched", newStatus: "In Transit",
-                date: "2026-10-23", time: "09:15:00", updatedBy: "System",
-                details: "REQ-104 delivery is in transit. Vehicle V03 en route from Valam South Warehouse to FPS Kanyakumari."
-            },
-
-            // --- REQ-105 (S05 → W01) — Only received, still pending ---
-            {
-                opId: "OP-021", requestId: "REQ-105", entityId: "S05", category: "request",
-                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
-                date: "2026-10-26", time: "14:30:00", updatedBy: "Shop05",
-                details: "Shop S05 (FPS Thuckalay) submitted commodity request REQ-105. Rice: 400 kg, Wheat: 250 kg, Sugar: 75 kg. Urgency: Normal. Warehouse: Valam Central Warehouse. Awaiting processing."
-            },
-
-            // --- Additional Shop-related operations (S06, S07, S08) ---
-            {
-                opId: "OP-022", requestId: "REQ-106", entityId: "S06", category: "request",
-                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
-                date: "2026-10-24", time: "11:00:00", updatedBy: "Shop01",
-                details: "Shop S06 (FPS Padmanabhapuram) submitted commodity request REQ-106. Rice: 350 kg, Wheat: 200 kg, Sugar: 60 kg. Urgency: Normal. Warehouse: Valam Central Warehouse."
-            },
-            {
-                opId: "OP-023", requestId: "REQ-106", entityId: "S06", category: "request",
-                operationType: "Request Accepted", prevStatus: "Pending", newStatus: "Reserved",
-                date: "2026-10-24", time: "13:15:00", updatedBy: "Wh01",
-                details: "Warehouse staff accepted request REQ-106 from Shop S06. Status changed from Pending to Reserved."
-            },
-            {
-                opId: "OP-024", requestId: "REQ-106", entityId: "W01", category: "warehouse",
-                operationType: "Stock Updated", prevStatus: "Rice: 5350 kg", newStatus: "Rice: 5000 kg",
-                date: "2026-10-24", time: "13:16:00", updatedBy: "Wh01",
-                details: "Stock reserved for REQ-106 at Valam Central Warehouse (W01). Rice: 5350→5000 kg (-350), Wheat: 3400→3200 kg (-200), Sugar: 1560→1500 kg (-60)."
-            },
-            {
-                opId: "OP-025", requestId: "REQ-106", entityId: "V01", category: "vehicle",
-                operationType: "Vehicle Assigned", prevStatus: "Available", newStatus: "On Trip",
-                date: "2026-10-25", time: "07:00:00", updatedBy: "Wh01",
-                details: "Vehicle V01 (TN-74-AA-1234) assigned to REQ-106. Route: Valam Central Warehouse → FPS Padmanabhapuram (S06)."
-            },
-            {
-                opId: "OP-026", requestId: "REQ-106", entityId: "S06", category: "delivery",
-                operationType: "Dispatched", prevStatus: "Reserved", newStatus: "Dispatched",
-                date: "2026-10-25", time: "07:30:00", updatedBy: "Wh01",
-                details: "REQ-106 dispatched from Valam Central Warehouse via Vehicle V01 to Shop S06 (FPS Padmanabhapuram)."
-            },
-            {
-                opId: "OP-027", requestId: "REQ-107", entityId: "S07", category: "request",
-                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
-                date: "2026-10-15", time: "08:30:00", updatedBy: "Shop01",
-                details: "Shop S07 (FPS Karungal) submitted commodity request REQ-107. Rice: 200 kg, Wheat: 100 kg, Sugar: 40 kg. Urgency: Normal. Warehouse: Valam North Warehouse."
-            },
-            {
-                opId: "OP-028", requestId: "REQ-107", entityId: "S07", category: "delivery",
-                operationType: "Delivered", prevStatus: "In Transit", newStatus: "Delivered",
-                date: "2026-10-17", time: "16:00:00", updatedBy: "Shop01",
-                details: "REQ-107 successfully delivered to FPS Karungal (S07). Delivery confirmed by shop staff."
-            },
-            {
-                opId: "OP-029", requestId: "REQ-108", entityId: "S08", category: "request",
-                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
-                date: "2026-10-27", time: "15:45:00", updatedBy: "Shop01",
-                details: "Shop S08 (FPS Kulasekharam) submitted commodity request REQ-108. Rice: 300 kg, Wheat: 200 kg, Sugar: 120 kg. Urgency: Normal. Warehouse: Valam South Warehouse. Awaiting processing."
-            },
-            {
-                opId: "OP-030", requestId: "REQ-108", entityId: "W03", category: "warehouse",
-                operationType: "Stock Updated", prevStatus: "Rice: 4000 kg", newStatus: "Rice: 4500 kg",
-                date: "2026-10-28", time: "10:00:00", updatedBy: "Wh03",
-                details: "Routine stock replenishment received at Valam South Warehouse (W03). Rice: +500 kg, Wheat: +300 kg, Sugar: +200 kg."
-            }
-        ];
-
-
-        // ---------------------------------------------------------------
-        // HELPER: Format time string to 12-hour IST format
-        // ---------------------------------------------------------------
-        function formatTimeIST(timeStr) {
-            var parts = timeStr.split(":");
-            var hours = parseInt(parts[0]);
-            var minutes = parts[1];
-            var seconds = parts[2];
-            var ampm = hours >= 12 ? "PM" : "AM";
-            var displayHours = hours % 12;
-            if (displayHours === 0) displayHours = 12;
-            return displayHours + ":" + minutes + ":" + seconds + " " + ampm + " IST";
-        }
-
-        // ---------------------------------------------------------------
-        // HELPER: Format date to readable format
-        // ---------------------------------------------------------------
-        function formatDateReadable(dateStr) {
-            var d = new Date(dateStr + "T00:00:00");
-            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            return days[d.getDay()] + ", " + d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
-        }
-
-        // ---------------------------------------------------------------
-        // HELPER: Get status badge HTML
-        // ---------------------------------------------------------------
-        function getStatusBadge(status) {
-            if (status === "—" || status === "") return '<span class="text-muted">—</span>';
-            if (status.indexOf("Pending") !== -1) return '<span class="badge bg-secondary">' + status + '</span>';
-            if (status.indexOf("Reserved") !== -1) return '<span class="badge bg-warning text-dark">' + status + '</span>';
-            if (status.indexOf("Dispatched") !== -1) return '<span class="badge bg-info text-dark">' + status + '</span>';
-            if (status.indexOf("In Transit") !== -1) return '<span class="badge bg-warning text-dark">' + status + '</span>';
-            if (status.indexOf("Delivered") !== -1) return '<span class="badge bg-success">' + status + '</span>';
-            if (status.indexOf("Available") !== -1) return '<span class="badge bg-success">' + status + '</span>';
-            if (status.indexOf("On Trip") !== -1) return '<span class="badge bg-warning text-dark">' + status + '</span>';
-            // Stock changes — show as info
-            return '<span class="badge bg-info text-dark" style="font-size:0.7rem;">' + status + '</span>';
-        }
-
-        // ---------------------------------------------------------------
-        // HELPER: Get operation type badge
-        // ---------------------------------------------------------------
         function getOperationTypeBadge(opType) {
             var colors = {
                 "Request Received": "bg-secondary",
@@ -1149,10 +674,6 @@
             return '<span class="badge ' + cls + '">' + opType + '</span>';
         }
 
-
-        // ---------------------------------------------------------------
-        // RENDER: Populate the operation history table and summary cards
-        // ---------------------------------------------------------------
         function renderOperationHistory(data) {
             var tbody = document.getElementById("operationHistoryBody");
             var noMsg = document.getElementById("noRecordsMsg");
@@ -1160,7 +681,7 @@
 
             tbody.innerHTML = "";
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 noMsg.style.display = "block";
                 document.getElementById("operationHistoryTable").style.display = "none";
                 countSpan.textContent = "";
@@ -1188,14 +709,9 @@
                 }
             }
 
-            // Update summary cards
-            updateSummaryCards(data);
+            updateSummaryCards(data || []);
         }
 
-
-        // ---------------------------------------------------------------
-        // SUMMARY CARDS: Count operations by type from filtered data
-        // ---------------------------------------------------------------
         function updateSummaryCards(data) {
             var received = 0, processed = 0, dispatched = 0, delivered = 0, stockUpdates = 0;
 
@@ -1215,56 +731,19 @@
             document.getElementById("summaryStockUpdates").textContent = stockUpdates;
         }
 
-
-        // ---------------------------------------------------------------
-        // FILTER: Date range + category filtering
-        // ---------------------------------------------------------------
         function filterOperationHistory() {
             var fromDate = document.getElementById("filterFromDate").value;
             var toDate = document.getElementById("filterToDate").value;
-            var category = document.getElementById("filterCategory").value;
             var errorDiv = document.getElementById("dateValidationError");
 
-            // Validate: From Date must not be later than To Date
             if (fromDate && toDate && fromDate > toDate) {
                 errorDiv.style.display = "block";
                 return;
             }
             errorDiv.style.display = "none";
             loadAdminOperations();
-
-            // Filter the data
-            var filtered = [];
-            for (var i = 0; i < operationHistoryData.length; i++) {
-                var op = operationHistoryData[i];
-                var matchDate = true;
-                var matchCategory = true;
-
-                // Date filter
-                if (fromDate && op.date < fromDate) matchDate = false;
-                if (toDate && op.date > toDate) matchDate = false;
-
-                // Category filter
-                if (category !== "all") {
-                    if (category === "shop" && op.category !== "request") matchCategory = false;
-                    if (category === "warehouse" && op.category !== "warehouse") matchCategory = false;
-                    if (category === "vehicle" && op.category !== "vehicle") matchCategory = false;
-                    if (category === "request" && op.category !== "request") matchCategory = false;
-                    if (category === "delivery" && op.category !== "delivery") matchCategory = false;
-                }
-
-                if (matchDate && matchCategory) {
-                    filtered.push(op);
-                }
-            }
-
-            renderOperationHistory(filtered);
         }
 
-
-        // ---------------------------------------------------------------
-        // RESET: Clear filters and show all records
-        // ---------------------------------------------------------------
         function resetOperationFilter() {
             document.getElementById("filterFromDate").value = "";
             document.getElementById("filterToDate").value = "";
@@ -1273,10 +752,6 @@
             loadAdminOperations();
         }
 
-
-        // ---------------------------------------------------------------
-        // VIEW DETAILS: Show detailed modal for a specific operation
-        // ---------------------------------------------------------------
         function viewOperationDetail(opId) {
             var op = null;
             for (var i = 0; i < operationHistoryData.length; i++) {
@@ -1289,23 +764,20 @@
 
             document.getElementById("operationDetailTitle").textContent = "Operation Details — " + op.opId;
 
-            // Find related operations for the same request
             var relatedOps = [];
             for (var j = 0; j < operationHistoryData.length; j++) {
-                if (operationHistoryData[j].requestId === op.requestId) {
+                if (op.requestId && op.requestId !== "—" && operationHistoryData[j].requestId === op.requestId) {
                     relatedOps.push(operationHistoryData[j]);
                 }
             }
 
             var html = "";
-
-            // Main details card
             html += '<div class="p-3 border rounded mb-3">';
             html += '<div class="row">';
             html += '<div class="col-md-6"><p class="mb-1"><strong>Operation ID:</strong> ' + op.opId + '</p></div>';
             html += '<div class="col-md-6"><p class="mb-1"><strong>Request ID:</strong> ' + op.requestId + '</p></div>';
             html += '<div class="col-md-6"><p class="mb-1"><strong>Entity ID:</strong> ' + op.entityId + '</p></div>';
-            html += '<div class="col-md-6"><p class="mb-1"><strong>Category:</strong> ' + op.category.charAt(0).toUpperCase() + op.category.slice(1) + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Category:</strong> ' + (op.category ? (op.category.charAt(0).toUpperCase() + op.category.slice(1)) : 'General') + '</p></div>';
             html += '<div class="col-md-6"><p class="mb-1"><strong>Operation:</strong> ' + getOperationTypeBadge(op.operationType) + '</p></div>';
             html += '<div class="col-md-6"><p class="mb-1"><strong>Updated By:</strong> ' + op.updatedBy + '</p></div>';
             html += '<div class="col-md-6"><p class="mb-1"><strong>Date:</strong> ' + formatDateReadable(op.date) + '</p></div>';
@@ -1316,7 +788,6 @@
             html += '<p class="mb-0" style="font-size: 0.9rem;"><strong>Description:</strong><br>' + op.details + '</p>';
             html += '</div>';
 
-            // Related operations timeline
             if (relatedOps.length > 1) {
                 html += '<h6 class="mt-3 mb-2" style="font-weight: 600;">📋 Full Timeline for ' + op.requestId + '</h6>';
                 html += '<div class="list-group">';
@@ -1335,14 +806,11 @@
             }
 
             document.getElementById("operationDetailBody").innerHTML = html;
-
             var modal = new bootstrap.Modal(document.getElementById("operationDetailModal"));
             modal.show();
         }
 
-    
         document.addEventListener("DOMContentLoaded", function() {
-            if (typeof initValamStockStorage === "function") initValamStockStorage();
             renderAdminWarehouses();
             renderAdminRequests();
         });

@@ -25,7 +25,9 @@ public class OperationHandler implements HttpHandler {
 
         Map<String, String> query = HttpUtil.parseQueryParams(exchange);
         String fromDate = query.get("fromDate");
+        if (fromDate == null || fromDate.trim().isEmpty()) fromDate = query.get("from");
         String toDate = query.get("toDate");
+        if (toDate == null || toDate.trim().isEmpty()) toDate = query.get("to");
         String category = query.get("category");
         String warehouseId = query.get("warehouseId");
         String opType = query.get("type");

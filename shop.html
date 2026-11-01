@@ -182,15 +182,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="recentRequestsBody">
-                                    <tr>
-                                        <td>REQ-101</td>
-                                        <td>200</td>
-                                        <td>100</td>
-                                        <td>50</td>
-                                        <td><span class="badge bg-danger">Critical</span></td>
-                                        <td>Valam Central Warehouse</td>
-                                        <td><span class="badge bg-info text-dark">Dispatched</span></td>
-                                    </tr>
+                                    <!-- Populated dynamically from SQLite database -->
                                 </tbody>
                             </table>
                         </div>
@@ -276,15 +268,7 @@
                             </tr>
                         </thead>
                         <tbody id="requestStatusBody">
-                            <tr>
-                                <td>REQ-101</td>
-                                <td>200</td>
-                                <td>100</td>
-                                <td>50</td>
-                                <td><span class="badge bg-danger">Critical</span></td>
-                                <td>Valam Central Warehouse</td>
-                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
-                            </tr>
+                            <!-- Populated dynamically from SQLite database -->
                         </tbody>
                     </table>
                 </div>
@@ -310,17 +294,7 @@
                 <h5 class="mb-3">Delivery Status</h5>
 
                 <div id="deliveryStatusList">
-                    <div class="mb-3 p-3 border rounded">
-                        <h6 class="mb-1"><strong>REQ-101</strong></h6>
-                        <p class="mb-1" style="font-size: 0.9rem;">
-                            🏭 Warehouse: Valam Central Warehouse<br>
-                            🚚 Vehicle: V01<br>
-                            📦 Route: Warehouse → Shop
-                        </p>
-                        <p class="mb-0">
-                            Status: <span class="badge bg-info text-dark">Dispatched</span>
-                        </p>
-                    </div>
+                    <!-- Populated dynamically from SQLite database -->
                 </div>
 
                 <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
@@ -496,18 +470,13 @@
 
     <!-- JavaScript for Shop Functionality -->
     <script>
-
-        // ---------------------------------------------------------------
-        // USER SESSION & SHOP IDENTITY
-        // Reads logged-in shop username from sessionStorage (default Shop01 / S01)
-        // ---------------------------------------------------------------
         var loggedInUser = sessionStorage.getItem("valam_user") || "Shop01";
-        
         var currentShop = (typeof SHOP_USER_MAP !== "undefined" && SHOP_USER_MAP[loggedInUser]) 
             ? SHOP_USER_MAP[loggedInUser] 
             : { id: "S01", name: "FPS Nagercoil", nearestWh: "W01", nearestWhName: "Valam Central Warehouse", distance: "5 km" };
 
-        // Set UI welcome, badge and initial setup
+        var allShopRequests = [];
+
         document.addEventListener("DOMContentLoaded", function() {
             var badge = document.getElementById("shopUserBadge");
             if (badge) badge.textContent = "Logged in: " + loggedInUser + " (" + currentShop.id + " - " + currentShop.name + ")";
@@ -516,31 +485,131 @@
             var filterBadge = document.getElementById("shopActiveFilterBadge");
             if (filterBadge) filterBadge.textContent = "Shop: " + currentShop.id + " (" + currentShop.name + ")";
 
-            updateShopWarehouseView();
-            renderInitialShopTables();
             refreshShopDataFromServer();
         });
 
         async function refreshShopDataFromServer() {
-            try {
-                if (typeof valamApiCall === "function") {
-                    var reqs = await valamApiCall("/api/requests?shopId=" + encodeURIComponent(currentShop.id), "GET");
-                    if (reqs && Array.isArray(reqs)) {
-                        allShopRequests = reqs;
-                        renderInitialShopTables();
+            await Promise.all([
+                loadShopRequests(),
+                loadWarehouseStockForShop()
+            ]);
+        }
+
+        async function loadShopRequests() {
+            var res = await valamApiCall("/api/requests?shopId=" + encodeURIComponent(currentShop.id), "GET");
+            if (res && res.error) {
+                console.error("[Shop] Error loading requests:", res.error);
+                var tbody = document.getElementById("recentRequestsBody");
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-3">⚠️ Database Error: ' + res.error + '</td></tr>';
+                return;
+            }
+            allShopRequests = Array.isArray(res) ? res : [];
+            renderShopTables();
+            renderShopHistory(allShopRequests);
+        }
+
+        function renderShopTables() {
+            var recentTbody = document.getElementById("recentRequestsBody");
+            var statusTbody = document.getElementById("requestStatusBody");
+            var deliveryList = document.getElementById("deliveryStatusList");
+
+            if (recentTbody) recentTbody.innerHTML = "";
+            if (statusTbody) statusTbody.innerHTML = "";
+            if (deliveryList) deliveryList.innerHTML = "";
+
+            if (!allShopRequests || allShopRequests.length === 0) {
+                if (recentTbody) recentTbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">No requests submitted yet. Use Create Request above.</td></tr>';
+                if (statusTbody) statusTbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">No request statuses available.</td></tr>';
+                if (deliveryList) deliveryList.innerHTML = '<p class="text-muted text-center py-3">No active deliveries for this shop.</p>';
+                return;
+            }
+
+            for (var i = 0; i < allShopRequests.length; i++) {
+                var req = allShopRequests[i];
+                var reqId = req.id || req.requestId;
+                var urgBadge = getUrgencyBadge(req.urgency);
+                var statusBadge = getStatusBadge(req.status);
+                var whName = req.warehouse || req.warehouseName || (req.warehouseId === "W01" ? "Valam Central Warehouse" : (req.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
+
+                if (recentTbody) {
+                    var rRow = document.createElement("tr");
+                    rRow.innerHTML = "<td><strong>" + reqId + "</strong></td>" +
+                        "<td>" + req.rice + "</td>" +
+                        "<td>" + req.wheat + "</td>" +
+                        "<td>" + req.sugar + "</td>" +
+                        "<td>" + urgBadge + "</td>" +
+                        "<td>" + whName + "</td>" +
+                        "<td>" + statusBadge + "</td>";
+                    recentTbody.appendChild(rRow);
+                }
+
+                if (statusTbody) {
+                    var sRow = document.createElement("tr");
+                    sRow.innerHTML = "<td><strong>" + reqId + "</strong></td>" +
+                        "<td>" + req.rice + "</td>" +
+                        "<td>" + req.wheat + "</td>" +
+                        "<td>" + req.sugar + "</td>" +
+                        "<td>" + urgBadge + "</td>" +
+                        "<td>" + whName + "</td>" +
+                        "<td>" + statusBadge + "</td>";
+                    statusTbody.appendChild(sRow);
+                }
+
+                if (deliveryList) {
+                    var card = document.createElement("div");
+                    card.className = "mb-3 p-3 border rounded";
+                    card.innerHTML =
+                        '<h6 class="mb-1"><strong>' + reqId + '</strong></h6>' +
+                        '<p class="mb-1" style="font-size: 0.9rem;">' +
+                        '🏭 Warehouse: ' + whName + '<br>' +
+                        '🚚 Vehicle: ' + (req.vehicle || 'Not Assigned') + '<br>' +
+                        '📦 Route: ' + (req.route || (whName + " → " + currentShop.name)) +
+                        '</p>' +
+                        '<p class="mb-0">Status: ' + statusBadge + '</p>';
+                    deliveryList.appendChild(card);
+                }
+            }
+        }
+
+        async function loadWarehouseStockForShop() {
+            var res = await valamApiCall("/api/warehouses", "GET");
+            if (!res || !Array.isArray(res)) return;
+
+            var nearestAlert = document.getElementById("nearestWarehouseAlert");
+            if (nearestAlert) {
+                var nName = currentShop.nearestWhName || "Valam Central Warehouse";
+                var nDist = currentShop.distance || "5 km";
+                nearestAlert.innerHTML = '<strong>Nearest Warehouse:</strong> ' + nName + ' (' + nDist + ')';
+            }
+
+            for (var i = 0; i < res.length; i++) {
+                var wh = res[i];
+                var rice = (wh.available ? wh.available.rice : wh.rice) + " kg";
+                var wheat = (wh.available ? wh.available.wheat : wh.wheat) + " kg";
+                var sugar = (wh.available ? wh.available.sugar : wh.sugar) + " kg";
+
+                if (wh.id === "W01") {
+                    var rEl = document.getElementById("shopStockW01Rice");
+                    if (rEl) {
+                        rEl.textContent = rice;
+                        document.getElementById("shopStockW01Wheat").textContent = wheat;
+                        document.getElementById("shopStockW01Sugar").textContent = sugar;
                     }
-                    var whs = await valamApiCall("/api/warehouses", "GET");
-                    if (whs && Array.isArray(whs)) {
-                        var whMap = {};
-                        for (var i = 0; i < whs.length; i++) whMap[whs[i].id] = whs[i];
-                        if (typeof sessionStorage !== "undefined") {
-                            sessionStorage.setItem("valam_warehouses_stock", JSON.stringify(whMap));
-                        }
-                        updateShopWarehouseView();
+                } else if (wh.id === "W02") {
+                    var rEl = document.getElementById("shopStockW02Rice");
+                    if (rEl) {
+                        rEl.textContent = rice;
+                        document.getElementById("shopStockW02Wheat").textContent = wheat;
+                        document.getElementById("shopStockW02Sugar").textContent = sugar;
+                    }
+                } else if (wh.id === "W03") {
+                    var rEl = document.getElementById("shopStockW03Rice");
+                    if (rEl) {
+                        rEl.textContent = rice;
+                        document.getElementById("shopStockW03Wheat").textContent = wheat;
+                        document.getElementById("shopStockW03Sugar").textContent = sugar;
                     }
                 }
-            } catch (e) {
-                console.warn("[Shop] Server sync error:", e);
             }
         }
 
@@ -566,10 +635,10 @@
                 target.style.display = "block";
             }
             if (sectionId === "warehouseView") {
-                updateShopWarehouseView();
+                loadWarehouseStockForShop();
             }
             if (sectionId === "requestHistoryView") {
-                renderShopHistory(getShopFilteredData());
+                renderShopHistory(allShopRequests);
             }
             window.scrollTo(0, 0);
         }
@@ -583,130 +652,12 @@
             window.scrollTo(0, 0);
         }
 
-        // ---------------------------------------------------------------
-        // WAREHOUSE VIEW DATA SYNC (W01, W02, W03)
-        // ---------------------------------------------------------------
-        function updateShopWarehouseView() {
-            if (typeof getValamWarehouseStock !== "function") return;
-            var sW01 = getValamWarehouseStock("W01");
-            var sW02 = getValamWarehouseStock("W02");
-            var sW03 = getValamWarehouseStock("W03");
-
-            var nearestWhName = currentShop.nearestWhName || "Valam Central Warehouse";
-            var nearestDist = currentShop.distance || "5 km";
-            var nearestAlert = document.getElementById("nearestWarehouseAlert");
-            if (nearestAlert) {
-                nearestAlert.innerHTML = '<strong>Nearest Warehouse:</strong> ' + nearestWhName + ' (' + nearestDist + ')';
-            }
-
-            if (document.getElementById("shopStockW01Rice")) {
-                document.getElementById("shopStockW01Rice").textContent = sW01.available.rice + " kg";
-                document.getElementById("shopStockW01Wheat").textContent = sW01.available.wheat + " kg";
-                document.getElementById("shopStockW01Sugar").textContent = sW01.available.sugar + " kg";
-            }
-            if (document.getElementById("shopStockW02Rice")) {
-                document.getElementById("shopStockW02Rice").textContent = sW02.available.rice + " kg";
-                document.getElementById("shopStockW02Wheat").textContent = sW02.available.wheat + " kg";
-                document.getElementById("shopStockW02Sugar").textContent = sW02.available.sugar + " kg";
-            }
-            if (document.getElementById("shopStockW03Rice")) {
-                document.getElementById("shopStockW03Rice").textContent = sW03.available.rice + " kg";
-                document.getElementById("shopStockW03Wheat").textContent = sW03.available.wheat + " kg";
-                document.getElementById("shopStockW03Sugar").textContent = sW03.available.sugar + " kg";
-            }
-        }
-
-        // ---------------------------------------------------------------
-        // DATE & TIME HELPERS (IST)
-        // ---------------------------------------------------------------
-        function getCurrentDateIST() {
-            var now = new Date();
-            var year = now.getFullYear();
-            var month = String(now.getMonth() + 1).padStart(2, '0');
-            var day = String(now.getDate()).padStart(2, '0');
-            return year + "-" + month + "-" + day;
-        }
-
-        function getCurrentTimeIST() {
-            var now = new Date();
-            var hours = String(now.getHours()).padStart(2, '0');
-            var minutes = String(now.getMinutes()).padStart(2, '0');
-            var seconds = String(now.getSeconds()).padStart(2, '0');
-            return hours + ":" + minutes + ":" + seconds;
-        }
-
         function formatTime12IST(timeStr) {
-            if (!timeStr) return "—";
-            var parts = timeStr.split(":");
-            var h = parseInt(parts[0]);
-            var m = parts[1];
-            var s = parts[2] || "00";
-            var ampm = h >= 12 ? "PM" : "AM";
-            var dispH = h % 12;
-            if (dispH === 0) dispH = 12;
-            return dispH + ":" + m + ":" + s + " " + ampm + " IST";
-        }
-
-        function formatDateReadable(dateStr) {
-            if (!dateStr) return "—";
-            var d = new Date(dateStr + "T00:00:00");
-            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+            return formatTimeIST(timeStr);
         }
 
         // ---------------------------------------------------------------
-        // REQUEST REPOSITORY (INITIALIZED FROM CENTRALIZED STORAGE)
-        // ---------------------------------------------------------------
-        var allShopRequests = (typeof getValamRequests === "function") 
-            ? getValamRequests() 
-            : (typeof INITIAL_VALAM_REQUESTS !== "undefined" ? INITIAL_VALAM_REQUESTS : []);
-
-        var requestCounter = 109;
-
-        // ---------------------------------------------------------------
-        // HELPER: Get requests belonging ONLY to current shop
-        // ---------------------------------------------------------------
-        function getShopFilteredData() {
-            if (typeof getValamRequests === "function") {
-                allShopRequests = getValamRequests();
-            }
-            var list = [];
-            for (var i = 0; i < allShopRequests.length; i++) {
-                if (allShopRequests[i].shopId === currentShop.id) {
-                    list.push(allShopRequests[i]);
-                }
-            }
-            return list;
-        }
-
-        // Populate initial dashboard tables for logged-in shop
-        function renderInitialShopTables() {
-            var myReqs = getShopFilteredData();
-            var recentTbody = document.getElementById("recentRequestsBody");
-            var statusTbody = document.getElementById("requestStatusBody");
-            var deliveryList = document.getElementById("deliveryStatusList");
-
-            if (recentTbody) recentTbody.innerHTML = "";
-            if (statusTbody) statusTbody.innerHTML = "";
-            if (deliveryList) deliveryList.innerHTML = "";
-
-            if (myReqs.length === 0) {
-                if (recentTbody) recentTbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No requests submitted yet. Use Create Request above.</td></tr>';
-                if (statusTbody) statusTbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No request statuses available.</td></tr>';
-                if (deliveryList) deliveryList.innerHTML = '<p class="text-muted text-center py-3">No active deliveries for this shop.</p>';
-                return;
-            }
-
-            for (var i = 0; i < myReqs.length; i++) {
-                var req = myReqs[i];
-                addRecentRequestRow(req);
-                addRequestStatusRow(req);
-                addDeliveryStatusCard(req);
-            }
-        }
-
-        // ---------------------------------------------------------------
-        // SUBMIT NEW REQUEST WITH LIVE IST TIMESTAMPS & WAREHOUSE ID
+        // CREATE / SUBMIT COMMODITY REQUEST (STRICTLY SQLITE)
         // ---------------------------------------------------------------
         async function submitRequest(event) {
             event.preventDefault();
@@ -723,69 +674,27 @@
             }
 
             var warehouseId = "W01";
-            var warehouseName = warehouseSelect;
-
             if (warehouseSelect.indexOf("North") !== -1 || warehouseSelect.indexOf("W02") !== -1) {
                 warehouseId = "W02";
-                warehouseName = "Valam North Warehouse";
             } else if (warehouseSelect.indexOf("South") !== -1 || warehouseSelect.indexOf("W03") !== -1) {
                 warehouseId = "W03";
-                warehouseName = "Valam South Warehouse";
             } else {
                 warehouseId = "W01";
-                warehouseName = "Valam Central Warehouse";
             }
 
-            var todayDate = getCurrentDateIST();
-            var nowTime = getCurrentTimeIST();
-            var reqList = (typeof getValamRequests === "function") ? getValamRequests() : allShopRequests;
-            var nextNum = 101 + reqList.length;
-            var requestId = "REQ-" + (nextNum >= requestCounter ? nextNum : requestCounter);
-            requestCounter = parseInt(requestId.replace("REQ-", "")) + 1;
-
-            rice = rice === "" ? "0" : rice;
-            wheat = wheat === "" ? "0" : wheat;
-            sugar = sugar === "" ? "0" : sugar;
-
-            var newRequest = {
-                requestId: requestId,
+            var res = await valamApiCall("/api/requests", "POST", {
                 shopId: currentShop.id,
-                rice: rice,
-                wheat: wheat,
-                sugar: sugar,
+                rice: rice === "" ? 0 : parseInt(rice),
+                wheat: wheat === "" ? 0 : parseInt(wheat),
+                sugar: sugar === "" ? 0 : parseInt(sugar),
                 urgency: urgency,
-                warehouseId: warehouseId,
-                warehouse: warehouseName,
-                status: "Pending",
-                vehicle: "Not Assigned",
-                route: warehouseName + " → " + currentShop.name,
-                submittedDate: todayDate,
-                submittedTime: nowTime,
-                lastUpdatedDate: todayDate,
-                lastUpdatedTime: nowTime,
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: todayDate,
-                        time: nowTime,
-                        status: "Pending",
-                        updatedBy: loggedInUser + " Staff",
-                        details: "Request " + requestId + " submitted for " + rice + "kg Rice, " + wheat + "kg Wheat, " + sugar + "kg Sugar to " + warehouseName + " (" + warehouseId + ")."
-                    }
-                ]
-            };
+                warehouseId: warehouseId
+            });
 
-            // Save to centralized storage
-            if (typeof addValamRequest === "function") {
-                allShopRequests = addValamRequest(newRequest);
-            } else {
-                allShopRequests.unshift(newRequest);
+            if (res && res.error) {
+                alert("⚠️ Error submitting request: " + res.error);
+                return;
             }
-
-            // Update UI
-            addRecentRequestRow(newRequest);
-            addRequestStatusRow(newRequest);
-            addDeliveryStatusCard(newRequest);
 
             // Clear inputs
             document.getElementById("rice").value = "";
@@ -794,71 +703,11 @@
             document.getElementById("urgency").value = "normal";
             document.getElementById("warehouse").selectedIndex = 0;
 
-            alert("✅ Request submitted successfully!\n\nRequest ID: " + requestId + "\nAssigned Warehouse: " + warehouseName + " (" + warehouseId + ")\nSubmitted At: " + todayDate + " " + formatTime12IST(nowTime));
+            await refreshShopDataFromServer();
 
-            // Refresh history view if visible
-            renderShopHistory(getShopFilteredData());
-        }
-
-        // ---------------------------------------------------------------
-        // TABLE ROW INSERTERS (PRESERVED)
-        // ---------------------------------------------------------------
-        function getUrgencyBadge(urgency) {
-            if (urgency === "critical") return '<span class="badge bg-danger">Critical</span>';
-            if (urgency === "urgent") return '<span class="badge bg-warning text-dark">Urgent</span>';
-            return '<span class="badge bg-primary">Normal</span>';
-        }
-
-        function getStatusBadge(status) {
-            if (status === "Pending") return '<span class="badge bg-secondary">Pending</span>';
-            if (status === "Reserved") return '<span class="badge bg-warning text-dark">Reserved</span>';
-            if (status === "Dispatched") return '<span class="badge bg-info text-dark">Dispatched</span>';
-            if (status === "In Transit") return '<span class="badge bg-warning text-dark">In Transit</span>';
-            if (status === "Delivered") return '<span class="badge bg-success">Delivered</span>';
-            return '<span class="badge bg-secondary">' + status + '</span>';
-        }
-
-        function addRecentRequestRow(req) {
-            var tbody = document.getElementById("recentRequestsBody");
-            var row = document.createElement("tr");
-            row.innerHTML =
-                "<td>" + req.requestId + "</td>" +
-                "<td>" + req.rice + "</td>" +
-                "<td>" + req.wheat + "</td>" +
-                "<td>" + req.sugar + "</td>" +
-                "<td>" + getUrgencyBadge(req.urgency) + "</td>" +
-                "<td>" + req.warehouse + "</td>" +
-                "<td>" + getStatusBadge(req.status) + "</td>";
-            tbody.insertBefore(row, tbody.firstChild);
-        }
-
-        function addRequestStatusRow(req) {
-            var tbody = document.getElementById("requestStatusBody");
-            var row = document.createElement("tr");
-            row.innerHTML =
-                "<td>" + req.requestId + "</td>" +
-                "<td>" + req.rice + "</td>" +
-                "<td>" + req.wheat + "</td>" +
-                "<td>" + req.sugar + "</td>" +
-                "<td>" + getUrgencyBadge(req.urgency) + "</td>" +
-                "<td>" + req.warehouse + "</td>" +
-                "<td>" + getStatusBadge(req.status) + "</td>";
-            tbody.insertBefore(row, tbody.firstChild);
-        }
-
-        function addDeliveryStatusCard(req) {
-            var container = document.getElementById("deliveryStatusList");
-            var card = document.createElement("div");
-            card.className = "mb-3 p-3 border rounded";
-            card.innerHTML =
-                '<h6 class="mb-1"><strong>' + req.requestId + '</strong></h6>' +
-                '<p class="mb-1" style="font-size: 0.9rem;">' +
-                '🏭 Warehouse: ' + req.warehouse + '<br>' +
-                '🚚 Vehicle: ' + req.vehicle + '<br>' +
-                '📦 Route: ' + req.route +
-                '</p>' +
-                '<p class="mb-0">Status: ' + getStatusBadge(req.status) + '</p>';
-            container.insertBefore(card, container.firstChild);
+            var reqId = res.id || res.requestId;
+            var whName = res.warehouseName || res.warehouse || warehouseSelect;
+            alert("✅ Request submitted successfully! Stored directly in SQLite database.\n\nRequest ID: " + reqId + "\nAssigned Warehouse: " + whName + " (" + warehouseId + ")");
         }
 
         // ---------------------------------------------------------------
@@ -884,48 +733,48 @@
                 for (var i = 0; i < data.length; i++) {
                     var req = data[i];
                     var tr = document.createElement("tr");
+                    var reqId = req.id || req.requestId;
+                    var whName = req.warehouse || req.warehouseName || (req.warehouseId === "W01" ? "Valam Central Warehouse" : (req.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
+
                     tr.innerHTML =
-                        "<td><strong>" + req.requestId + "</strong></td>" +
+                        "<td><strong>" + reqId + "</strong></td>" +
                         "<td><span class=\"badge bg-light text-dark border\">" + req.shopId + "</span></td>" +
                         "<td>" + req.rice + "</td>" +
                         "<td>" + req.wheat + "</td>" +
                         "<td>" + req.sugar + "</td>" +
                         "<td>" + getUrgencyBadge(req.urgency) + "</td>" +
-                        "<td>" + req.warehouse + "</td>" +
+                        "<td>" + whName + "</td>" +
                         "<td>" + getStatusBadge(req.status) + "</td>" +
                         "<td>" + formatDateReadable(req.submittedDate) + "</td>" +
                         "<td>" + formatTime12IST(req.submittedTime) + "</td>" +
                         "<td>" + formatDateReadable(req.lastUpdatedDate) + "</td>" +
                         "<td>" + formatTime12IST(req.lastUpdatedTime) + "</td>" +
-                        '<td><button class="btn btn-outline-success btn-sm text-nowrap" onclick="viewRequestTimeline(\'' + req.requestId + '\')">⏱️ View Timeline</button></td>';
+                        '<td><button class="btn btn-outline-success btn-sm text-nowrap" onclick="viewRequestTimeline(\'' + reqId + '\')">⏱️ View Timeline</button></td>';
                     tbody.appendChild(tr);
                 }
             }
 
-            // Update stats
             var total = data ? data.length : 0;
             var pending = 0, dispatched = 0, delivered = 0;
             if (data) {
                 for (var j = 0; j < data.length; j++) {
-                    if (data[j].status === "Pending") pending++;
-                    else if (data[j].status === "Dispatched" || data[j].status === "In Transit" || data[j].status === "Reserved") dispatched++;
-                    else if (data[j].status === "Delivered") delivered++;
+                    var s = data[j].status;
+                    if (s === "Pending" || s === "Reserved") pending++;
+                    else if (s === "Dispatched" || s === "In Transit") dispatched++;
+                    else if (s === "Delivered") delivered++;
                 }
             }
             document.getElementById("statTotalRequests").textContent = total;
-            document.getElementById("statPendingRequests").textContent = pending;
-            document.getElementById("statDispatchedRequests").textContent = dispatched;
-            document.getElementById("statDeliveredRequests").textContent = delivered;
+            document.getElementById("statPending").textContent = pending;
+            document.getElementById("statDispatched").textContent = dispatched;
+            document.getElementById("statDelivered").textContent = delivered;
         }
 
-        // ---------------------------------------------------------------
-        // FILTER: DATE RANGE & STATUS
-        // ---------------------------------------------------------------
-        function filterShopRequests() {
+        function filterShopHistory() {
             var from = document.getElementById("shopFilterFromDate").value;
             var to = document.getElementById("shopFilterToDate").value;
-            var status = document.getElementById("shopStatusFilter").value;
-            var alertBox = document.getElementById("shopDateAlert");
+            var status = document.getElementById("shopFilterStatus").value;
+            var alertBox = document.getElementById("shopDateValidationAlert");
 
             if (from && to && from > to) {
                 alertBox.style.display = "block";
@@ -933,90 +782,88 @@
             }
             alertBox.style.display = "none";
 
-            var shopOnly = getShopFilteredData();
             var filtered = [];
-
-            for (var i = 0; i < shopOnly.length; i++) {
-                var r = shopOnly[i];
+            for (var i = 0; i < allShopRequests.length; i++) {
+                var r = allShopRequests[i];
                 var dateOk = true;
-                var statusOk = true;
+                var statOk = true;
 
                 if (from && r.submittedDate < from) dateOk = false;
                 if (to && r.submittedDate > to) dateOk = false;
-                if (status !== "all" && r.status !== status) statusOk = false;
+                if (status !== "all" && r.status !== status) statOk = false;
 
-                if (dateOk && statusOk) {
-                    filtered.push(r);
-                }
+                if (dateOk && statOk) filtered.push(r);
             }
 
             renderShopHistory(filtered);
         }
 
-        function resetShopFilter() {
+        function resetShopHistoryFilter() {
             document.getElementById("shopFilterFromDate").value = "";
             document.getElementById("shopFilterToDate").value = "";
-            document.getElementById("shopStatusFilter").value = "all";
-            document.getElementById("shopDateAlert").style.display = "none";
-            renderShopHistory(getShopFilteredData());
+            document.getElementById("shopFilterStatus").value = "all";
+            document.getElementById("shopDateValidationAlert").style.display = "none";
+            renderShopHistory(allShopRequests);
         }
 
         // ---------------------------------------------------------------
-        // VIEW TIMELINE MODAL
+        // VIEW REQUEST TIMELINE MODAL (STRICTLY SQLITE)
         // ---------------------------------------------------------------
-        function viewRequestTimeline(reqId) {
-            var req = null;
-            for (var i = 0; i < allShopRequests.length; i++) {
-                if (allShopRequests[i].requestId === reqId) {
-                    req = allShopRequests[i];
-                    break;
-                }
+        async function viewRequestTimeline(reqId) {
+            var res = await valamApiCall("/api/requests/" + encodeURIComponent(reqId), "GET");
+            if (res && res.error) {
+                alert("⚠️ Error loading timeline: " + res.error);
+                return;
             }
+            var req = res;
             if (!req) return;
 
-            document.getElementById("timelineModalTitle").textContent = "Request Timeline — " + req.requestId;
-            document.getElementById("timelineModalSubtitle").textContent = "Shop: " + req.shopId + " | Warehouse: " + req.warehouse;
+            var rId = req.id || req.requestId;
+            var whName = req.warehouse || req.warehouseName || (req.warehouseId === "W01" ? "Valam Central Warehouse" : (req.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
+
+            document.getElementById("timelineModalTitle").textContent = "Request Timeline — " + rId;
+            document.getElementById("timelineModalSubtitle").textContent = "Shop: " + currentShop.id + " (" + currentShop.name + ") | Warehouse: " + whName;
 
             var html = '';
-
-            // Commodity summary banner
-            html += '<div class="p-3 bg-light rounded border mb-4">';
-            html += '<div class="row text-center">';
-            html += '<div class="col-3"><strong>Rice</strong><br><span class="badge bg-success">' + req.rice + ' kg</span></div>';
-            html += '<div class="col-3"><strong>Wheat</strong><br><span class="badge bg-success">' + req.wheat + ' kg</span></div>';
-            html += '<div class="col-3"><strong>Sugar</strong><br><span class="badge bg-success">' + req.sugar + ' kg</span></div>';
-            html += '<div class="col-3"><strong>Status</strong><br>' + getStatusBadge(req.status) + '</div>';
+            html += '<div class="p-3 bg-light rounded border mb-3">';
+            html += '<div class="row">';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Commodities:</strong> Rice ' + req.rice + 'kg, Wheat ' + req.wheat + 'kg, Sugar ' + req.sugar + 'kg</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Urgency:</strong> ' + getUrgencyBadge(req.urgency) + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Current Status:</strong> ' + getStatusBadge(req.status) + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Vehicle:</strong> ' + (req.vehicle || 'Not Assigned') + '</p></div>';
             html += '</div></div>';
 
-            html += '<h6 class="mb-3" style="font-weight: 600;">Chronological Event History (IST)</h6>';
-
-            // Vertical Timeline list
+            html += '<h6 class="mb-3" style="font-weight: 600;">Event History (Chronological)</h6>';
             html += '<div class="list-group">';
-            for (var t = 0; t < req.timeline.length; t++) {
-                var item = req.timeline[t];
-                var isLatest = (t === req.timeline.length - 1);
-                var activeClass = isLatest ? ' border-success shadow-sm' : '';
 
-                html += '<div class="list-group-item p-3 mb-2 rounded' + activeClass + '" style="border-left: 4px solid #16a34a !important;">';
-                html += '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">';
-                html += '<div>';
-                html += '<strong style="font-size: 0.95rem;">' + (t + 1) + '. ' + item.stage + '</strong> ';
-                html += getStatusBadge(item.status);
-                html += '</div>';
-                html += '<div class="text-muted" style="font-size: 0.8rem;">';
-                html += '📅 ' + formatDateReadable(item.date) + ' &nbsp;|&nbsp; 🕒 ' + formatTime12IST(item.time);
-                html += '</div>';
-                html += '</div>';
+            var events = req.timeline || [];
+            if (events.length === 0) {
+                html += '<p class="text-muted text-center py-3">No timeline events recorded yet.</p>';
+            } else {
+                for (var i = 0; i < events.length; i++) {
+                    var ev = events[i];
+                    var isLatest = (i === events.length - 1);
+                    var activeBorder = isLatest ? 'border-success shadow-sm' : '';
 
-                html += '<p class="mt-2 mb-1 text-muted" style="font-size: 0.88rem;">' + item.details + '</p>';
-                html += '<small class="text-secondary">👤 Action by: <strong>' + item.updatedBy + '</strong></small>';
-                html += '</div>';
+                    html += '<div class="list-group-item p-3 mb-2 rounded ' + activeBorder + '" style="border-left: 4px solid #16a34a !important;">';
+                    html += '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">';
+                    html += '<div>';
+                    html += '<strong style="font-size: 0.95rem;">' + (i + 1) + '. ' + (ev.stage || ev.stageTitle) + '</strong> ';
+                    html += getStatusBadge(ev.status);
+                    html += '</div>';
+                    html += '<div class="text-muted" style="font-size: 0.8rem;">';
+                    html += '📅 ' + formatDateReadable(ev.date) + ' &nbsp;|&nbsp; 🕒 ' + formatTime12IST(ev.time);
+                    html += '</div>';
+                    html += '</div>';
+                    html += '<p class="mt-2 mb-1 text-muted" style="font-size: 0.88rem;">' + (ev.details || ev.note || '') + '</p>';
+                    html += '<small class="text-secondary">👤 Action Performed By: <strong>' + (ev.updatedBy || ev.actor || 'Staff') + '</strong></small>';
+                    html += '</div>';
+                }
             }
             html += '</div>';
 
-            // Next Stage hint if not delivered
             if (req.status !== "Delivered") {
-                html += '<div class="mt-3 p-2 bg-warning-subtle rounded border border-warning" style="font-size: 0.82rem;">';
+                html += '<div class="mt-3 p-2 bg-light rounded border" style="font-size: 0.82rem;">';
                 html += '⏳ <strong>Current Stage:</strong> ' + req.status + '. Next updates will be recorded automatically when Warehouse operations proceed.';
                 html += '</div>';
             } else {
@@ -1026,11 +873,9 @@
             }
 
             document.getElementById("timelineModalBody").innerHTML = html;
-
             var modal = new bootstrap.Modal(document.getElementById("shopTimelineModal"));
             modal.show();
         }
-
     </script>
 </body>
 </html>

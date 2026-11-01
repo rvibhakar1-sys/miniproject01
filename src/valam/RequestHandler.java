@@ -22,16 +22,6 @@ public class RequestHandler implements HttpHandler {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
 
-        // Endpoints:
-        // GET  /api/requests
-        // POST /api/requests
-        // GET  /api/requests/{id}
-        // GET  /api/requests/{id}/timeline
-        // POST /api/requests/{id}/process
-        // POST /api/requests/{id}/assign-vehicle
-        // POST /api/requests/{id}/in-transit
-        // POST /api/requests/{id}/deliver
-
         String[] parts = path.split("/");
 
         if ("GET".equalsIgnoreCase(method)) {
@@ -88,11 +78,11 @@ public class RequestHandler implements HttpHandler {
         StringBuilder sql = new StringBuilder("SELECT r.*, s.name as shop_name FROM requests r LEFT JOIN shops s ON r.shop_id = s.id WHERE 1=1 ");
         List<Object> params = new ArrayList<>();
 
-        if (shopId != null && !shopId.trim().isEmpty()) {
+        if (shopId != null && !shopId.trim().isEmpty() && !shopId.equalsIgnoreCase("all")) {
             sql.append("AND UPPER(r.shop_id) = UPPER(?) ");
             params.add(shopId.trim());
         }
-        if (warehouseId != null && !warehouseId.trim().isEmpty()) {
+        if (warehouseId != null && !warehouseId.trim().isEmpty() && !warehouseId.equalsIgnoreCase("all")) {
             sql.append("AND (UPPER(r.warehouse_id) = UPPER(?) OR UPPER(r.warehouse_name) LIKE UPPER(?)) ");
             params.add(warehouseId.trim());
             params.add("%" + warehouseId.trim() + "%");
@@ -133,7 +123,7 @@ public class RequestHandler implements HttpHandler {
             }
         } catch (SQLException e) {
             System.err.println("[RequestHandler] Error fetching requests: " + e.getMessage());
-            HttpUtil.sendError(exchange, 500, "Database error fetching requests.");
+            HttpUtil.sendError(exchange, 500, "Database error fetching requests: " + e.getMessage());
         }
     }
 
@@ -148,12 +138,12 @@ public class RequestHandler implements HttpHandler {
                     appendRequestJson(conn, json, rs);
                     HttpUtil.sendJsonResponse(exchange, 200, json.toString());
                 } else {
-                    HttpUtil.sendError(exchange, 404, "Request not found: " + reqId);
+                    HttpUtil.sendError(exchange, 404, "Request not found in database: " + reqId);
                 }
             }
         } catch (SQLException e) {
             System.err.println("[RequestHandler] Error fetching request: " + e.getMessage());
-            HttpUtil.sendError(exchange, 500, "Database error fetching request.");
+            HttpUtil.sendError(exchange, 500, "Database error fetching request: " + e.getMessage());
         }
     }
 
@@ -182,7 +172,7 @@ public class RequestHandler implements HttpHandler {
             }
         } catch (SQLException e) {
             System.err.println("[RequestHandler] Error fetching timeline: " + e.getMessage());
-            HttpUtil.sendError(exchange, 500, "Database error fetching timeline.");
+            HttpUtil.sendError(exchange, 500, "Database error fetching timeline: " + e.getMessage());
         }
     }
 
@@ -205,7 +195,7 @@ public class RequestHandler implements HttpHandler {
             submittedBy = shopId != null ? shopId : "Shop User";
         }
 
-        // Validation
+        // Basic sanity validation
         if (shopId == null || shopId.trim().isEmpty()) {
             HttpUtil.sendError(exchange, 400, "Shop ID is required.");
             return;
@@ -219,61 +209,65 @@ public class RequestHandler implements HttpHandler {
             return;
         }
 
-        // Resolve warehouse
-        String resolvedWhId = "W01";
-        String resolvedWhName = "Valam Central Warehouse";
-
-        if (warehouseId != null && !warehouseId.trim().isEmpty()) {
-            resolvedWhId = warehouseId.trim().toUpperCase();
-            if (resolvedWhId.equals("W02")) resolvedWhName = "Valam North Warehouse";
-            else if (resolvedWhId.equals("W03")) resolvedWhName = "Valam South Warehouse";
-            else resolvedWhName = "Valam Central Warehouse";
-        } else if (warehouseInput != null) {
-            if (warehouseInput.contains("North") || warehouseInput.contains("W02")) {
-                resolvedWhId = "W02";
-                resolvedWhName = "Valam North Warehouse";
-            } else if (warehouseInput.contains("South") || warehouseInput.contains("W03")) {
-                resolvedWhId = "W03";
-                resolvedWhName = "Valam South Warehouse";
-            } else {
-                resolvedWhId = "W01";
-                resolvedWhName = "Valam Central Warehouse";
-            }
-        }
-
         String curDate = LocalDate.now().toString();
         String curTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 
         try (Connection conn = Database.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                // 1. Generate next Request ID
-                int nextNum = 101;
-                try (Statement st = conn.createStatement();
-                     ResultSet rs = st.executeQuery("SELECT id FROM requests ORDER BY rowid DESC LIMIT 1;")) {
-                    if (rs.next()) {
-                        String lastId = rs.getString(1);
-                        if (lastId != null && lastId.startsWith("REQ-")) {
-                            try {
-                                nextNum = Integer.parseInt(lastId.substring(4)) + 1;
-                            } catch (Exception ignored) {}
+                // 1. Verify Shop actually exists in SQLite database
+                String shopName = null;
+                try (PreparedStatement ps = conn.prepareStatement("SELECT id, name FROM shops WHERE UPPER(id) = UPPER(?);")) {
+                    ps.setString(1, shopId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) {
+                            conn.rollback();
+                            HttpUtil.sendError(exchange, 404, "Shop not found in database: " + shopId);
+                            return;
+                        }
+                        shopId = rs.getString("id");
+                        shopName = rs.getString("name");
+                    }
+                }
+
+                // 2. Verify Warehouse actually exists in SQLite database
+                String resolvedWhId = null;
+                String resolvedWhName = null;
+                String whSearch = (warehouseId != null && !warehouseId.trim().isEmpty()) ? warehouseId.trim() : (warehouseInput != null ? warehouseInput.trim() : "");
+
+                try (PreparedStatement ps = conn.prepareStatement("SELECT id, name FROM warehouses WHERE UPPER(id) = UPPER(?) OR UPPER(name) = UPPER(?) OR UPPER(name) LIKE ? LIMIT 1;")) {
+                    ps.setString(1, whSearch);
+                    ps.setString(2, whSearch);
+                    ps.setString(3, "%" + whSearch + "%");
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            resolvedWhId = rs.getString("id");
+                            resolvedWhName = rs.getString("name");
                         }
                     }
                 }
-                String newReqId = "REQ-" + nextNum;
 
-                // 2. Fetch Shop Name
-                String shopName = "FPS " + shopId;
-                try (PreparedStatement ps = conn.prepareStatement("SELECT name FROM shops WHERE UPPER(id) = UPPER(?);")) {
-                    ps.setString(1, shopId);
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) shopName = rs.getString("name");
+                if (resolvedWhId == null) {
+                    // Fall back to first warehouse in database if none matched
+                    try (Statement st = conn.createStatement();
+                         ResultSet rs = st.executeQuery("SELECT id, name FROM warehouses ORDER BY id ASC LIMIT 1;")) {
+                        if (rs.next()) {
+                            resolvedWhId = rs.getString("id");
+                            resolvedWhName = rs.getString("name");
+                        } else {
+                            conn.rollback();
+                            HttpUtil.sendError(exchange, 404, "No warehouses found in database.");
+                            return;
+                        }
                     }
                 }
 
+                // 3. Generate sequential next Request ID from SQLite
+                String newReqId = getNextRequestId(conn);
+
                 String route = resolvedWhName + " → " + shopName;
 
-                // 3. Insert Request
+                // 4. Insert Request into SQLite
                 String insertReqSql = "INSERT INTO requests (id, shop_id, warehouse_id, warehouse_name, rice, wheat, sugar, urgency, status, vehicle, route, submitted_date, submitted_time, updated_date, updated_time) " +
                                       "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', 'Not Assigned', ?, ?, ?, ?, ?);";
                 try (PreparedStatement ps = conn.prepareStatement(insertReqSql)) {
@@ -293,7 +287,7 @@ public class RequestHandler implements HttpHandler {
                     ps.executeUpdate();
                 }
 
-                // 4. Insert Timeline Stage 1
+                // 5. Insert Timeline Stage 1 into SQLite
                 String tlSql = "INSERT INTO request_timeline (request_id, stage_title, event_date, event_time, status, performed_by, details, stage_order) " +
                                "VALUES (?, 'Request Submitted', ?, ?, 'Pending', ?, ?, 1);";
                 try (PreparedStatement ps = conn.prepareStatement(tlSql)) {
@@ -305,10 +299,10 @@ public class RequestHandler implements HttpHandler {
                     ps.executeUpdate();
                 }
 
-                // 5. Insert Operation History Entry
+                // 6. Insert Operation History Entry into SQLite
+                String opId = getNextOpId(conn);
                 String opSql = "INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) " +
                                "VALUES (?, ?, ?, 'request', 'Request Received', '—', 'Pending', ?, ?, ?, ?);";
-                String opId = "OP-" + String.format("%03d", (int)(Math.random() * 900 + 100));
                 try (PreparedStatement ps = conn.prepareStatement(opSql)) {
                     ps.setString(1, opId);
                     ps.setString(2, newReqId);
@@ -322,7 +316,7 @@ public class RequestHandler implements HttpHandler {
 
                 conn.commit();
 
-                // Return newly created request
+                // Return newly created request from SQLite
                 getRequestById(exchange, newReqId);
             } catch (SQLException e) {
                 conn.rollback();
@@ -332,7 +326,7 @@ public class RequestHandler implements HttpHandler {
             }
         } catch (SQLException e) {
             System.err.println("[RequestHandler] Error creating request: " + e.getMessage());
-            HttpUtil.sendError(exchange, 500, "Database error creating request.");
+            HttpUtil.sendError(exchange, 500, "Database error creating request: " + e.getMessage());
         }
     }
 
@@ -348,7 +342,7 @@ public class RequestHandler implements HttpHandler {
         try (Connection conn = Database.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                // 1. Fetch Request
+                // 1. Fetch Request from SQLite
                 String reqSql = "SELECT shop_id, warehouse_id, warehouse_name, rice, wheat, sugar, status FROM requests WHERE UPPER(id) = UPPER(?);";
                 String whId = null, whName = null, shopId = null, currentStatus = null;
                 int reqRice = 0, reqWheat = 0, reqSugar = 0;
@@ -358,7 +352,7 @@ public class RequestHandler implements HttpHandler {
                     try (ResultSet rs = ps.executeQuery()) {
                         if (!rs.next()) {
                             conn.rollback();
-                            HttpUtil.sendError(exchange, 404, "Request not found: " + reqId);
+                            HttpUtil.sendError(exchange, 404, "Request not found in database: " + reqId);
                             return;
                         }
                         shopId = rs.getString("shop_id");
@@ -373,11 +367,11 @@ public class RequestHandler implements HttpHandler {
 
                 if (!"Pending".equalsIgnoreCase(currentStatus)) {
                     conn.rollback();
-                    HttpUtil.sendError(exchange, 400, "Request " + reqId + " cannot be accepted because it is already " + currentStatus + ".");
+                    HttpUtil.sendError(exchange, 400, "Request " + reqId + " cannot be accepted because it is already " + currentStatus + " in the database.");
                     return;
                 }
 
-                // 2. Check Warehouse Available Stock
+                // 2. Fetch Warehouse stock from SQLite
                 String whSql = "SELECT rice_available, wheat_available, sugar_available, rice_reserved, wheat_reserved, sugar_reserved FROM warehouses WHERE id = ?;";
                 int availRice = 0, availWheat = 0, availSugar = 0;
                 int resRice = 0, resWheat = 0, resSugar = 0;
@@ -387,7 +381,7 @@ public class RequestHandler implements HttpHandler {
                     try (ResultSet rs = ps.executeQuery()) {
                         if (!rs.next()) {
                             conn.rollback();
-                            HttpUtil.sendError(exchange, 404, "Warehouse not found: " + whId);
+                            HttpUtil.sendError(exchange, 404, "Warehouse not found in database: " + whId);
                             return;
                         }
                         availRice = rs.getInt("rice_available");
@@ -401,11 +395,11 @@ public class RequestHandler implements HttpHandler {
 
                 if (availRice < reqRice || availWheat < reqWheat || availSugar < reqSugar) {
                     conn.rollback();
-                    HttpUtil.sendError(exchange, 400, "Insufficient stock at " + whName + " (" + whId + ")! Available: Rice " + availRice + "kg, Wheat " + availWheat + "kg, Sugar " + availSugar + "kg.");
+                    HttpUtil.sendError(exchange, 400, "Insufficient stock at " + whName + " (" + whId + ") in database! Available: Rice " + availRice + "kg, Wheat " + availWheat + "kg, Sugar " + availSugar + "kg.");
                     return;
                 }
 
-                // 3. Deduct from available, add to reserved
+                // 3. Atomically update warehouse available & reserved stock in SQLite
                 int newAvailRice = availRice - reqRice;
                 int newAvailWheat = availWheat - reqWheat;
                 int newAvailSugar = availSugar - reqSugar;
@@ -433,7 +427,7 @@ public class RequestHandler implements HttpHandler {
                     ps.executeUpdate();
                 }
 
-                // 4. Update Request status to Reserved
+                // 4. Update Request status to Reserved in SQLite
                 String updateReqSql = "UPDATE requests SET status = 'Reserved', processed_date = ?, processed_time = ?, updated_date = ?, updated_time = ? WHERE UPPER(id) = UPPER(?);";
                 try (PreparedStatement ps = conn.prepareStatement(updateReqSql)) {
                     ps.setString(1, curDate);
@@ -456,19 +450,18 @@ public class RequestHandler implements HttpHandler {
                     ps.executeUpdate();
                 }
 
-                // 6. Insert into stock_update_history for reserved commodities
+                // 6. Insert into stock_update_history
                 String logSql = "INSERT INTO stock_update_history (update_id, warehouse_id, commodity, previous_stock, quantity_added, quantity_deducted, current_stock, reason, log_date, log_time, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-                long nextLogId = System.currentTimeMillis() % 100000;
                 try (PreparedStatement ps = conn.prepareStatement(logSql)) {
-                    if (reqRice > 0) insertStockLog(ps, "STK-" + (nextLogId++), whId, "Rice", availRice, 0, reqRice, newAvailRice, "Stock reserved for " + reqId, curDate, curTime, updatedBy);
-                    if (reqWheat > 0) insertStockLog(ps, "STK-" + (nextLogId++), whId, "Wheat", availWheat, 0, reqWheat, newAvailWheat, "Stock reserved for " + reqId, curDate, curTime, updatedBy);
-                    if (reqSugar > 0) insertStockLog(ps, "STK-" + (nextLogId++), whId, "Sugar", availSugar, 0, reqSugar, newAvailSugar, "Stock reserved for " + reqId, curDate, curTime, updatedBy);
+                    if (reqRice > 0) insertStockLog(ps, getNextStockUpdateId(conn), whId, "Rice", availRice, 0, reqRice, newAvailRice, "Stock reserved for " + reqId, curDate, curTime, updatedBy);
+                    if (reqWheat > 0) insertStockLog(ps, getNextStockUpdateId(conn), whId, "Wheat", availWheat, 0, reqWheat, newAvailWheat, "Stock reserved for " + reqId, curDate, curTime, updatedBy);
+                    if (reqSugar > 0) insertStockLog(ps, getNextStockUpdateId(conn), whId, "Sugar", availSugar, 0, reqSugar, newAvailSugar, "Stock reserved for " + reqId, curDate, curTime, updatedBy);
                 }
 
-                // 7. Insert Operation History: Request Accepted
+                // 7. Insert Operation History: Request Accepted & Stock Updated
                 String opSql = "INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
                 try (PreparedStatement ps = conn.prepareStatement(opSql)) {
-                    String op1 = "OP-" + String.format("%03d", (int)(Math.random() * 900 + 100));
+                    String op1 = getNextOpId(conn);
                     ps.setString(1, op1);
                     ps.setString(2, reqId);
                     ps.setString(3, shopId);
@@ -482,7 +475,7 @@ public class RequestHandler implements HttpHandler {
                     ps.setString(11, "Warehouse staff accepted request " + reqId + " from Shop " + shopId + " at " + whName + ". Status changed from Pending to Reserved.");
                     ps.executeUpdate();
 
-                    String op2 = "OP-" + String.format("%03d", (int)(Math.random() * 900 + 100));
+                    String op2 = getNextOpId(conn);
                     ps.setString(1, op2);
                     ps.setString(2, reqId);
                     ps.setString(3, whId);
@@ -507,7 +500,7 @@ public class RequestHandler implements HttpHandler {
             }
         } catch (SQLException e) {
             System.err.println("[RequestHandler] Error processing request: " + e.getMessage());
-            HttpUtil.sendError(exchange, 500, "Database error during request processing.");
+            HttpUtil.sendError(exchange, 500, "Database error during request processing: " + e.getMessage());
         }
     }
 
@@ -530,7 +523,7 @@ public class RequestHandler implements HttpHandler {
         try (Connection conn = Database.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                // 1. Fetch Request
+                // 1. Fetch Request from SQLite
                 String reqSql = "SELECT shop_id, warehouse_id, warehouse_name, rice, wheat, sugar, status FROM requests WHERE UPPER(id) = UPPER(?);";
                 String whId = null, whName = null, shopId = null, currentStatus = null;
                 int reqRice = 0, reqWheat = 0, reqSugar = 0;
@@ -540,7 +533,7 @@ public class RequestHandler implements HttpHandler {
                     try (ResultSet rs = ps.executeQuery()) {
                         if (!rs.next()) {
                             conn.rollback();
-                            HttpUtil.sendError(exchange, 404, "Request not found: " + reqId);
+                            HttpUtil.sendError(exchange, 404, "Request not found in database: " + reqId);
                             return;
                         }
                         shopId = rs.getString("shop_id");
@@ -553,16 +546,22 @@ public class RequestHandler implements HttpHandler {
                     }
                 }
 
-                // 2. Fetch Vehicle details
-                String vNum = vehicleId;
+                // 2. Fetch Vehicle details strictly from SQLite database
+                String vNum = null;
                 String vType = "";
-                try (PreparedStatement ps = conn.prepareStatement("SELECT vehicle_number, vehicle_type FROM vehicles WHERE UPPER(id) = UPPER(?);")) {
+                String resolvedVehId = null;
+                try (PreparedStatement ps = conn.prepareStatement("SELECT id, vehicle_number, vehicle_type, availability FROM vehicles WHERE UPPER(id) = UPPER(?) OR UPPER(vehicle_number) = UPPER(?);")) {
                     ps.setString(1, vehicleId);
+                    ps.setString(2, vehicleId);
                     try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            vNum = rs.getString("vehicle_number");
-                            vType = rs.getString("vehicle_type");
+                        if (!rs.next()) {
+                            conn.rollback();
+                            HttpUtil.sendError(exchange, 404, "Vehicle not found in database: " + vehicleId);
+                            return;
                         }
+                        resolvedVehId = rs.getString("id");
+                        vNum = rs.getString("vehicle_number");
+                        vType = rs.getString("vehicle_type");
                     }
                 }
 
@@ -578,18 +577,18 @@ public class RequestHandler implements HttpHandler {
                     ps.executeUpdate();
                 }
 
-                // 4. Update Vehicle
+                // 4. Update Vehicle in SQLite
                 String updateVehSql = "UPDATE vehicles SET availability = 'On Trip', status = 'Dispatched', assigned_request = ? WHERE UPPER(id) = UPPER(?);";
                 try (PreparedStatement ps = conn.prepareStatement(updateVehSql)) {
                     ps.setString(1, reqId);
-                    ps.setString(2, vehicleId);
+                    ps.setString(2, resolvedVehId);
                     ps.executeUpdate();
                 }
 
-                // 5. Update Request
+                // 5. Update Request in SQLite
                 String updateReqSql = "UPDATE requests SET vehicle = ?, status = 'Dispatched', updated_date = ?, updated_time = ? WHERE UPPER(id) = UPPER(?);";
                 try (PreparedStatement ps = conn.prepareStatement(updateReqSql)) {
-                    ps.setString(1, vehicleId);
+                    ps.setString(1, resolvedVehId);
                     ps.setString(2, curDate);
                     ps.setString(3, curTime);
                     ps.setString(4, reqId);
@@ -605,7 +604,7 @@ public class RequestHandler implements HttpHandler {
                     ps.setString(4, curTime);
                     ps.setString(5, "Reserved");
                     ps.setString(6, updatedBy);
-                    ps.setString(7, "Vehicle " + vehicleId + " (" + vNum + (vType.isEmpty() ? "" : ", " + vType) + ") assigned to " + reqId + ".");
+                    ps.setString(7, "Vehicle " + resolvedVehId + " (" + vNum + (vType != null && !vType.isEmpty() ? ", " + vType : "") + ") assigned to " + reqId + ".");
                     ps.setInt(8, 3);
                     ps.executeUpdate();
 
@@ -615,7 +614,7 @@ public class RequestHandler implements HttpHandler {
                     ps.setString(4, curTime);
                     ps.setString(5, "Dispatched");
                     ps.setString(6, updatedBy);
-                    ps.setString(7, "Consignment dispatched from " + whName + " via Vehicle " + vehicleId + " to Shop " + shopId + ".");
+                    ps.setString(7, "Consignment dispatched from " + whName + " via Vehicle " + resolvedVehId + " to Shop " + shopId + ".");
                     ps.setInt(8, 4);
                     ps.executeUpdate();
                 }
@@ -623,10 +622,10 @@ public class RequestHandler implements HttpHandler {
                 // 7. Insert Operation History
                 String opSql = "INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
                 try (PreparedStatement ps = conn.prepareStatement(opSql)) {
-                    String op1 = "OP-" + String.format("%03d", (int)(Math.random() * 900 + 100));
+                    String op1 = getNextOpId(conn);
                     ps.setString(1, op1);
                     ps.setString(2, reqId);
-                    ps.setString(3, vehicleId);
+                    ps.setString(3, resolvedVehId);
                     ps.setString(4, "vehicle");
                     ps.setString(5, "Vehicle Assigned");
                     ps.setString(6, "Available");
@@ -634,10 +633,10 @@ public class RequestHandler implements HttpHandler {
                     ps.setString(8, curDate);
                     ps.setString(9, curTime);
                     ps.setString(10, updatedBy);
-                    ps.setString(11, "Vehicle " + vehicleId + " (" + vNum + ") assigned to " + reqId + ". Route: " + whName + " → Shop " + shopId + ".");
+                    ps.setString(11, "Vehicle " + resolvedVehId + " (" + vNum + ") assigned to " + reqId + ". Route: " + whName + " → Shop " + shopId + ".");
                     ps.executeUpdate();
 
-                    String op2 = "OP-" + String.format("%03d", (int)(Math.random() * 900 + 100));
+                    String op2 = getNextOpId(conn);
                     ps.setString(1, op2);
                     ps.setString(2, reqId);
                     ps.setString(3, shopId);
@@ -648,7 +647,7 @@ public class RequestHandler implements HttpHandler {
                     ps.setString(8, curDate);
                     ps.setString(9, curTime);
                     ps.setString(10, updatedBy);
-                    ps.setString(11, reqId + " dispatched from " + whName + " via Vehicle " + vehicleId + " to Shop " + shopId + ".");
+                    ps.setString(11, reqId + " dispatched from " + whName + " via Vehicle " + resolvedVehId + " to Shop " + shopId + ".");
                     ps.executeUpdate();
                 }
 
@@ -662,7 +661,7 @@ public class RequestHandler implements HttpHandler {
             }
         } catch (SQLException e) {
             System.err.println("[RequestHandler] Error assigning vehicle: " + e.getMessage());
-            HttpUtil.sendError(exchange, 500, "Database error during vehicle assignment.");
+            HttpUtil.sendError(exchange, 500, "Database error during vehicle assignment: " + e.getMessage());
         }
     }
 
@@ -678,7 +677,19 @@ public class RequestHandler implements HttpHandler {
         try (Connection conn = Database.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                // Update Request
+                // Verify request exists
+                try (PreparedStatement ps = conn.prepareStatement("SELECT id FROM requests WHERE UPPER(id) = UPPER(?);")) {
+                    ps.setString(1, reqId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) {
+                            conn.rollback();
+                            HttpUtil.sendError(exchange, 404, "Request not found in database: " + reqId);
+                            return;
+                        }
+                    }
+                }
+
+                // Update Request in SQLite
                 try (PreparedStatement ps = conn.prepareStatement("UPDATE requests SET status = 'In Transit', updated_date = ?, updated_time = ? WHERE UPPER(id) = UPPER(?);")) {
                     ps.setString(1, curDate);
                     ps.setString(2, curTime);
@@ -696,8 +707,9 @@ public class RequestHandler implements HttpHandler {
                 }
 
                 // Add Op History
+                String opId = getNextOpId(conn);
                 try (PreparedStatement ps = conn.prepareStatement("INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) VALUES (?, ?, 'DELIVERY', 'delivery', 'In Transit', 'Dispatched', 'In Transit', ?, ?, ?, ?);")) {
-                    ps.setString(1, "OP-" + String.format("%03d", (int)(Math.random() * 900 + 100)));
+                    ps.setString(1, opId);
                     ps.setString(2, reqId);
                     ps.setString(3, curDate);
                     ps.setString(4, curTime);
@@ -715,7 +727,7 @@ public class RequestHandler implements HttpHandler {
                 conn.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            HttpUtil.sendError(exchange, 500, "Database error setting in-transit status.");
+            HttpUtil.sendError(exchange, 500, "Database error setting in-transit status: " + e.getMessage());
         }
     }
 
@@ -731,20 +743,23 @@ public class RequestHandler implements HttpHandler {
         try (Connection conn = Database.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                // Fetch vehicle and shopId from request
+                // Fetch vehicle and shopId from request in SQLite
                 String assignedVehicle = null;
                 String shopId = null;
                 try (PreparedStatement ps = conn.prepareStatement("SELECT vehicle, shop_id FROM requests WHERE UPPER(id) = UPPER(?);")) {
                     ps.setString(1, reqId);
                     try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            assignedVehicle = rs.getString("vehicle");
-                            shopId = rs.getString("shop_id");
+                        if (!rs.next()) {
+                            conn.rollback();
+                            HttpUtil.sendError(exchange, 404, "Request not found in database: " + reqId);
+                            return;
                         }
+                        assignedVehicle = rs.getString("vehicle");
+                        shopId = rs.getString("shop_id");
                     }
                 }
 
-                // Update Request status to Delivered
+                // Update Request status to Delivered in SQLite
                 try (PreparedStatement ps = conn.prepareStatement("UPDATE requests SET status = 'Delivered', updated_date = ?, updated_time = ? WHERE UPPER(id) = UPPER(?);")) {
                     ps.setString(1, curDate);
                     ps.setString(2, curTime);
@@ -752,7 +767,7 @@ public class RequestHandler implements HttpHandler {
                     ps.executeUpdate();
                 }
 
-                // Release Vehicle if assigned
+                // Release Vehicle in SQLite if assigned
                 if (assignedVehicle != null && !assignedVehicle.equalsIgnoreCase("Not Assigned")) {
                     try (PreparedStatement ps = conn.prepareStatement("UPDATE vehicles SET availability = 'Available', status = 'Idle / Ready', assigned_request = NULL WHERE UPPER(id) = UPPER(?) OR UPPER(vehicle_number) = UPPER(?);")) {
                         ps.setString(1, assignedVehicle);
@@ -761,8 +776,9 @@ public class RequestHandler implements HttpHandler {
                     }
 
                     // Op History: Vehicle Released
+                    String vOpId = getNextOpId(conn);
                     try (PreparedStatement ps = conn.prepareStatement("INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) VALUES (?, ?, ?, 'vehicle', 'Vehicle Released', 'On Trip', 'Available', ?, ?, ?, ?);")) {
-                        ps.setString(1, "OP-" + String.format("%03d", (int)(Math.random() * 900 + 100)));
+                        ps.setString(1, vOpId);
                         ps.setString(2, reqId);
                         ps.setString(3, assignedVehicle);
                         ps.setString(4, curDate);
@@ -773,7 +789,7 @@ public class RequestHandler implements HttpHandler {
                     }
                 }
 
-                // Add Timeline
+                // Add Timeline in SQLite
                 try (PreparedStatement ps = conn.prepareStatement("INSERT INTO request_timeline (request_id, stage_title, event_date, event_time, status, performed_by, details, stage_order) VALUES (?, 'Delivered', ?, ?, 'Delivered', ?, 'Consignment reached destination shop and received successfully.', 6);")) {
                     ps.setString(1, reqId);
                     ps.setString(2, curDate);
@@ -782,9 +798,10 @@ public class RequestHandler implements HttpHandler {
                     ps.executeUpdate();
                 }
 
-                // Add Op History: Delivered
+                // Add Op History: Delivered in SQLite
+                String delOpId = getNextOpId(conn);
                 try (PreparedStatement ps = conn.prepareStatement("INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) VALUES (?, ?, ?, 'delivery', 'Delivered', 'In Transit', 'Delivered', ?, ?, ?, ?);")) {
-                    ps.setString(1, "OP-" + String.format("%03d", (int)(Math.random() * 900 + 100)));
+                    ps.setString(1, delOpId);
                     ps.setString(2, reqId);
                     ps.setString(3, shopId != null ? shopId : "SHOP");
                     ps.setString(4, curDate);
@@ -803,7 +820,7 @@ public class RequestHandler implements HttpHandler {
                 conn.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            HttpUtil.sendError(exchange, 500, "Database error marking request delivered.");
+            HttpUtil.sendError(exchange, 500, "Database error marking request delivered: " + e.getMessage());
         }
     }
 
@@ -832,7 +849,7 @@ public class RequestHandler implements HttpHandler {
             .append("\"updatedTime\":\"").append(JsonUtil.escape(rs.getString("updated_time"))).append("\",")
             .append("\"timeline\":");
 
-        // Fetch Timeline for this request
+        // Fetch Timeline directly from SQLite for this request
         String tlSql = "SELECT stage_title, event_date, event_time, status, performed_by, details FROM request_timeline WHERE request_id = ? ORDER BY stage_order ASC, id ASC;";
         try (PreparedStatement ps = conn.prepareStatement(tlSql)) {
             ps.setString(1, reqId);
@@ -879,5 +896,56 @@ public class RequestHandler implements HttpHandler {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    public static synchronized String getNextRequestId(Connection conn) throws SQLException {
+        int maxNum = 100;
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery("SELECT id FROM requests;")) {
+            while (rs.next()) {
+                String existingId = rs.getString(1);
+                if (existingId != null && existingId.toUpperCase().startsWith("REQ-")) {
+                    try {
+                        int n = Integer.parseInt(existingId.substring(4).trim());
+                        if (n > maxNum) maxNum = n;
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+        return "REQ-" + (maxNum + 1);
+    }
+
+    public static synchronized String getNextOpId(Connection conn) throws SQLException {
+        int maxOp = 0;
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery("SELECT op_id FROM operation_history;")) {
+            while (rs.next()) {
+                String existingOp = rs.getString(1);
+                if (existingOp != null && existingOp.toUpperCase().startsWith("OP-")) {
+                    try {
+                        int n = Integer.parseInt(existingOp.substring(3).trim());
+                        if (n > maxOp) maxOp = n;
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+        return "OP-" + String.format("%03d", maxOp + 1);
+    }
+
+    public static synchronized String getNextStockUpdateId(Connection conn) throws SQLException {
+        int maxStk = 3000;
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery("SELECT update_id FROM stock_update_history;")) {
+            while (rs.next()) {
+                String existingStk = rs.getString(1);
+                if (existingStk != null && existingStk.toUpperCase().startsWith("STK-")) {
+                    try {
+                        int n = Integer.parseInt(existingStk.substring(4).trim());
+                        if (n > maxStk) maxStk = n;
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+        return "STK-" + (maxStk + 1);
     }
 }

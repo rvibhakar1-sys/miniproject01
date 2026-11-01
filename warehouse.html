@@ -169,36 +169,7 @@
                             </tr>
                         </thead>
                         <tbody id="shopRequestsBody">
-                            <tr>
-                                <td>REQ-101</td>
-                                <td>S01</td>
-                                <td>200</td>
-                                <td>100</td>
-                                <td>50</td>
-                                <td><span class="badge bg-danger">Critical</span></td>
-                                <td>Valam Central Warehouse</td>
-                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-103</td>
-                                <td>S03</td>
-                                <td>500</td>
-                                <td>400</td>
-                                <td>50</td>
-                                <td><span class="badge bg-primary">Normal</span></td>
-                                <td>Valam Central Warehouse</td>
-                                <td><span class="badge bg-secondary">Pending</span></td>
-                            </tr>
-                            <tr>
-                                <td>REQ-105</td>
-                                <td>S05</td>
-                                <td>400</td>
-                                <td>250</td>
-                                <td>75</td>
-                                <td><span class="badge bg-primary">Normal</span></td>
-                                <td>Valam Central Warehouse</td>
-                                <td><span class="badge bg-secondary">Pending</span></td>
-                            </tr>
+                            <!-- Populated dynamically from SQLite database -->
                         </tbody>
                     </table>
                 </div>
@@ -735,18 +706,19 @@
 
     <!-- JavaScript for Warehouse Functionality -->
     <script>
-
-        // ---------------------------------------------------------------
-        // USER SESSION & WAREHOUSE IDENTITY (W01, W02, W03)
-        // Reads logged-in warehouse user (default Wh01 / W01)
-        // ---------------------------------------------------------------
         var loggedInUser = sessionStorage.getItem("valam_user") || "Wh01";
-        
         var currentWarehouse = (typeof WH_USER_MAP !== "undefined" && WH_USER_MAP[loggedInUser]) 
             ? WH_USER_MAP[loggedInUser] 
             : { id: "W01", name: "Valam Central Warehouse", location: "Central Area (Nagercoil)" };
 
-        // Set UI headers & initial data on load
+        // Dynamic State (Loaded exclusively from SQLite Database)
+        var warehouseStock = { rice: 0, wheat: 0, sugar: 0 };
+        var reservedStock = { rice: 0, wheat: 0, sugar: 0 };
+        var lastStockUpdate = null;
+        var warehouseRequests = [];
+        var stockHistoryData = [];
+        var warehouseOperationsData = [];
+
         document.addEventListener("DOMContentLoaded", function() {
             var badge = document.getElementById("whUserBadge");
             if (badge) badge.textContent = "Logged in: " + loggedInUser + " (" + currentWarehouse.id + " - " + currentWarehouse.name + ")";
@@ -757,43 +729,135 @@
             var summaryTitle = document.getElementById("summaryWhTitle");
             if (summaryTitle) summaryTitle.textContent = "Warehouse ID: " + currentWarehouse.id + " — " + currentWarehouse.name;
 
-            loadWarehouseStock();
-            renderShopRequestsTable();
             refreshWarehouseDataFromServer();
         });
 
         async function refreshWarehouseDataFromServer() {
-            try {
-                if (typeof valamApiCall === "function") {
-                    // 1. Stock
-                    var wh = await valamApiCall("/api/warehouses/" + encodeURIComponent(currentWarehouse.id), "GET");
-                    if (wh && wh.available) {
-                        warehouseStock = wh.available;
-                        reservedStock = wh.reserved;
-                        lastStockUpdate = wh.lastUpdate || lastStockUpdate;
-                        updateStockDisplays();
-                    }
-                    // 2. Requests
-                    var reqs = await valamApiCall("/api/requests?warehouseId=" + encodeURIComponent(currentWarehouse.id), "GET");
-                    if (reqs && Array.isArray(reqs)) {
-                        warehouseRequests = reqs;
-                        renderShopRequestsTable();
-                        populateProcessDropdown();
-                        populateDeliveryDropdown();
-                    }
-                    // 3. Stock History
-                    var stockLogs = await valamApiCall("/api/stock-history?warehouseId=" + encodeURIComponent(currentWarehouse.id), "GET");
-                    if (stockLogs && Array.isArray(stockLogs)) {
-                        stockHistoryData = stockLogs;
-                    }
-                    // 4. Operation History
-                    var ops = await valamApiCall("/api/operations?warehouseId=" + encodeURIComponent(currentWarehouse.id), "GET");
-                    if (ops && Array.isArray(ops)) {
-                        warehouseOperationsData = ops;
-                    }
+            await Promise.all([
+                loadWarehouseStock(),
+                loadWarehouseRequests(),
+                loadStockHistory(),
+                loadWarehouseOperations(),
+                loadVehiclesForDropdown()
+            ]);
+        }
+
+        async function loadWarehouseStock() {
+            var res = await valamApiCall("/api/warehouses/" + encodeURIComponent(currentWarehouse.id), "GET");
+            if (res && res.error) {
+                console.error("[Warehouse] Error loading warehouse stock:", res.error);
+                return;
+            }
+            if (res && res.available) {
+                warehouseStock = res.available;
+                reservedStock = res.reserved || { rice: 0, wheat: 0, sugar: 0 };
+                lastStockUpdate = res.lastUpdate;
+                updateStockDisplays();
+            }
+        }
+
+        function updateStockDisplays() {
+            if (!warehouseStock || !reservedStock) return;
+            document.getElementById("stockRice").textContent = warehouseStock.rice;
+            document.getElementById("stockWheat").textContent = warehouseStock.wheat;
+            document.getElementById("stockSugar").textContent = warehouseStock.sugar;
+
+            document.getElementById("reservedRice").textContent = reservedStock.rice;
+            document.getElementById("reservedWheat").textContent = reservedStock.wheat;
+            document.getElementById("reservedSugar").textContent = reservedStock.sugar;
+
+            document.getElementById("totalRice").textContent = warehouseStock.rice + reservedStock.rice;
+            document.getElementById("totalWheat").textContent = warehouseStock.wheat + reservedStock.wheat;
+            document.getElementById("totalSugar").textContent = warehouseStock.sugar + reservedStock.sugar;
+
+            document.getElementById("bannerRice").textContent = warehouseStock.rice;
+            document.getElementById("bannerWheat").textContent = warehouseStock.wheat;
+            document.getElementById("bannerSugar").textContent = warehouseStock.sugar;
+
+            if (lastStockUpdate && lastStockUpdate.date && lastStockUpdate.date !== "") {
+                document.getElementById("lastUpdateDate").textContent = formatDateReadable(lastStockUpdate.date);
+                document.getElementById("lastUpdateTime").textContent = formatTime12IST(lastStockUpdate.time);
+                document.getElementById("lastUpdateUser").textContent = lastStockUpdate.updatedBy;
+            } else {
+                document.getElementById("lastUpdateBannerText").innerHTML = "<em>No stock updates recorded yet</em>";
+            }
+        }
+
+        async function loadWarehouseRequests() {
+            var res = await valamApiCall("/api/requests?warehouseId=" + encodeURIComponent(currentWarehouse.id), "GET");
+            if (res && res.error) {
+                console.error("[Warehouse] Error loading requests:", res.error);
+                var tbody = document.getElementById("shopRequestsBody");
+                if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-3">⚠️ Database Error: ' + res.error + '</td></tr>';
+                return;
+            }
+            warehouseRequests = Array.isArray(res) ? res : [];
+            renderShopRequestsTable();
+            populateProcessDropdown();
+            populateDeliveryDropdown();
+            renderWarehouseRequestsHistory(warehouseRequests);
+        }
+
+        function renderShopRequestsTable() {
+            var tbody = document.getElementById("shopRequestsBody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+            if (!warehouseRequests || warehouseRequests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">No requests found for ' + currentWarehouse.name + ' (' + currentWarehouse.id + ') in database.</td></tr>';
+                return;
+            }
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                var req = warehouseRequests[i];
+                var tr = document.createElement("tr");
+                var urgencyBadge = getUrgencyBadge(req.urgency);
+                var statusBadge = getStatusBadge(req.status);
+
+                tr.innerHTML =
+                    "<td><strong>" + (req.id || req.requestId) + "</strong></td>" +
+                    "<td><span class=\"badge bg-light text-dark border\">" + req.shopId + "</span></td>" +
+                    "<td>" + req.rice + "</td>" +
+                    "<td>" + req.wheat + "</td>" +
+                    "<td>" + req.sugar + "</td>" +
+                    "<td>" + urgencyBadge + "</td>" +
+                    "<td>" + (req.warehouse || req.warehouseName || currentWarehouse.name) + "</td>" +
+                    "<td>" + statusBadge + "</td>";
+                tbody.appendChild(tr);
+            }
+        }
+
+        async function loadStockHistory() {
+            var res = await valamApiCall("/api/stock-history?warehouseId=" + encodeURIComponent(currentWarehouse.id), "GET");
+            if (res && res.error) {
+                console.error("[Warehouse] Error loading stock history:", res.error);
+                return;
+            }
+            stockHistoryData = Array.isArray(res) ? res : [];
+            renderStockHistory(stockHistoryData);
+        }
+
+        async function loadWarehouseOperations() {
+            var res = await valamApiCall("/api/operations?warehouseId=" + encodeURIComponent(currentWarehouse.id), "GET");
+            if (res && res.error) {
+                console.error("[Warehouse] Error loading operations:", res.error);
+                return;
+            }
+            warehouseOperationsData = Array.isArray(res) ? res : [];
+            renderWarehouseOperations(warehouseOperationsData);
+        }
+
+        async function loadVehiclesForDropdown() {
+            var select = document.getElementById("vehicleSelect");
+            if (!select) return;
+            var vehs = await valamApiCall("/api/vehicles", "GET");
+            if (vehs && Array.isArray(vehs) && vehs.length > 0) {
+                select.innerHTML = "";
+                for (var i = 0; i < vehs.length; i++) {
+                    var v = vehs[i];
+                    var opt = document.createElement("option");
+                    opt.value = v.id;
+                    opt.textContent = v.id + " - " + v.vehicleName + " (" + v.availability + ")";
+                    select.appendChild(opt);
                 }
-            } catch (e) {
-                console.warn("[Warehouse] Server sync error:", e);
             }
         }
 
@@ -823,9 +887,9 @@
             if (sectionId === "processRequestView") populateProcessDropdown();
             if (sectionId === "warehouseStockView") loadWarehouseStock();
             if (sectionId === "deliveryVehicleView") populateDeliveryDropdown();
-            if (sectionId === "requestHistoryView") renderWarehouseRequestsHistory(getWarehouseRequestsFiltered());
-            if (sectionId === "stockHistoryView") renderStockHistory(getStockHistoryFiltered());
-            if (sectionId === "operationHistoryView") renderWarehouseOperations(getWarehouseOperationsFiltered());
+            if (sectionId === "requestHistoryView") renderWarehouseRequestsHistory(warehouseRequests);
+            if (sectionId === "stockHistoryView") renderStockHistory(stockHistoryData);
+            if (sectionId === "operationHistoryView") renderWarehouseOperations(warehouseOperationsData);
 
             window.scrollTo(0, 0);
         }
@@ -842,39 +906,8 @@
         // ---------------------------------------------------------------
         // TIME HELPERS (IST)
         // ---------------------------------------------------------------
-        function getCurrentDateIST() {
-            var now = new Date();
-            var y = now.getFullYear();
-            var m = String(now.getMonth() + 1).padStart(2, '0');
-            var d = String(now.getDate()).padStart(2, '0');
-            return y + "-" + m + "-" + d;
-        }
-
-        function getCurrentTimeIST() {
-            var now = new Date();
-            var h = String(now.getHours()).padStart(2, '0');
-            var m = String(now.getMinutes()).padStart(2, '0');
-            var s = String(now.getSeconds()).padStart(2, '0');
-            return h + ":" + m + ":" + s;
-        }
-
         function formatTime12IST(timeStr) {
-            if (!timeStr) return "—";
-            var parts = timeStr.split(":");
-            var h = parseInt(parts[0]);
-            var m = parts[1];
-            var s = parts[2] || "00";
-            var ampm = h >= 12 ? "PM" : "AM";
-            var dispH = h % 12;
-            if (dispH === 0) dispH = 12;
-            return dispH + ":" + m + ":" + s + " " + ampm + " IST";
-        }
-
-        function formatDateReadable(dateStr) {
-            if (!dateStr) return "—";
-            var d = new Date(dateStr + "T00:00:00");
-            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+            return formatTimeIST(timeStr);
         }
 
         function calculateWaitTime(receivedDate, receivedTime, procDate, procTime) {
@@ -899,197 +932,19 @@
         }
 
         // ---------------------------------------------------------------
-        // WAREHOUSE STOCK MANAGEMENT (INDEPENDENT PER WAREHOUSE)
-        // ---------------------------------------------------------------
-        var warehouseStock = { rice: 5000, wheat: 3200, sugar: 1500 };
-        var reservedStock = { rice: 800, wheat: 400, sugar: 200 };
-        var lastStockUpdate = { date: "2026-10-24", time: "13:16:00", updatedBy: "Wh01 Staff", reason: "Baseline" };
-
-        function loadWarehouseStock() {
-            if (typeof getValamWarehouseStock === "function") {
-                var whStockObj = getValamWarehouseStock(currentWarehouse.id);
-                warehouseStock = whStockObj.available;
-                reservedStock = whStockObj.reserved;
-                lastStockUpdate = whStockObj.lastUpdate || {
-                    date: "2026-10-24",
-                    time: "13:16:00",
-                    updatedBy: loggedInUser + " Staff",
-                    reason: "Initial Stock Baseline"
-                };
-            }
-            updateStockDisplays();
-        }
-
-        function updateStockDisplays() {
-            if (!warehouseStock || !reservedStock) return;
-            document.getElementById("stockRice").textContent = warehouseStock.rice;
-            document.getElementById("stockWheat").textContent = warehouseStock.wheat;
-            document.getElementById("stockSugar").textContent = warehouseStock.sugar;
-
-            document.getElementById("reservedRice").textContent = reservedStock.rice;
-            document.getElementById("reservedWheat").textContent = reservedStock.wheat;
-            document.getElementById("reservedSugar").textContent = reservedStock.sugar;
-
-            document.getElementById("totalRice").textContent = warehouseStock.rice + reservedStock.rice;
-            document.getElementById("totalWheat").textContent = warehouseStock.wheat + reservedStock.wheat;
-            document.getElementById("totalSugar").textContent = warehouseStock.sugar + reservedStock.sugar;
-
-            document.getElementById("bannerRice").textContent = warehouseStock.rice;
-            document.getElementById("bannerWheat").textContent = warehouseStock.wheat;
-            document.getElementById("bannerSugar").textContent = warehouseStock.sugar;
-
-            if (lastStockUpdate && lastStockUpdate.date) {
-                document.getElementById("lastUpdateDate").textContent = formatDateReadable(lastStockUpdate.date);
-                document.getElementById("lastUpdateTime").textContent = formatTime12IST(lastStockUpdate.time);
-                document.getElementById("lastUpdateUser").textContent = lastStockUpdate.updatedBy;
-            } else {
-                document.getElementById("lastUpdateBannerText").innerHTML = "<em>No stock updates recorded yet</em>";
-            }
-        }
-
-        // ---------------------------------------------------------------
-        // REQUEST REPOSITORY (INITIALIZED FROM CENTRAL STORAGE)
-        // ---------------------------------------------------------------
-        var warehouseRequests = (typeof getValamRequests === "function")
-            ? getValamRequests()
-            : (typeof INITIAL_VALAM_REQUESTS !== "undefined" ? INITIAL_VALAM_REQUESTS : []);
-
-        // Filter requests for currently logged-in warehouse
-        function getWarehouseRequestsFiltered() {
-            if (typeof getValamRequests === "function") {
-                warehouseRequests = getValamRequests();
-            }
-            var list = [];
-            for (var i = 0; i < warehouseRequests.length; i++) {
-                if (warehouseRequests[i].warehouseId === currentWarehouse.id || warehouseRequests[i].warehouse === currentWarehouse.name) {
-                    list.push(warehouseRequests[i]);
-                }
-            }
-            return list;
-        }
-
-        // Render Shop Requests Table for Current Warehouse
-        function renderShopRequestsTable() {
-            var list = getWarehouseRequestsFiltered();
-            var tbody = document.getElementById("shopRequestsBody");
-            if (!tbody) return;
-            tbody.innerHTML = "";
-            if (list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">No requests received for ' + currentWarehouse.name + ' (' + currentWarehouse.id + ') yet.</td></tr>';
-                return;
-            }
-            for (var i = 0; i < list.length; i++) {
-                var req = list[i];
-                var tr = document.createElement("tr");
-                var urgencyBadge = req.urgency === "critical" 
-                    ? '<span class="badge bg-danger">Critical</span>' 
-                    : (req.urgency === "urgent" ? '<span class="badge bg-warning text-dark">Urgent</span>' : '<span class="badge bg-primary">Normal</span>');
-                var statusBadge = '';
-                if (req.status === "Pending") statusBadge = '<span class="badge bg-secondary">Pending</span>';
-                else if (req.status === "Reserved") statusBadge = '<span class="badge bg-warning text-dark">Reserved</span>';
-                else if (req.status === "Dispatched") statusBadge = '<span class="badge bg-info text-dark">Dispatched</span>';
-                else if (req.status === "In Transit") statusBadge = '<span class="badge bg-warning text-dark">In Transit</span>';
-                else if (req.status === "Delivered") statusBadge = '<span class="badge bg-success">Delivered</span>';
-                else statusBadge = '<span class="badge bg-secondary">' + req.status + '</span>';
-
-                tr.innerHTML =
-                    "<td><strong>" + req.requestId + "</strong></td>" +
-                    "<td><span class=\"badge bg-light text-dark border\">" + req.shopId + "</span></td>" +
-                    "<td>" + req.rice + "</td>" +
-                    "<td>" + req.wheat + "</td>" +
-                    "<td>" + req.sugar + "</td>" +
-                    "<td>" + urgencyBadge + "</td>" +
-                    "<td>" + req.warehouse + "</td>" +
-                    "<td>" + statusBadge + "</td>";
-                tbody.appendChild(tr);
-            }
-        }
-
-        // ---------------------------------------------------------------
-        // STOCK UPDATE HISTORY DATA (W01, W02, W03)
-        // ---------------------------------------------------------------
-        var stockHistoryCounter = 3004;
-        var stockHistoryData = [
-            // W01 entries
-            { updateId: "STK-1003", warehouseId: "W01", commodity: "Sugar", previousStock: 1560, quantityAdded: 0, quantityDeducted: 60, currentStock: 1500, reason: "Request REQ-106 processed (Shop S06)", date: "2026-10-24", time: "13:16:00", updatedBy: "Wh01 Staff" },
-            { updateId: "STK-1002", warehouseId: "W01", commodity: "Wheat", previousStock: 3400, quantityAdded: 0, quantityDeducted: 200, currentStock: 3200, reason: "Request REQ-106 processed (Shop S06)", date: "2026-10-24", time: "13:16:00", updatedBy: "Wh01 Staff" },
-            { updateId: "STK-1001", warehouseId: "W01", commodity: "Rice", previousStock: 5350, quantityAdded: 0, quantityDeducted: 350, currentStock: 5000, reason: "Request REQ-106 processed (Shop S06)", date: "2026-10-24", time: "13:16:00", updatedBy: "Wh01 Staff" },
-            { updateId: "STK-1000", warehouseId: "W01", commodity: "Rice", previousStock: 4000, quantityAdded: 1550, quantityDeducted: 0, currentStock: 5550, reason: "Fresh consignment received from FCI Tirunelveli Hub", date: "2026-10-15", time: "09:00:00", updatedBy: "Wh01 Depot Incharge" },
-
-            // W02 entries
-            { updateId: "STK-2003", warehouseId: "W02", commodity: "Sugar", previousStock: 1280, quantityAdded: 0, quantityDeducted: 80, currentStock: 1200, reason: "Request REQ-102 processed (Shop S02)", date: "2026-10-18", time: "14:21:00", updatedBy: "Wh02 Staff" },
-            { updateId: "STK-2002", warehouseId: "W02", commodity: "Wheat", previousStock: 2950, quantityAdded: 0, quantityDeducted: 150, currentStock: 2800, reason: "Request REQ-102 processed (Shop S02)", date: "2026-10-18", time: "14:21:00", updatedBy: "Wh02 Staff" },
-            { updateId: "STK-2001", warehouseId: "W02", commodity: "Rice", previousStock: 4800, quantityAdded: 0, quantityDeducted: 300, currentStock: 4500, reason: "Request REQ-102 processed (Shop S02)", date: "2026-10-18", time: "14:21:00", updatedBy: "Wh02 Staff" },
-            { updateId: "STK-2000", warehouseId: "W02", commodity: "Rice", previousStock: 3500, quantityAdded: 1300, quantityDeducted: 0, currentStock: 4800, reason: "Fresh consignment received from FCI North Depot", date: "2026-10-14", time: "10:30:00", updatedBy: "Wh02 Depot Incharge" },
-
-            // W03 entries
-            { updateId: "STK-3003", warehouseId: "W03", commodity: "Sugar", previousStock: 1100, quantityAdded: 0, quantityDeducted: 100, currentStock: 1000, reason: "Request REQ-104 processed (Shop S04)", date: "2026-10-22", time: "09:46:00", updatedBy: "Wh03 Staff" },
-            { updateId: "STK-3002", warehouseId: "W03", commodity: "Wheat", previousStock: 2700, quantityAdded: 0, quantityDeducted: 200, currentStock: 2500, reason: "Request REQ-104 processed (Shop S04)", date: "2026-10-22", time: "09:46:00", updatedBy: "Wh03 Staff" },
-            { updateId: "STK-3001", warehouseId: "W03", commodity: "Rice", previousStock: 4250, quantityAdded: 0, quantityDeducted: 250, currentStock: 4000, reason: "Request REQ-104 processed (Shop S04)", date: "2026-10-22", time: "09:46:00", updatedBy: "Wh03 Staff" },
-            { updateId: "STK-3000", warehouseId: "W03", commodity: "Rice", previousStock: 3000, quantityAdded: 1250, quantityDeducted: 0, currentStock: 4250, reason: "Fresh consignment received from FCI Coastal Depot", date: "2026-10-16", time: "11:00:00", updatedBy: "Wh03 Depot Incharge" }
-        ];
-
-        function getStockHistoryFiltered() {
-            var list = [];
-            for (var i = 0; i < stockHistoryData.length; i++) {
-                if (stockHistoryData[i].warehouseId === currentWarehouse.id) {
-                    list.push(stockHistoryData[i]);
-                }
-            }
-            return list;
-        }
-
-        // ---------------------------------------------------------------
-        // WAREHOUSE OPERATION AUDIT LOG (W01, W02, W03)
-        // ---------------------------------------------------------------
-        var opCounter = 605;
-        var warehouseOperationsData = [
-            // W01 Operations
-            { opId: "WH-OP-504", requestId: "REQ-106", warehouseId: "W01", operationType: "Dispatched", prevValue: "Reserved", newValue: "Dispatched (Vehicle V01)", date: "2026-10-25", time: "07:30:00", updatedBy: "Wh01 Staff" },
-            { opId: "WH-OP-503", requestId: "REQ-106", warehouseId: "W01", operationType: "Vehicle Assigned", prevValue: "Available", newValue: "On Trip (V01)", date: "2026-10-25", time: "07:00:00", updatedBy: "Wh01 Staff" },
-            { opId: "WH-OP-502", requestId: "REQ-106", warehouseId: "W01", operationType: "Stock Deducted", prevValue: "Rice: 5350, Wheat: 3400, Sugar: 1560", newValue: "Rice: 5000, Wheat: 3200, Sugar: 1500", date: "2026-10-24", time: "13:16:00", updatedBy: "Wh01 Staff" },
-            { opId: "WH-OP-501", requestId: "REQ-106", warehouseId: "W01", operationType: "Request Accepted", prevValue: "Pending", newValue: "Reserved", date: "2026-10-24", time: "13:15:00", updatedBy: "Wh01 Staff" },
-            { opId: "WH-OP-500", requestId: "REQ-106", warehouseId: "W01", operationType: "Request Received", prevValue: "—", newValue: "Pending", date: "2026-10-24", time: "11:00:00", updatedBy: "Shop S06" },
-
-            // W02 Operations
-            { opId: "WH-OP-514", requestId: "REQ-102", warehouseId: "W02", operationType: "Delivered", prevValue: "In Transit", newValue: "Delivered (Shop S02)", date: "2026-10-19", time: "11:45:00", updatedBy: "Shop02 Staff" },
-            { opId: "WH-OP-513", requestId: "REQ-102", warehouseId: "W02", operationType: "Dispatched", prevValue: "Reserved", newValue: "Dispatched (Vehicle V02)", date: "2026-10-19", time: "08:15:00", updatedBy: "Wh02 Staff" },
-            { opId: "WH-OP-512", requestId: "REQ-102", warehouseId: "W02", operationType: "Vehicle Assigned", prevValue: "Available", newValue: "On Trip (V02)", date: "2026-10-19", time: "07:45:00", updatedBy: "Wh02 Staff" },
-            { opId: "WH-OP-511", requestId: "REQ-102", warehouseId: "W02", operationType: "Stock Deducted", prevValue: "Rice: 4800, Wheat: 2950, Sugar: 1280", newValue: "Rice: 4500, Wheat: 2800, Sugar: 1200", date: "2026-10-18", time: "14:21:00", updatedBy: "Wh02 Staff" },
-            { opId: "WH-OP-510", requestId: "REQ-102", warehouseId: "W02", operationType: "Request Accepted", prevValue: "Pending", newValue: "Reserved", date: "2026-10-18", time: "14:20:00", updatedBy: "Wh02 Staff" },
-
-            // W03 Operations
-            { opId: "WH-OP-524", requestId: "REQ-104", warehouseId: "W03", operationType: "Dispatched", prevValue: "Reserved", newValue: "Dispatched (Vehicle V03)", date: "2026-10-23", time: "08:00:00", updatedBy: "Wh03 Staff" },
-            { opId: "WH-OP-523", requestId: "REQ-104", warehouseId: "W03", operationType: "Vehicle Assigned", prevValue: "Available", newValue: "On Trip (V03)", date: "2026-10-23", time: "07:30:00", updatedBy: "Wh03 Staff" },
-            { opId: "WH-OP-522", requestId: "REQ-104", warehouseId: "W03", operationType: "Stock Deducted", prevValue: "Rice: 4250, Wheat: 2700, Sugar: 1100", newValue: "Rice: 4000, Wheat: 2500, Sugar: 1000", date: "2026-10-22", time: "09:46:00", updatedBy: "Wh03 Staff" },
-            { opId: "WH-OP-521", requestId: "REQ-104", warehouseId: "W03", operationType: "Request Accepted", prevValue: "Pending", newValue: "Reserved", date: "2026-10-22", time: "09:45:00", updatedBy: "Wh03 Staff" },
-            { opId: "WH-OP-520", requestId: "REQ-104", warehouseId: "W03", operationType: "Request Received", prevValue: "—", newValue: "Pending", date: "2026-10-22", time: "09:00:00", updatedBy: "Shop S04" },
-            { opId: "WH-OP-525", requestId: "REQ-108", warehouseId: "W03", operationType: "Request Received", prevValue: "—", newValue: "Pending", date: "2026-10-27", time: "15:45:00", updatedBy: "Shop S08" }
-        ];
-
-        function getWarehouseOperationsFiltered() {
-            var list = [];
-            for (var i = 0; i < warehouseOperationsData.length; i++) {
-                if (warehouseOperationsData[i].warehouseId === currentWarehouse.id) {
-                    list.push(warehouseOperationsData[i]);
-                }
-            }
-            return list;
-        }
-
-        // ---------------------------------------------------------------
-        // PROCESS REQUEST: ENHANCED WITH REAL AUDIT & STOCK TRANSACTIONS
+        // PROCESS REQUEST (STRICTLY SQLITE)
         // ---------------------------------------------------------------
         function populateProcessDropdown() {
             var select = document.getElementById("processRequestSelect");
+            if (!select) return;
             select.innerHTML = '<option value="">-- Select a Request --</option>';
 
-            var list = getWarehouseRequestsFiltered();
-            for (var i = 0; i < list.length; i++) {
-                if (list[i].status === "Pending") {
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                if (warehouseRequests[i].status === "Pending") {
+                    var reqId = warehouseRequests[i].id || warehouseRequests[i].requestId;
                     var option = document.createElement("option");
-                    option.value = list[i].requestId;
-                    option.textContent = list[i].requestId + " — " + list[i].shopId + " (" + list[i].rice + "kg Rice, " + list[i].wheat + "kg Wheat, " + list[i].sugar + "kg Sugar)";
+                    option.value = reqId;
+                    option.textContent = reqId + " — " + warehouseRequests[i].shopId + " (" + warehouseRequests[i].rice + "kg Rice, " + warehouseRequests[i].wheat + "kg Wheat, " + warehouseRequests[i].sugar + "kg Sugar)";
                     select.appendChild(option);
                 }
             }
@@ -1105,23 +960,23 @@
             }
 
             var req = null;
-            var list = getWarehouseRequestsFiltered();
-            for (var i = 0; i < list.length; i++) {
-                if (list[i].requestId === selectedId) {
-                    req = list[i];
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                var rId = warehouseRequests[i].id || warehouseRequests[i].requestId;
+                if (rId === selectedId) {
+                    req = warehouseRequests[i];
                     break;
                 }
             }
             if (!req) return;
 
-            document.getElementById("detailRequestId").textContent = req.requestId;
+            document.getElementById("detailRequestId").textContent = req.id || req.requestId;
             document.getElementById("detailShopId").textContent = req.shopId;
             document.getElementById("detailRice").textContent = req.rice;
             document.getElementById("detailWheat").textContent = req.wheat;
             document.getElementById("detailSugar").textContent = req.sugar;
-            document.getElementById("detailUrgency").textContent = req.urgency.toUpperCase();
-            document.getElementById("detailWarehouse").textContent = req.warehouse + " (" + (req.warehouseId || currentWarehouse.id) + ")";
-            document.getElementById("detailStatus").innerHTML = '<span class="badge bg-secondary">' + req.status + '</span>';
+            document.getElementById("detailUrgency").textContent = (req.urgency || "NORMAL").toUpperCase();
+            document.getElementById("detailWarehouse").textContent = (req.warehouse || req.warehouseName || currentWarehouse.name) + " (" + currentWarehouse.id + ")";
+            document.getElementById("detailStatus").innerHTML = getStatusBadge(req.status);
 
             document.getElementById("processRequestDetails").style.display = "block";
             document.getElementById("processBtn").style.display = "inline-block";
@@ -1130,162 +985,26 @@
 
         async function processRequest() {
             var selectedId = document.getElementById("processRequestSelect").value;
-            if (typeof valamApiCall === "function") {
-                try {
-                    await valamApiCall("/api/requests/" + encodeURIComponent(selectedId) + "/process", "POST", {
-                        updatedBy: loggedInUser + " Staff"
-                    });
-                    await refreshWarehouseDataFromServer();
-                } catch (e) {
-                    console.warn("[Warehouse] Process API error:", e);
-                }
-            }
-            var req = null;
-            if (typeof getValamRequests === "function") {
-                warehouseRequests = getValamRequests();
-            }
-            for (var i = 0; i < warehouseRequests.length; i++) {
-                if (warehouseRequests[i].requestId === selectedId) {
-                    req = warehouseRequests[i];
-                    break;
-                }
-            }
-            if (!req) return;
+            if (!selectedId) return;
 
-            var today = getCurrentDateIST();
-            var timeNow = getCurrentTimeIST();
-
-            // 1. Update Request status and timestamps
-            req.status = "Reserved";
-            req.processedDate = today;
-            req.processedTime = timeNow;
-
-            // 2. Append to request timeline
-            if (!req.timeline) req.timeline = [];
-            req.timeline.push({
-                stage: "Request Accepted / Processed",
-                date: today,
-                time: timeNow,
-                status: "Reserved",
-                actor: loggedInUser + " Staff",
-                note: "Request approved and stock allocated at " + currentWarehouse.name + "."
-            });
-
-            // 3. Update stock levels & record separate deductions for each commodity
-            var riceQty = parseInt(req.rice) || 0;
-            var wheatQty = parseInt(req.wheat) || 0;
-            var sugarQty = parseInt(req.sugar) || 0;
-
-            if (riceQty > 0) {
-                var prevRice = warehouseStock.rice;
-                warehouseStock.rice -= riceQty;
-                reservedStock.rice += riceQty;
-                stockHistoryData.unshift({
-                    updateId: "STK-" + stockHistoryCounter++,
-                    warehouseId: currentWarehouse.id,
-                    commodity: "Rice",
-                    previousStock: prevRice,
-                    quantityAdded: 0,
-                    quantityDeducted: riceQty,
-                    currentStock: warehouseStock.rice,
-                    reason: "Request " + req.requestId + " processed (Shop " + req.shopId + ")",
-                    date: today,
-                    time: timeNow,
-                    updatedBy: loggedInUser + " Staff"
-                });
-            }
-
-            if (wheatQty > 0) {
-                var prevWheat = warehouseStock.wheat;
-                warehouseStock.wheat -= wheatQty;
-                reservedStock.wheat += wheatQty;
-                stockHistoryData.unshift({
-                    updateId: "STK-" + stockHistoryCounter++,
-                    warehouseId: currentWarehouse.id,
-                    commodity: "Wheat",
-                    previousStock: prevWheat,
-                    quantityAdded: 0,
-                    quantityDeducted: wheatQty,
-                    currentStock: warehouseStock.wheat,
-                    reason: "Request " + req.requestId + " processed (Shop " + req.shopId + ")",
-                    date: today,
-                    time: timeNow,
-                    updatedBy: loggedInUser + " Staff"
-                });
-            }
-
-            if (sugarQty > 0) {
-                var prevSugar = warehouseStock.sugar;
-                warehouseStock.sugar -= sugarQty;
-                reservedStock.sugar += sugarQty;
-                stockHistoryData.unshift({
-                    updateId: "STK-" + stockHistoryCounter++,
-                    warehouseId: currentWarehouse.id,
-                    commodity: "Sugar",
-                    previousStock: prevSugar,
-                    quantityAdded: 0,
-                    quantityDeducted: sugarQty,
-                    currentStock: warehouseStock.sugar,
-                    reason: "Request " + req.requestId + " processed (Shop " + req.shopId + ")",
-                    date: today,
-                    time: timeNow,
-                    updatedBy: loggedInUser + " Staff"
-                });
-            }
-
-            // 4. Update Last Stock Update banner and persistent storage
-            lastStockUpdate = {
-                date: today,
-                time: timeNow,
-                updatedBy: loggedInUser + " Staff",
-                reason: "Request " + req.requestId + " processed"
-            };
-
-            if (typeof updateValamWarehouseStock === "function") {
-                updateValamWarehouseStock(currentWarehouse.id, 
-                    { rice: -riceQty, wheat: -wheatQty, sugar: -sugarQty }, 
-                    { rice: riceQty, wheat: wheatQty, sugar: sugarQty }, 
-                    lastStockUpdate);
-            }
-            if (typeof saveValamRequests === "function") {
-                saveValamRequests(warehouseRequests);
-            }
-
-            updateStockDisplays();
-
-            // 5. Add to Warehouse Operation History
-            warehouseOperationsData.unshift({
-                opId: "WH-OP-" + opCounter++,
-                requestId: req.requestId,
-                warehouseId: currentWarehouse.id,
-                operationType: "Request Accepted",
-                prevValue: "Pending",
-                newValue: "Reserved",
-                date: today,
-                time: timeNow,
-                updatedBy: loggedInUser + " Staff"
-            });
-            warehouseOperationsData.unshift({
-                opId: "WH-OP-" + opCounter++,
-                requestId: req.requestId,
-                warehouseId: currentWarehouse.id,
-                operationType: "Stock Deducted",
-                prevValue: "Available Stock Reduced",
-                newValue: "Rice: -" + riceQty + "kg, Wheat: -" + wheatQty + "kg, Sugar: -" + sugarQty + "kg",
-                date: today,
-                time: timeNow,
+            var res = await valamApiCall("/api/requests/" + encodeURIComponent(selectedId) + "/process", "POST", {
                 updatedBy: loggedInUser + " Staff"
             });
 
-            // UI updates
-            document.getElementById("detailStatus").innerHTML = '<span class="badge bg-warning text-dark">Reserved</span>';
+            if (res && res.error) {
+                alert("⚠️ Error processing request: " + res.error);
+                return;
+            }
+
+            await refreshWarehouseDataFromServer();
+
+            document.getElementById("detailStatus").innerHTML = getStatusBadge("Reserved");
             document.getElementById("processBtn").style.display = "none";
             document.getElementById("processSuccessMsg").style.display = "block";
-            renderShopRequestsTable();
         }
 
         // ---------------------------------------------------------------
-        // MANUAL STOCK ADDITION (APPLIES TO CURRENT WAREHOUSE ONLY)
+        // MANUAL STOCK ADDITION (STRICTLY SQLITE)
         // ---------------------------------------------------------------
         async function handleManualStockAdd(event) {
             event.preventDefault();
@@ -1293,96 +1012,47 @@
             var qty = parseInt(document.getElementById("addQuantity").value) || 0;
             var reason = document.getElementById("addReason").value.trim();
 
-            if (typeof valamApiCall === "function" && qty > 0) {
-                try {
-                    var commName = comm.charAt(0).toUpperCase() + comm.slice(1);
-                    await valamApiCall("/api/warehouses/" + encodeURIComponent(currentWarehouse.id) + "/stock", "POST", {
-                        commodity: commName,
-                        quantity: qty,
-                        reason: reason,
-                        updatedBy: loggedInUser + " Staff"
-                    });
-                    await refreshWarehouseDataFromServer();
-                } catch (e) {
-                    console.warn("[Warehouse] Add stock API error:", e);
-                }
-            }
-
             if (qty <= 0) {
-                alert("Please enter a valid quantity.");
+                alert("Please enter a valid quantity greater than 0.");
                 return;
             }
 
-            var today = getCurrentDateIST();
-            var timeNow = getCurrentTimeIST();
-            var prev = warehouseStock[comm];
-            warehouseStock[comm] += qty;
-
             var commName = comm.charAt(0).toUpperCase() + comm.slice(1);
-
-            stockHistoryData.unshift({
-                updateId: "STK-" + stockHistoryCounter++,
-                warehouseId: currentWarehouse.id,
+            var res = await valamApiCall("/api/warehouses/" + encodeURIComponent(currentWarehouse.id) + "/stock", "POST", {
                 commodity: commName,
-                previousStock: prev,
-                quantityAdded: qty,
-                quantityDeducted: 0,
-                currentStock: warehouseStock[comm],
+                quantity: qty,
                 reason: reason,
-                date: today,
-                time: timeNow,
                 updatedBy: loggedInUser + " Staff"
             });
 
-            lastStockUpdate = {
-                date: today,
-                time: timeNow,
-                updatedBy: loggedInUser + " Staff",
-                reason: reason
-            };
-
-            var delta = {};
-            delta[comm] = qty;
-            if (typeof updateValamWarehouseStock === "function") {
-                updateValamWarehouseStock(currentWarehouse.id, delta, null, lastStockUpdate);
+            if (res && res.error) {
+                alert("⚠️ Failed to update stock: " + res.error);
+                return;
             }
 
-            updateStockDisplays();
+            await refreshWarehouseDataFromServer();
 
-            warehouseOperationsData.unshift({
-                opId: "WH-OP-" + opCounter++,
-                requestId: "—",
-                warehouseId: currentWarehouse.id,
-                operationType: "Stock Added",
-                prevValue: prev + " kg",
-                newValue: warehouseStock[comm] + " kg (+" + qty + ")",
-                date: today,
-                time: timeNow,
-                updatedBy: loggedInUser + " Staff"
-            });
-
-            // Close modal
             var modalEl = document.getElementById("addStockModal");
             var modal = bootstrap.Modal.getInstance(modalEl);
             if (modal) modal.hide();
 
-            alert("✅ Successfully added " + qty + " kg of " + commName + " to " + currentWarehouse.name + " (" + currentWarehouse.id + ")!");
-            renderStockHistory(getStockHistoryFiltered());
+            alert("✅ Successfully added " + qty + " kg of " + commName + " to " + currentWarehouse.name + " (" + currentWarehouse.id + ") in SQLite database!");
         }
 
         // ---------------------------------------------------------------
-        // DELIVERY ASSIGNMENT
+        // DELIVERY ASSIGNMENT (STRICTLY SQLITE)
         // ---------------------------------------------------------------
         function populateDeliveryDropdown() {
             var select = document.getElementById("deliveryRequestSelect");
+            if (!select) return;
             select.innerHTML = '<option value="">-- Select a Request --</option>';
 
-            var list = getWarehouseRequestsFiltered();
-            for (var i = 0; i < list.length; i++) {
-                if (list[i].status === "Reserved") {
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                if (warehouseRequests[i].status === "Reserved") {
+                    var reqId = warehouseRequests[i].id || warehouseRequests[i].requestId;
                     var option = document.createElement("option");
-                    option.value = list[i].requestId;
-                    option.textContent = list[i].requestId + " — " + list[i].shopId;
+                    option.value = reqId;
+                    option.textContent = reqId + " — " + warehouseRequests[i].shopId;
                     select.appendChild(option);
                 }
             }
@@ -1398,20 +1068,20 @@
             }
 
             var req = null;
-            var list = getWarehouseRequestsFiltered();
-            for (var i = 0; i < list.length; i++) {
-                if (list[i].requestId === selectedId) {
-                    req = list[i];
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                var rId = warehouseRequests[i].id || warehouseRequests[i].requestId;
+                if (rId === selectedId) {
+                    req = warehouseRequests[i];
                     break;
                 }
             }
             if (!req) return;
 
-            document.getElementById("delRequestId").textContent = req.requestId;
+            document.getElementById("delRequestId").textContent = req.id || req.requestId;
             document.getElementById("delShopId").textContent = req.shopId;
-            document.getElementById("delWarehouse").textContent = req.warehouse;
+            document.getElementById("delWarehouse").textContent = req.warehouse || req.warehouseName || currentWarehouse.name;
             document.getElementById("delVehicle").textContent = req.vehicle || "Not Assigned";
-            document.getElementById("delStatus").innerHTML = '<span class="badge bg-warning text-dark">' + req.status + '</span>';
+            document.getElementById("delStatus").innerHTML = getStatusBadge(req.status);
 
             document.getElementById("deliveryDetails").style.display = "block";
             document.getElementById("assignVehicleBtn").style.display = "inline-block";
@@ -1421,90 +1091,28 @@
         async function assignVehicle() {
             var selectedId = document.getElementById("deliveryRequestSelect").value;
             var selectedVehicle = document.getElementById("vehicleSelect").value;
-            if (typeof valamApiCall === "function") {
-                try {
-                    await valamApiCall("/api/requests/" + encodeURIComponent(selectedId) + "/assign-vehicle", "POST", {
-                        vehicleId: selectedVehicle,
-                        updatedBy: loggedInUser + " Staff"
-                    });
-                    await refreshWarehouseDataFromServer();
-                } catch (e) {
-                    console.warn("[Warehouse] Assign Vehicle API error:", e);
-                }
-            }
+            if (!selectedId || !selectedVehicle) return;
 
-            var req = null;
-            if (typeof getValamRequests === "function") {
-                warehouseRequests = getValamRequests();
-            }
-            for (var i = 0; i < warehouseRequests.length; i++) {
-                if (warehouseRequests[i].requestId === selectedId) {
-                    req = warehouseRequests[i];
-                    break;
-                }
-            }
-            if (!req) return;
-
-            var today = getCurrentDateIST();
-            var timeNow = getCurrentTimeIST();
-
-            req.vehicle = selectedVehicle;
-            req.status = "Dispatched";
-
-            if (!req.timeline) req.timeline = [];
-            req.timeline.push({
-                stage: "Vehicle Assigned",
-                date: today,
-                time: timeNow,
-                status: "Reserved",
-                actor: loggedInUser + " Staff",
-                note: "Vehicle " + selectedVehicle + " assigned."
-            });
-            req.timeline.push({
-                stage: "Dispatched",
-                date: today,
-                time: timeNow,
-                status: "Dispatched",
-                actor: loggedInUser + " Staff",
-                note: "Consignment dispatched from " + req.warehouse + "."
-            });
-
-            if (typeof saveValamRequests === "function") {
-                saveValamRequests(warehouseRequests);
-            }
-
-            warehouseOperationsData.unshift({
-                opId: "WH-OP-" + opCounter++,
-                requestId: req.requestId,
-                warehouseId: currentWarehouse.id,
-                operationType: "Vehicle Assigned",
-                prevValue: "Not Assigned",
-                newValue: selectedVehicle,
-                date: today,
-                time: timeNow,
+            var res = await valamApiCall("/api/requests/" + encodeURIComponent(selectedId) + "/assign-vehicle", "POST", {
+                vehicleId: selectedVehicle,
                 updatedBy: loggedInUser + " Staff"
             });
-            warehouseOperationsData.unshift({
-                opId: "WH-OP-" + opCounter++,
-                requestId: req.requestId,
-                warehouseId: currentWarehouse.id,
-                operationType: "Dispatched",
-                prevValue: "Reserved",
-                newValue: "Dispatched",
-                date: today,
-                time: timeNow,
-                updatedBy: loggedInUser + " Staff"
-            });
+
+            if (res && res.error) {
+                alert("⚠️ Error assigning vehicle: " + res.error);
+                return;
+            }
+
+            await refreshWarehouseDataFromServer();
 
             document.getElementById("delVehicle").textContent = selectedVehicle;
-            document.getElementById("delStatus").innerHTML = '<span class="badge bg-info text-dark">Dispatched</span>';
+            document.getElementById("delStatus").innerHTML = getStatusBadge("Dispatched");
             document.getElementById("assignVehicleBtn").style.display = "none";
             document.getElementById("deliverySuccessMsg").style.display = "block";
-            renderShopRequestsTable();
         }
 
         // ---------------------------------------------------------------
-        // RENDER 1: REQUEST HISTORY & PROCESSING TIMELINE TABLE (REQ 1 & 2)
+        // RENDER 1: REQUEST HISTORY & PROCESSING TIMELINE TABLE
         // ---------------------------------------------------------------
         function renderWarehouseRequestsHistory(data) {
             var tbody = document.getElementById("whReqHistoryTableBody");
@@ -1526,31 +1134,26 @@
                 for (var i = 0; i < data.length; i++) {
                     var req = data[i];
                     var tr = document.createElement("tr");
+                    var reqId = req.id || req.requestId;
+                    var recDate = req.submittedDate || req.receivedDate;
+                    var recTime = req.submittedTime || req.receivedTime;
 
-                    var statusBadge = '';
-                    if (req.status === "Pending") statusBadge = '<span class="badge bg-secondary">Pending</span>';
-                    else if (req.status === "Reserved") statusBadge = '<span class="badge bg-warning text-dark">Reserved</span>';
-                    else if (req.status === "Dispatched") statusBadge = '<span class="badge bg-info text-dark">Dispatched</span>';
-                    else if (req.status === "In Transit") statusBadge = '<span class="badge bg-warning text-dark">In Transit</span>';
-                    else if (req.status === "Delivered") statusBadge = '<span class="badge bg-success">Delivered</span>';
-                    else statusBadge = '<span class="badge bg-light text-dark">' + req.status + '</span>';
-
-                    var waitHtml = calculateWaitTime(req.receivedDate, req.receivedTime, req.processedDate, req.processedTime);
+                    var waitHtml = calculateWaitTime(recDate, recTime, req.processedDate, req.processedTime);
 
                     tr.innerHTML =
-                        "<td><strong>" + req.requestId + "</strong></td>" +
+                        "<td><strong>" + reqId + "</strong></td>" +
                         "<td><span class=\"badge bg-light text-dark border\">" + req.shopId + "</span></td>" +
                         "<td>" + req.rice + "</td>" +
                         "<td>" + req.wheat + "</td>" +
                         "<td>" + req.sugar + "</td>" +
-                        "<td>" + (req.urgency === 'critical' ? '<span class="badge bg-danger">Critical</span>' : '<span class="badge bg-primary">Normal</span>') + "</td>" +
-                        "<td>" + formatDateReadable(req.receivedDate) + "</td>" +
-                        "<td>" + formatTime12IST(req.receivedTime) + "</td>" +
-                        "<td>" + (req.processedDate !== '—' ? formatDateReadable(req.processedDate) : '<span class=\"text-muted\">—</span>') + "</td>" +
-                        "<td>" + (req.processedTime !== '—' ? formatTime12IST(req.processedTime) : '<span class=\"text-muted\">—</span>') + "</td>" +
-                        "<td>" + statusBadge + "</td>" +
+                        "<td>" + getUrgencyBadge(req.urgency) + "</td>" +
+                        "<td>" + formatDateReadable(recDate) + "</td>" +
+                        "<td>" + formatTime12IST(recTime) + "</td>" +
+                        "<td>" + (req.processedDate && req.processedDate !== '—' ? formatDateReadable(req.processedDate) : '<span class=\"text-muted\">—</span>') + "</td>" +
+                        "<td>" + (req.processedTime && req.processedTime !== '—' ? formatTime12IST(req.processedTime) : '<span class=\"text-muted\">—</span>') + "</td>" +
+                        "<td>" + getStatusBadge(req.status) + "</td>" +
                         "<td>" + waitHtml + "</td>" +
-                        '<td><button class="btn btn-outline-primary btn-sm text-nowrap" onclick="viewWarehouseTimeline(\'' + req.requestId + '\')">⏱️ View Timeline</button></td>';
+                        '<td><button class="btn btn-outline-primary btn-sm text-nowrap" onclick="viewWarehouseTimeline(\'' + reqId + '\')">⏱️ View Timeline</button></td>';
                     tbody.appendChild(tr);
                 }
             }
@@ -1583,19 +1186,18 @@
             }
             alertBox.style.display = "none";
 
-            var whList = getWarehouseRequestsFiltered();
             var filtered = [];
-
-            for (var i = 0; i < whList.length; i++) {
-                var r = whList[i];
+            for (var i = 0; i < warehouseRequests.length; i++) {
+                var r = warehouseRequests[i];
+                var recDate = r.submittedDate || r.receivedDate;
                 var dateOk = true;
-                var statusOk = true;
+                var statOk = true;
 
-                if (from && r.receivedDate < from) dateOk = false;
-                if (to && r.receivedDate > to) dateOk = false;
-                if (status !== "all" && r.status !== status) statusOk = false;
+                if (from && recDate < from) dateOk = false;
+                if (to && recDate > to) dateOk = false;
+                if (status !== "all" && r.status !== status) statOk = false;
 
-                if (dateOk && statusOk) filtered.push(r);
+                if (dateOk && statOk) filtered.push(r);
             }
 
             renderWarehouseRequestsHistory(filtered);
@@ -1606,34 +1208,36 @@
             document.getElementById("whReqToDate").value = "";
             document.getElementById("whReqStatusFilter").value = "all";
             document.getElementById("whReqDateAlert").style.display = "none";
-            renderWarehouseRequestsHistory(getWarehouseRequestsFiltered());
+            renderWarehouseRequestsHistory(warehouseRequests);
         }
 
         // ---------------------------------------------------------------
-        // VIEW TIMELINE MODAL (REQUIREMENT 1)
+        // VIEW TIMELINE MODAL (STRICTLY SQLITE)
         // ---------------------------------------------------------------
-        function viewWarehouseTimeline(reqId) {
-            var req = null;
-            var list = (typeof getValamRequests === "function") ? getValamRequests() : warehouseRequests;
-            for (var i = 0; i < list.length; i++) {
-                if (list[i].requestId === reqId) {
-                    req = list[i];
-                    break;
-                }
+        async function viewWarehouseTimeline(reqId) {
+            var res = await valamApiCall("/api/requests/" + encodeURIComponent(reqId), "GET");
+            if (res && res.error) {
+                alert("⚠️ Error loading timeline: " + res.error);
+                return;
             }
+            var req = res;
             if (!req) return;
 
-            document.getElementById("whTimelineModalTitle").textContent = "Lifecycle Timeline — " + req.requestId;
-            document.getElementById("whTimelineModalSubtitle").textContent = "Shop: " + req.shopId + " | Warehouse: " + req.warehouse + " (" + (req.warehouseId || currentWarehouse.id) + ")";
+            var rId = req.id || req.requestId;
+            var recDate = req.submittedDate || req.receivedDate;
+            var recTime = req.submittedTime || req.receivedTime;
 
-            var waitBadge = calculateWaitTime(req.receivedDate, req.receivedTime, req.processedDate, req.processedTime);
+            document.getElementById("whTimelineModalTitle").textContent = "Lifecycle Timeline — " + rId;
+            document.getElementById("whTimelineModalSubtitle").textContent = "Shop: " + req.shopId + " | Warehouse: " + (req.warehouse || req.warehouseName || currentWarehouse.name) + " (" + currentWarehouse.id + ")";
+
+            var waitBadge = calculateWaitTime(recDate, recTime, req.processedDate, req.processedTime);
 
             var html = '';
             html += '<div class="p-3 bg-light rounded border mb-3">';
             html += '<div class="row align-items-center">';
             html += '<div class="col-md-8">';
             html += '<p class="mb-1"><strong>Commodities Requested:</strong> Rice: ' + req.rice + ' kg | Wheat: ' + req.wheat + ' kg | Sugar: ' + req.sugar + ' kg</p>';
-            html += '<p class="mb-0 text-muted" style="font-size: 0.88rem;"><strong>Received:</strong> ' + formatDateReadable(req.receivedDate) + ' at ' + formatTime12IST(req.receivedTime) + '</p>';
+            html += '<p class="mb-0 text-muted" style="font-size: 0.88rem;"><strong>Received:</strong> ' + formatDateReadable(recDate) + ' at ' + formatTime12IST(recTime) + '</p>';
             html += '</div>';
             html += '<div class="col-md-4 text-md-end mt-2 mt-md-0">';
             html += '<div><span class="text-muted" style="font-size:0.8rem;">Processing Wait Time:</span><br>' + waitBadge + '</div>';
@@ -1644,36 +1248,39 @@
             html += '<div class="list-group">';
 
             var tEvents = req.timeline || [];
-            for (var t = 0; t < tEvents.length; t++) {
-                var item = tEvents[t];
-                var isLatest = (t === tEvents.length - 1);
-                var activeClass = isLatest ? ' border-primary shadow-sm' : '';
+            if (tEvents.length === 0) {
+                html += '<p class="text-muted text-center py-3">No timeline events recorded yet.</p>';
+            } else {
+                for (var t = 0; t < tEvents.length; t++) {
+                    var item = tEvents[t];
+                    var isLatest = (t === tEvents.length - 1);
+                    var activeClass = isLatest ? ' border-primary shadow-sm' : '';
 
-                html += '<div class="list-group-item p-3 mb-2 rounded' + activeClass + '" style="border-left: 4px solid #2563eb !important;">';
-                html += '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">';
-                html += '<div>';
-                html += '<strong style="font-size: 0.95rem;">' + (t + 1) + '. ' + item.stage + '</strong> ';
-                html += '<span class="badge bg-secondary">' + item.status + '</span>';
-                html += '</div>';
-                html += '<div class="text-muted" style="font-size: 0.8rem;">';
-                html += '📅 ' + formatDateReadable(item.date) + ' &nbsp;|&nbsp; 🕒 ' + formatTime12IST(item.time);
-                html += '</div>';
-                html += '</div>';
-                html += '<p class="mt-2 mb-1 text-muted" style="font-size: 0.88rem;">' + (item.details || item.note || '') + '</p>';
-                html += '<small class="text-secondary">👤 Logged by: <strong>' + (item.updatedBy || item.actor || 'Staff') + '</strong></small>';
-                html += '</div>';
+                    html += '<div class="list-group-item p-3 mb-2 rounded' + activeClass + '" style="border-left: 4px solid #2563eb !important;">';
+                    html += '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">';
+                    html += '<div>';
+                    html += '<strong style="font-size: 0.95rem;">' + (t + 1) + '. ' + (item.stage || item.stageTitle) + '</strong> ';
+                    html += getStatusBadge(item.status);
+                    html += '</div>';
+                    html += '<div class="text-muted" style="font-size: 0.8rem;">';
+                    html += '📅 ' + formatDateReadable(item.date) + ' &nbsp;|&nbsp; 🕒 ' + formatTime12IST(item.time);
+                    html += '</div>';
+                    html += '</div>';
+                    html += '<p class="mt-2 mb-1 text-muted" style="font-size: 0.88rem;">' + (item.details || item.note || '') + '</p>';
+                    html += '<small class="text-secondary">👤 Logged by: <strong>' + (item.updatedBy || item.actor || 'Staff') + '</strong></small>';
+                    html += '</div>';
+                }
             }
 
             html += '</div>';
 
             document.getElementById("whTimelineModalBody").innerHTML = html;
-
             var modal = new bootstrap.Modal(document.getElementById("whTimelineModal"));
             modal.show();
         }
 
         // ---------------------------------------------------------------
-        // RENDER 2: STOCK UPDATE HISTORY TABLE (REQUIREMENT 3)
+        // RENDER 2: STOCK UPDATE HISTORY TABLE
         // ---------------------------------------------------------------
         function renderStockHistory(data) {
             var tbody = document.getElementById("stockHistoryTableBody");
@@ -1728,16 +1335,15 @@
             }
             alertBox.style.display = "none";
 
-            var whStockList = getStockHistoryFiltered();
             var filtered = [];
-            for (var i = 0; i < whStockList.length; i++) {
-                var s = whStockList[i];
+            for (var i = 0; i < stockHistoryData.length; i++) {
+                var s = stockHistoryData[i];
                 var dateOk = true;
                 var commOk = true;
 
                 if (from && s.date < from) dateOk = false;
                 if (to && s.date > to) dateOk = false;
-                if (comm !== "all" && s.commodity !== comm) commOk = false;
+                if (comm !== "all" && s.commodity.toLowerCase() !== comm.toLowerCase()) commOk = false;
 
                 if (dateOk && commOk) filtered.push(s);
             }
@@ -1750,11 +1356,11 @@
             document.getElementById("stockFilterToDate").value = "";
             document.getElementById("stockFilterCommodity").value = "all";
             document.getElementById("stockDateAlert").style.display = "none";
-            renderStockHistory(getStockHistoryFiltered());
+            renderStockHistory(stockHistoryData);
         }
 
         // ---------------------------------------------------------------
-        // RENDER 3: WAREHOUSE OPERATION AUDIT LOG (REQUIREMENT 5)
+        // RENDER 3: WAREHOUSE OPERATION AUDIT LOG
         // ---------------------------------------------------------------
         function renderWarehouseOperations(data) {
             var tbody = document.getElementById("warehouseOpTableBody");
@@ -1779,17 +1385,18 @@
 
                     var typeBadge = '<span class="badge bg-secondary">' + op.operationType + '</span>';
                     if (op.operationType === "Request Accepted") typeBadge = '<span class="badge bg-primary">Request Accepted</span>';
-                    else if (op.operationType === "Stock Deducted") typeBadge = '<span class="badge bg-danger">Stock Deducted</span>';
+                    else if (op.operationType === "Stock Deducted" || op.operationType === "Stock Updated") typeBadge = '<span class="badge bg-warning text-dark">' + op.operationType + '</span>';
                     else if (op.operationType === "Stock Added") typeBadge = '<span class="badge bg-success">Stock Added</span>';
                     else if (op.operationType === "Vehicle Assigned" || op.operationType === "Dispatched") typeBadge = '<span class="badge bg-info text-dark">' + op.operationType + '</span>';
+                    else if (op.operationType === "Delivered") typeBadge = '<span class="badge bg-success">Delivered</span>';
 
                     tr.innerHTML =
                         "<td><strong>" + op.opId + "</strong></td>" +
-                        "<td>" + (op.requestId !== '—' ? '<strong>' + op.requestId + '</strong>' : '<span class="text-muted">—</span>') + "</td>" +
-                        "<td>" + op.warehouseId + "</td>" +
+                        "<td>" + (op.requestId && op.requestId !== '—' ? '<strong>' + op.requestId + '</strong>' : '<span class="text-muted">—</span>') + "</td>" +
+                        "<td>" + (op.entityId || op.warehouseId) + "</td>" +
                         "<td>" + typeBadge + "</td>" +
-                        "<td>" + op.prevValue + "</td>" +
-                        "<td>" + op.newValue + "</td>" +
+                        "<td>" + (op.prevValue || op.prevStatus || '—') + "</td>" +
+                        "<td>" + (op.newValue || op.newStatus || '—') + "</td>" +
                         "<td>" + formatDateReadable(op.date) + "</td>" +
                         "<td>" + formatTime12IST(op.time) + "</td>" +
                         "<td>" + op.updatedBy + "</td>";
@@ -1810,16 +1417,15 @@
             }
             alertBox.style.display = "none";
 
-            var whOpList = getWarehouseOperationsFiltered();
             var filtered = [];
-            for (var i = 0; i < whOpList.length; i++) {
-                var o = whOpList[i];
+            for (var i = 0; i < warehouseOperationsData.length; i++) {
+                var o = warehouseOperationsData[i];
                 var dateOk = true;
                 var typeOk = true;
 
                 if (from && o.date < from) dateOk = false;
                 if (to && o.date > to) dateOk = false;
-                if (type !== "all" && o.operationType !== type) typeOk = false;
+                if (type !== "all" && o.operationType.toLowerCase() !== type.toLowerCase()) typeOk = false;
 
                 if (dateOk && typeOk) filtered.push(o);
             }
@@ -1832,9 +1438,8 @@
             document.getElementById("opFilterToDate").value = "";
             document.getElementById("opFilterType").value = "all";
             document.getElementById("opDateAlert").style.display = "none";
-            renderWarehouseOperations(getWarehouseOperationsFiltered());
+            renderWarehouseOperations(warehouseOperationsData);
         }
-
     </script>
 </body>
 </html>
