@@ -36,6 +36,7 @@ public class MainServer {
             server.createContext("/api/requests", new RequestHandler());
             server.createContext("/api/stock-history", new StockHistoryHandler());
             server.createContext("/api/operations", new OperationHandler());
+            server.createContext("/api/delivery-issues", new DeliveryIssueHandler());
 
             // Static Files
             File webRoot = new File(".").getCanonicalFile();

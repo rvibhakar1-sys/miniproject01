@@ -276,12 +276,44 @@
                                 <th>Warehouse</th>
                                 <th>Vehicle</th>
                                 <th>Delivery Status</th>
+                                <th>Shop Confirmation</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="deliveryStatusTableBody">
                             <!-- Populated dynamically from SQLite database -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- ===== Reported Delivery Issues Section ===== -->
+            <div class="card p-4 mt-4">
+                <h5 class="mb-1">⚠️ Reported Delivery Issues (District-wide)</h5>
+                <p class="text-muted mb-3" style="font-size: 0.95rem;">Monitor commodity discrepancies reported by Fair-Price Shops across all warehouses.</p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0" id="adminIssuesTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Issue ID</th>
+                                <th>Request ID</th>
+                                <th>Shop</th>
+                                <th>Warehouse</th>
+                                <th>Issue Type</th>
+                                <th>Description</th>
+                                <th>Reported At</th>
+                                <th>Status</th>
+                                <th>Resolution Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminIssuesTableBody">
+                            <!-- Populated dynamically from SQLite database -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="adminIssuesNoRecords" class="text-center py-3 text-muted" style="display: none;">
+                    No delivery issues currently reported.
                 </div>
             </div>
         </div>
@@ -483,7 +515,10 @@
             if (sectionId === "shopsView") renderAdminShops();
             else if (sectionId === "warehousesView") renderAdminWarehouses();
             else if (sectionId === "vehiclesView") renderAdminVehicles();
-            else if (sectionId === "requestsView" || sectionId === "deliveryStatusView") renderAdminRequests();
+            else if (sectionId === "requestsView" || sectionId === "deliveryStatusView") {
+                renderAdminRequests();
+                renderAdminIssues();
+            }
             else if (sectionId === "operationHistoryView") loadAdminOperations();
 
             window.scrollTo(0, 0);
@@ -623,14 +658,115 @@
 
                 if (delTbody) {
                     var delTr = document.createElement("tr");
-                    delTr.innerHTML = "<td>" + reqId + "</td>" +
+                    var rcBadge = '';
+                    if (r.status === "Completed" || r.status === "Delivered" || r.receiptStatus === "Confirmed") {
+                        var cAt = (r.receiptConfirmedDate ? formatDateReadable(r.receiptConfirmedDate) : "") + (r.receiptConfirmedTime ? " " + formatTime12IST(r.receiptConfirmedTime) : "");
+                        rcBadge = '<span class="badge bg-success">Confirmed</span>' + (cAt ? '<br><small class="text-muted">' + cAt + '</small>' : '');
+                    } else if (r.status === "Delivery Issue" || r.receiptStatus === "Issue Reported") {
+                        rcBadge = '<span class="badge bg-danger">Issue Reported</span>';
+                    } else if (r.status === "Dispatched" || r.status === "In Transit" || r.receiptStatus === "Awaiting Receipt") {
+                        rcBadge = '<span class="badge bg-warning text-dark">Awaiting Receipt</span>';
+                    } else {
+                        rcBadge = '<span class="text-muted">—</span>';
+                    }
+
+                    delTr.innerHTML = "<td><strong>" + reqId + "</strong></td>" +
                         "<td>" + r.shopId + "</td>" +
                         "<td>" + whName + "</td>" +
                         "<td>" + (r.vehicle || "Not Assigned") + "</td>" +
-                        "<td>" + statusBadge + "</td>";
+                        "<td>" + statusBadge + "</td>" +
+                        "<td>" + rcBadge + "</td>" +
+                        '<td><button class="btn btn-outline-danger btn-sm text-nowrap" onclick="viewAdminTimeline(\'' + reqId + '\')">⏱️ Timeline</button></td>';
                     delTbody.appendChild(delTr);
                 }
             }
+        }
+
+        async function renderAdminIssues() {
+            var tbody = document.getElementById("adminIssuesTableBody");
+            var noRec = document.getElementById("adminIssuesNoRecords");
+            var table = document.getElementById("adminIssuesTable");
+            if (!tbody) return;
+
+            var issues = await valamApiCall("/api/delivery-issues", "GET");
+            if (!issues || !Array.isArray(issues) || issues.length === 0) {
+                if (table) table.style.display = "none";
+                if (noRec) noRec.style.display = "block";
+                return;
+            }
+
+            if (table) table.style.display = "table";
+            if (noRec) noRec.style.display = "none";
+            tbody.innerHTML = "";
+
+            for (var i = 0; i < issues.length; i++) {
+                var issue = issues[i];
+                var tr = document.createElement("tr");
+
+                var statusBadge = issue.status === "Open"
+                    ? '<span class="badge bg-danger">Open</span>'
+                    : '<span class="badge bg-success">Resolved</span>';
+
+                tr.innerHTML =
+                    '<td><strong>' + issue.issueId + '</strong></td>' +
+                    '<td><span class="badge bg-light text-dark border">' + issue.requestId + '</span></td>' +
+                    '<td>' + (issue.shopName || issue.shopId) + '</td>' +
+                    '<td>' + (issue.warehouseName || issue.warehouseId) + '</td>' +
+                    '<td><span class="badge bg-warning text-dark">' + issue.issueType + '</span></td>' +
+                    '<td>' + (issue.description || '—') + '</td>' +
+                    '<td>' + formatDateReadable(issue.reportedDate) + ' ' + formatTime12IST(issue.reportedTime) + '</td>' +
+                    '<td>' + statusBadge + '</td>' +
+                    '<td>' + (issue.resolutionNotes ? issue.resolutionNotes + ' <small class="text-muted">(' + (issue.resolvedBy || '') + ')</small>' : '<span class="text-muted">—</span>') + '</td>';
+                tbody.appendChild(tr);
+            }
+        }
+
+        async function viewAdminTimeline(reqId) {
+            var req = await valamApiCall("/api/requests/" + encodeURIComponent(reqId), "GET");
+            if (req && req.error) {
+                alert("⚠️ Error loading request timeline: " + req.error);
+                return;
+            }
+            if (!req) return;
+
+            document.getElementById("operationDetailTitle").textContent = "Request Timeline & Lifecycle — " + reqId;
+            var whName = req.warehouse || req.warehouseName || (req.warehouseId === "W01" ? "Valam Central Warehouse" : (req.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
+
+            var html = '';
+            html += '<div class="alert alert-light border mb-3">';
+            html += '<div class="row g-2" style="font-size:0.9rem;">';
+            html += '<div class="col-sm-6">🏪 <strong>Shop:</strong> ' + req.shopId + ' (' + (req.shopName || '') + ')</div>';
+            html += '<div class="col-sm-6">🏭 <strong>Warehouse:</strong> ' + whName + '</div>';
+            html += '<div class="col-sm-6">📦 <strong>Commodities:</strong> Rice ' + req.rice + 'kg, Wheat ' + req.wheat + 'kg, Sugar ' + req.sugar + 'kg</div>';
+            html += '<div class="col-sm-6">🚚 <strong>Vehicle:</strong> ' + (req.vehicle || 'Not Assigned') + '</div>';
+            html += '<div class="col-sm-6">📋 <strong>Status:</strong> ' + getStatusBadge(req.status) + '</div>';
+            html += '<div class="col-sm-6">📦 <strong>Receipt Status:</strong> ' + (req.receiptStatus || 'Pending') + '</div>';
+            html += '</div></div>';
+
+            html += '<h6 class="mb-3" style="font-weight:600;">Chronological Event History (SQLite)</h6>';
+            html += '<div class="list-group">';
+
+            var events = req.timeline || [];
+            if (events.length === 0) {
+                html += '<p class="text-muted text-center py-3">No timeline events recorded yet.</p>';
+            } else {
+                for (var i = 0; i < events.length; i++) {
+                    var ev = events[i];
+                    html += '<div class="list-group-item p-3 mb-2 rounded border" style="border-left: 4px solid #dc3545 !important;">';
+                    html += '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">';
+                    html += '<div><strong>' + (i + 1) + '. ' + (ev.title || ev.stage || ev.stageTitle) + '</strong> ' + getStatusBadge(ev.status) + '</div>';
+                    html += '<div class="text-muted" style="font-size:0.82rem;">📅 ' + formatDateReadable(ev.date) + ' | 🕒 ' + formatTime12IST(ev.time) + '</div>';
+                    html += '</div>';
+                    html += '<p class="mt-2 mb-1 text-muted" style="font-size:0.88rem;">' + (ev.details || '') + '</p>';
+                    html += '<small class="text-secondary">👤 Action Performed By: <strong>' + (ev.by || ev.performedBy || 'Staff') + '</strong></small>';
+                    html += '</div>';
+                }
+            }
+            html += '</div>';
+
+            document.getElementById("operationDetailBody").innerHTML = html;
+            var modal = new bootstrap.Modal(document.getElementById("operationDetailModal"));
+            modal.show();
         }
 
         async function loadAdminOperations() {

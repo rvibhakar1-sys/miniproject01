@@ -187,7 +187,9 @@ function getStatusBadge(status) {
     if (status.indexOf("Reserved") !== -1) return '<span class="badge bg-warning text-dark">' + status + '</span>';
     if (status.indexOf("Dispatched") !== -1) return '<span class="badge bg-info text-dark">' + status + '</span>';
     if (status.indexOf("In Transit") !== -1) return '<span class="badge bg-warning text-dark">' + status + '</span>';
-    if (status.indexOf("Delivered") !== -1) return '<span class="badge bg-success">' + status + '</span>';
+    if (status.indexOf("Awaiting") !== -1) return '<span class="badge bg-warning text-dark">' + status + '</span>';
+    if (status.indexOf("Delivery Issue") !== -1 || status.indexOf("Issue") !== -1) return '<span class="badge bg-danger">' + status + '</span>';
+    if (status.indexOf("Completed") !== -1 || status.indexOf("Delivered") !== -1 || status.indexOf("Confirmed") !== -1) return '<span class="badge bg-success">' + status + '</span>';
     if (status.indexOf("Available") !== -1) return '<span class="badge bg-success">' + status + '</span>';
     if (status.indexOf("On Trip") !== -1) return '<span class="badge bg-warning text-dark">' + status + '</span>';
     return '<span class="badge bg-info text-dark" style="font-size:0.75rem;">' + status + '</span>';

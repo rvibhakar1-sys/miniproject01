@@ -94,6 +94,7 @@ public class Database {
 
         try (Connection conn = getConnection()) {
             createTables(conn);
+            applyMigrations(conn);
             seedInitialDataIfEmpty(conn);
             System.out.println("[Database] SQLite Database verified and ready. Single source of truth active.\n");
         } catch (SQLException e) {
@@ -221,7 +222,61 @@ public class Database {
                     "updated_by TEXT, " +
                     "details TEXT" +
                     ");");
+
+            // 9. Delivery Issues table
+            s.execute("CREATE TABLE IF NOT EXISTS delivery_issues (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "issue_id TEXT UNIQUE NOT NULL, " +
+                    "request_id TEXT NOT NULL, " +
+                    "shop_id TEXT NOT NULL, " +
+                    "warehouse_id TEXT NOT NULL, " +
+                    "issue_type TEXT NOT NULL, " +
+                    "description TEXT, " +
+                    "reported_date TEXT NOT NULL, " +
+                    "reported_time TEXT NOT NULL, " +
+                    "reported_by TEXT NOT NULL, " +
+                    "status TEXT DEFAULT 'Open', " +
+                    "resolved_by TEXT, " +
+                    "resolution_notes TEXT, " +
+                    "resolved_date TEXT, " +
+                    "resolved_time TEXT" +
+                    ");");
         }
+    }
+
+    public static void applyMigrations(Connection conn) {
+        String[] migrations = {
+            "ALTER TABLE shops ADD COLUMN rice_stock INTEGER DEFAULT 0;",
+            "ALTER TABLE shops ADD COLUMN wheat_stock INTEGER DEFAULT 0;",
+            "ALTER TABLE shops ADD COLUMN sugar_stock INTEGER DEFAULT 0;",
+            "ALTER TABLE shops ADD COLUMN last_receipt_date TEXT;",
+            "ALTER TABLE shops ADD COLUMN last_receipt_time TEXT;",
+
+            "ALTER TABLE requests ADD COLUMN dispatched_date TEXT;",
+            "ALTER TABLE requests ADD COLUMN dispatched_time TEXT;",
+            "ALTER TABLE requests ADD COLUMN receipt_confirmed_date TEXT;",
+            "ALTER TABLE requests ADD COLUMN receipt_confirmed_time TEXT;",
+            "ALTER TABLE requests ADD COLUMN receipt_confirmed_by TEXT;",
+            "ALTER TABLE requests ADD COLUMN receipt_status TEXT DEFAULT 'Pending';",
+            "ALTER TABLE requests ADD COLUMN confirmed_rice INTEGER DEFAULT 0;",
+            "ALTER TABLE requests ADD COLUMN confirmed_wheat INTEGER DEFAULT 0;",
+            "ALTER TABLE requests ADD COLUMN confirmed_sugar INTEGER DEFAULT 0;",
+            "ALTER TABLE requests ADD COLUMN receipt_notes TEXT;"
+        };
+
+        for (String sql : migrations) {
+            try (Statement s = conn.createStatement()) {
+                s.execute(sql);
+            } catch (SQLException ignored) {
+                // Column already exists, safe to continue
+            }
+        }
+
+        // Backfill receipt_status for existing requests if needed:
+        try (Statement s = conn.createStatement()) {
+            s.execute("UPDATE requests SET receipt_status = 'Confirmed' WHERE (status = 'Delivered' OR status = 'Completed') AND (receipt_status IS NULL OR receipt_status = 'Pending');");
+            s.execute("UPDATE requests SET receipt_status = 'Awaiting Receipt' WHERE (status = 'Dispatched' OR status = 'In Transit') AND (receipt_status IS NULL OR receipt_status = 'Pending');");
+        } catch (SQLException ignored) {}
     }
 
     private static void seedInitialDataIfEmpty(Connection conn) throws SQLException {

@@ -26,7 +26,22 @@
 
         <!-- Welcome Message -->
         <h4 class="mb-1" id="shopWelcomeHeading">Welcome, Shop User</h4>
-        <p class="text-muted mb-4">Fair-Price Shop — Create requests, track deliveries, and monitor lifecycle history</p>
+        <p class="text-muted mb-3">Fair-Price Shop — Create requests, track deliveries, and monitor lifecycle history</p>
+
+        <!-- Current Shop Inventory / Stock Banner -->
+        <div class="card p-3 mb-4 shadow-sm" style="border-left: 5px solid #16a34a; background: #f8faf8;">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h6 class="mb-1" style="font-weight: 700; color: #16a34a;">🏪 Current Shop Inventory / Stock</h6>
+                    <span class="text-muted" style="font-size: 0.84rem;" id="shopStockLastUpdated">Last receipt: Never</span>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <span class="badge bg-success px-3 py-2" style="font-size: 0.88rem;">Rice: <strong id="shopRiceStock">0 kg</strong></span>
+                    <span class="badge bg-success px-3 py-2" style="font-size: 0.88rem;">Wheat: <strong id="shopWheatStock">0 kg</strong></span>
+                    <span class="badge bg-success px-3 py-2" style="font-size: 0.88rem;">Sugar: <strong id="shopSugarStock">0 kg</strong></span>
+                </div>
+            </div>
+        </div>
 
         <!-- ========== DASHBOARD MAIN MENU ========== -->
         <div id="dashboardMain">
@@ -458,6 +473,44 @@
             </div>
         </div>
 
+        <!-- ===== CONFIRM RECEIPT MODAL ===== -->
+        <div class="modal fade" id="confirmReceiptModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                    <div class="modal-header" style="background-color: #16a34a; color: white; border-radius: 14px 14px 0 0;">
+                        <h6 class="modal-title mb-0" id="confirmModalTitle" style="font-weight: 700;">📦 Confirm Delivery Receipt</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4" id="confirmModalBody">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    <div class="modal-footer bg-light" style="border-radius: 0 0 14px 14px;">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success btn-sm" id="btnSubmitReceiptConfirm" onclick="submitReceiptConfirmation()">✅ Confirm Receipt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== REPORT DELIVERY ISSUE MODAL ===== -->
+        <div class="modal fade" id="reportIssueModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                    <div class="modal-header" style="background-color: #d97706; color: white; border-radius: 14px 14px 0 0;">
+                        <h6 class="modal-title mb-0" id="reportIssueModalTitle" style="font-weight: 700;">⚠️ Report Delivery Issue</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4" id="reportIssueModalBody">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    <div class="modal-footer bg-light" style="border-radius: 0 0 14px 14px;">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger btn-sm" id="btnSubmitIssueReport" onclick="submitIssueReport()">🚨 Submit Delivery Issue</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <p class="text-center footer-text mt-4 mb-3">&copy; 2026 VALAM - Supply Management System</p>
 
@@ -491,8 +544,29 @@
         async function refreshShopDataFromServer() {
             await Promise.all([
                 loadShopRequests(),
-                loadWarehouseStockForShop()
+                loadWarehouseStockForShop(),
+                loadShopInventoryStock()
             ]);
+        }
+
+        async function loadShopInventoryStock() {
+            var res = await valamApiCall("/api/shops/" + encodeURIComponent(currentShop.id) + "/stock", "GET");
+            if (res && !res.error) {
+                var rEl = document.getElementById("shopRiceStock");
+                var wEl = document.getElementById("shopWheatStock");
+                var sEl = document.getElementById("shopSugarStock");
+                var luEl = document.getElementById("shopStockLastUpdated");
+                if (rEl) rEl.textContent = (res.rice || 0) + " kg";
+                if (wEl) wEl.textContent = (res.wheat || 0) + " kg";
+                if (sEl) sEl.textContent = (res.sugar || 0) + " kg";
+                if (luEl) {
+                    if (res.lastReceiptDate && res.lastReceiptTime) {
+                        luEl.textContent = "Last receipt: " + formatDateReadable(res.lastReceiptDate) + " at " + formatTime12IST(res.lastReceiptTime);
+                    } else {
+                        luEl.textContent = "Last receipt: None yet";
+                    }
+                }
+            }
         }
 
         async function loadShopRequests() {
@@ -556,16 +630,62 @@
                 }
 
                 if (deliveryList) {
+                    var isDispatched = (req.status === "Dispatched" || req.status === "In Transit" || req.status === "Awaiting Receipt" || req.receiptStatus === "Awaiting Receipt");
+                    var isConfirmed = (req.status === "Completed" || req.status === "Delivered" || req.receiptStatus === "Confirmed");
+                    var isIssue = (req.status === "Delivery Issue" || req.receiptStatus === "Issue Reported");
+
                     var card = document.createElement("div");
-                    card.className = "mb-3 p-3 border rounded";
-                    card.innerHTML =
-                        '<h6 class="mb-1"><strong>' + reqId + '</strong></h6>' +
-                        '<p class="mb-1" style="font-size: 0.9rem;">' +
-                        '🏭 Warehouse: ' + whName + '<br>' +
-                        '🚚 Vehicle: ' + (req.vehicle || 'Not Assigned') + '<br>' +
-                        '📦 Route: ' + (req.route || (whName + " → " + currentShop.name)) +
-                        '</p>' +
-                        '<p class="mb-0">Status: ' + statusBadge + '</p>';
+                    card.className = "mb-3 p-3 border rounded shadow-sm";
+                    if (isDispatched) {
+                        card.style.borderLeft = "5px solid #0dcaf0";
+                    } else if (isConfirmed) {
+                        card.style.borderLeft = "5px solid #198754";
+                    } else if (isIssue) {
+                        card.style.borderLeft = "5px solid #dc3545";
+                    }
+
+                    var dispDateStr = req.dispatchedDate ? formatDateReadable(req.dispatchedDate) : (req.updatedDate ? formatDateReadable(req.updatedDate) : "—");
+                    var dispTimeStr = req.dispatchedTime ? formatTime12IST(req.dispatchedTime) : (req.updatedTime ? formatTime12IST(req.updatedTime) : "—");
+
+                    var cardHtml = '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">';
+                    cardHtml += '<div><h6 class="mb-0"><strong>' + reqId + '</strong></h6></div>';
+                    cardHtml += '<div>Status: ' + statusBadge + '</div>';
+                    cardHtml += '</div>';
+
+                    cardHtml += '<div class="row g-2 mb-2" style="font-size: 0.9rem;">';
+                    cardHtml += '<div class="col-sm-6">🏭 <strong>Warehouse:</strong> ' + whName + '</div>';
+                    cardHtml += '<div class="col-sm-6">🚚 <strong>Vehicle:</strong> ' + (req.vehicle || 'Not Assigned') + '</div>';
+                    cardHtml += '<div class="col-sm-6">📦 <strong>Commodities:</strong> Rice <strong>' + req.rice + 'kg</strong>, Wheat <strong>' + req.wheat + 'kg</strong>, Sugar <strong>' + req.sugar + 'kg</strong></div>';
+                    cardHtml += '<div class="col-sm-6">🕒 <strong>Dispatched At:</strong> ' + dispDateStr + ' ' + dispTimeStr + '</div>';
+                    cardHtml += '</div>';
+
+                    if (isDispatched) {
+                        cardHtml += '<div class="p-2 bg-light rounded border mb-2 d-flex justify-content-between align-items-center flex-wrap gap-2">';
+                        cardHtml += '<span class="text-muted" style="font-size: 0.86rem;">Commodities arrived? Please verify and confirm receipt to credit shop stock:</span>';
+                        cardHtml += '<div>';
+                        cardHtml += '<button class="btn btn-success btn-sm me-2" onclick="openConfirmReceiptModal(\'' + reqId + '\')">✅ Confirm Receipt</button>';
+                        cardHtml += '<button class="btn btn-outline-warning btn-sm" onclick="openReportIssueModal(\'' + reqId + '\')">⚠️ Report Delivery Issue</button>';
+                        cardHtml += '</div>';
+                        cardHtml += '</div>';
+                    } else if (isIssue) {
+                        cardHtml += '<div class="alert alert-danger py-2 mb-2" style="font-size: 0.85rem;">';
+                        cardHtml += '⚠️ <strong>Delivery Discrepancy Reported:</strong> Issue logged in SQLite. Warehouse staff has been notified to investigate and resolve.';
+                        cardHtml += '</div>';
+                    } else if (isConfirmed) {
+                        var confDateStr = req.receiptConfirmedDate ? formatDateReadable(req.receiptConfirmedDate) : (req.updatedDate ? formatDateReadable(req.updatedDate) : "");
+                        var confTimeStr = req.receiptConfirmedTime ? formatTime12IST(req.receiptConfirmedTime) : (req.updatedTime ? formatTime12IST(req.updatedTime) : "");
+                        cardHtml += '<div class="alert alert-success py-2 mb-2" style="font-size: 0.85rem;">';
+                        cardHtml += '✅ <strong>Receipt Confirmed:</strong> Consignment received by <strong>' + (req.receiptConfirmedBy || 'Shop User') + '</strong>';
+                        if (confDateStr) cardHtml += ' on ' + confDateStr + ' at ' + confTimeStr;
+                        cardHtml += '. Stock credited to shop inventory.';
+                        cardHtml += '</div>';
+                    }
+
+                    cardHtml += '<div class="d-flex justify-content-end">';
+                    cardHtml += '<button class="btn btn-outline-secondary btn-sm" onclick="viewRequestTimeline(\'' + reqId + '\')">⏱️ View Timeline</button>';
+                    cardHtml += '</div>';
+
+                    card.innerHTML = cardHtml;
                     deliveryList.appendChild(card);
                 }
             }
@@ -748,8 +868,17 @@
                         "<td>" + formatDateReadable(req.submittedDate) + "</td>" +
                         "<td>" + formatTime12IST(req.submittedTime) + "</td>" +
                         "<td>" + formatDateReadable(req.lastUpdatedDate) + "</td>" +
-                        "<td>" + formatTime12IST(req.lastUpdatedTime) + "</td>" +
-                        '<td><button class="btn btn-outline-success btn-sm text-nowrap" onclick="viewRequestTimeline(\'' + reqId + '\')">⏱️ View Timeline</button></td>';
+                        "<td>" + formatTime12IST(req.lastUpdatedTime) + "</td>";
+
+                    var isDisp = (req.status === "Dispatched" || req.status === "In Transit" || req.status === "Awaiting Receipt" || req.receiptStatus === "Awaiting Receipt");
+                    var actHtml = '<div class="d-flex gap-1">';
+                    if (isDisp) {
+                        actHtml += '<button class="btn btn-success btn-sm text-nowrap" onclick="openConfirmReceiptModal(\'' + reqId + '\')">✅ Confirm</button>';
+                    }
+                    actHtml += '<button class="btn btn-outline-success btn-sm text-nowrap" onclick="viewRequestTimeline(\'' + reqId + '\')">⏱️ Timeline</button>';
+                    actHtml += '</div>';
+
+                    tr.innerHTML += '<td>' + actHtml + '</td>';
                     tbody.appendChild(tr);
                 }
             }
@@ -875,6 +1004,164 @@
             document.getElementById("timelineModalBody").innerHTML = html;
             var modal = new bootstrap.Modal(document.getElementById("shopTimelineModal"));
             modal.show();
+        }
+
+        // ---------------------------------------------------------------
+        // DELIVERY RECEIPT CONFIRMATION & ISSUE REPORTING (MODAL ACTIONS)
+        // ---------------------------------------------------------------
+        var activeActionReqId = null;
+
+        function openConfirmReceiptModal(reqId) {
+            activeActionReqId = reqId;
+            var req = allShopRequests.find(function(r) { return (r.id || r.requestId) === reqId; });
+            if (!req) return;
+
+            var whName = req.warehouse || req.warehouseName || (req.warehouseId === "W01" ? "Valam Central Warehouse" : (req.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
+            var dispDate = req.dispatchedDate ? formatDateReadable(req.dispatchedDate) : (req.updatedDate ? formatDateReadable(req.updatedDate) : "Today");
+            var dispTime = req.dispatchedTime ? formatTime12IST(req.dispatchedTime) : (req.updatedTime ? formatTime12IST(req.updatedTime) : "Recent");
+
+            var html = '';
+            html += '<div class="alert alert-success py-2 mb-3" style="font-size:0.9rem;">';
+            html += '<strong>Delivery Consignment: ' + reqId + '</strong><br>';
+            html += 'Dispatched from: <strong>' + whName + '</strong> (' + (req.vehicle || 'Assigned Vehicle') + ')<br>';
+            html += 'Dispatch Time: ' + dispDate + ' ' + dispTime;
+            html += '</div>';
+
+            html += '<h6 class="mb-2" style="font-weight:600;">Commodity Quantities to Confirm:</h6>';
+            html += '<div class="table-responsive mb-3">';
+            html += '<table class="table table-bordered table-sm text-center align-middle mb-0">';
+            html += '<thead class="table-light"><tr><th>Rice</th><th>Wheat</th><th>Sugar</th></tr></thead>';
+            html += '<tbody><tr>';
+            html += '<td><strong class="text-success" style="font-size:1.1rem;">' + req.rice + ' kg</strong></td>';
+            html += '<td><strong class="text-success" style="font-size:1.1rem;">' + req.wheat + ' kg</strong></td>';
+            html += '<td><strong class="text-success" style="font-size:1.1rem;">' + req.sugar + ' kg</strong></td>';
+            html += '</tr></tbody></table></div>';
+
+            html += '<div class="mb-3">';
+            html += '<label for="receiptConfirmNotes" class="form-label" style="font-size:0.88rem; font-weight:500;">Shop Acknowledgment / Notes (Optional):</label>';
+            html += '<input type="text" class="form-control form-control-sm" id="receiptConfirmNotes" placeholder="e.g. Received in good order, seals verified">';
+            html += '</div>';
+
+            html += '<p class="text-muted mb-0" style="font-size:0.83rem;">';
+            html += '⚠️ <em>Upon confirmation, the Fair-Price Shop inventory will be automatically credited with the confirmed quantities and the request will be marked as Completed.</em>';
+            html += '</p>';
+
+            document.getElementById("confirmModalBody").innerHTML = html;
+            var modal = new bootstrap.Modal(document.getElementById("confirmReceiptModal"));
+            modal.show();
+        }
+
+        async function submitReceiptConfirmation() {
+            if (!activeActionReqId) return;
+            var req = allShopRequests.find(function(r) { return (r.id || r.requestId) === activeActionReqId; });
+            if (!req) return;
+
+            var notesEl = document.getElementById("receiptConfirmNotes");
+            var notes = notesEl ? notesEl.value.trim() : "";
+
+            var btn = document.getElementById("btnSubmitReceiptConfirm");
+            if (btn) btn.disabled = true;
+
+            var res = await valamApiCall("/api/requests/" + encodeURIComponent(activeActionReqId) + "/confirm-receipt", "POST", {
+                shopId: currentShop.id,
+                confirmedBy: currentShop.name + " (" + loggedInUser + ")",
+                notes: notes,
+                rice: req.rice,
+                wheat: req.wheat,
+                sugar: req.sugar
+            });
+
+            if (btn) btn.disabled = false;
+
+            if (res && res.error) {
+                alert("⚠️ Error confirming receipt: " + res.error);
+                return;
+            }
+
+            var modalEl = document.getElementById("confirmReceiptModal");
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            await refreshShopDataFromServer();
+
+            alert("🎉 Delivery Receipt Confirmed Successfully!\n\nRequest ID: " + activeActionReqId + "\nShop Inventory Credited: Rice +" + req.rice + "kg, Wheat +" + req.wheat + "kg, Sugar +" + req.sugar + "kg.\nDelivery Status: Completed.");
+        }
+
+        function openReportIssueModal(reqId) {
+            activeActionReqId = reqId;
+            var req = allShopRequests.find(function(r) { return (r.id || r.requestId) === reqId; });
+            if (!req) return;
+
+            var whName = req.warehouse || req.warehouseName || (req.warehouseId === "W01" ? "Valam Central Warehouse" : (req.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
+
+            var html = '';
+            html += '<div class="alert alert-warning py-2 mb-3" style="font-size:0.9rem;">';
+            html += '<strong>Report Discrepancy for ' + reqId + '</strong><br>';
+            html += 'Warehouse: <strong>' + whName + '</strong> | Expected: Rice ' + req.rice + 'kg, Wheat ' + req.wheat + 'kg, Sugar ' + req.sugar + 'kg';
+            html += '</div>';
+
+            html += '<div class="mb-3">';
+            html += '<label for="issueTypeSelect" class="form-label" style="font-size:0.88rem; font-weight:600;">Issue Type:</label>';
+            html += '<select class="form-select form-select-sm" id="issueTypeSelect">';
+            html += '<option value="Damaged commodities">Damaged commodities (torn bags, moisture, contamination)</option>';
+            html += '<option value="Missing commodities">Missing commodities (shortage in bag count)</option>';
+            html += '<option value="Incorrect quantities">Incorrect quantities (weight mismatch)</option>';
+            html += '<option value="Other delivery problems">Other delivery problems</option>';
+            html += '</select>';
+            html += '</div>';
+
+            html += '<div class="mb-3">';
+            html += '<label for="issueDescriptionText" class="form-label" style="font-size:0.88rem; font-weight:600;">Short Description / Discrepancy Details:</label>';
+            html += '<textarea class="form-control form-control-sm" id="issueDescriptionText" rows="3" placeholder="Describe the issue observed (e.g. 50kg wheat sack damaged during transit; bag torn)."></textarea>';
+            html += '</div>';
+
+            html += '<p class="text-muted mb-0" style="font-size:0.83rem;">';
+            html += 'ℹ️ <em>The delivery will be placed on hold under <strong>Delivery Issue</strong> status. Warehouse staff will review and rectify the issue before you confirm receipt.</em>';
+            html += '</p>';
+
+            document.getElementById("reportIssueModalBody").innerHTML = html;
+            var modal = new bootstrap.Modal(document.getElementById("reportIssueModal"));
+            modal.show();
+        }
+
+        async function submitIssueReport() {
+            if (!activeActionReqId) return;
+
+            var typeEl = document.getElementById("issueTypeSelect");
+            var descEl = document.getElementById("issueDescriptionText");
+
+            var issueType = typeEl ? typeEl.value : "Delivery Discrepancy";
+            var description = descEl ? descEl.value.trim() : "";
+
+            if (!description) {
+                alert("Please enter a short description of the delivery issue.");
+                return;
+            }
+
+            var btn = document.getElementById("btnSubmitIssueReport");
+            if (btn) btn.disabled = true;
+
+            var res = await valamApiCall("/api/requests/" + encodeURIComponent(activeActionReqId) + "/report-issue", "POST", {
+                shopId: currentShop.id,
+                reportedBy: currentShop.name + " (" + loggedInUser + ")",
+                issueType: issueType,
+                description: description
+            });
+
+            if (btn) btn.disabled = false;
+
+            if (res && res.error) {
+                alert("⚠️ Error reporting delivery issue: " + res.error);
+                return;
+            }
+
+            var modalEl = document.getElementById("reportIssueModal");
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            await refreshShopDataFromServer();
+
+            alert("⚠️ Delivery Issue Reported Successfully!\n\nIssue ID: " + (res.issueId || 'Logged') + "\nRequest: " + activeActionReqId + "\nStatus changed to 'Delivery Issue'. Warehouse staff will investigate and resolve.");
         }
     </script>
 </body>

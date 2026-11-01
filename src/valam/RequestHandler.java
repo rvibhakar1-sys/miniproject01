@@ -52,6 +52,14 @@ public class RequestHandler implements HttpHandler {
                     case "in-transit":
                         markInTransit(exchange, reqId);
                         break;
+                    case "confirm-receipt":
+                    case "confirm":
+                        confirmReceipt(exchange, reqId);
+                        break;
+                    case "report-issue":
+                    case "issue":
+                        reportIssue(exchange, reqId);
+                        break;
                     case "deliver":
                     case "delivered":
                         markDelivered(exchange, reqId);
@@ -586,16 +594,19 @@ public class RequestHandler implements HttpHandler {
                 }
 
                 // 5. Update Request in SQLite
-                String updateReqSql = "UPDATE requests SET vehicle = ?, status = 'Dispatched', updated_date = ?, updated_time = ? WHERE UPPER(id) = UPPER(?);";
+                String updateReqSql = "UPDATE requests SET vehicle = ?, status = 'Dispatched', receipt_status = 'Awaiting Receipt', " +
+                                      "dispatched_date = ?, dispatched_time = ?, updated_date = ?, updated_time = ? WHERE UPPER(id) = UPPER(?);";
                 try (PreparedStatement ps = conn.prepareStatement(updateReqSql)) {
                     ps.setString(1, resolvedVehId);
                     ps.setString(2, curDate);
                     ps.setString(3, curTime);
-                    ps.setString(4, reqId);
+                    ps.setString(4, curDate);
+                    ps.setString(5, curTime);
+                    ps.setString(6, reqId);
                     ps.executeUpdate();
                 }
 
-                // 6. Insert Timeline Events: Vehicle Assigned & Dispatched
+                // 6. Insert Timeline Events: Vehicle Assigned, Dispatched, & Awaiting Confirmation
                 String tlSql = "INSERT INTO request_timeline (request_id, stage_title, event_date, event_time, status, performed_by, details, stage_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
                 try (PreparedStatement ps = conn.prepareStatement(tlSql)) {
                     ps.setString(1, reqId);
@@ -616,6 +627,16 @@ public class RequestHandler implements HttpHandler {
                     ps.setString(6, updatedBy);
                     ps.setString(7, "Consignment dispatched from " + whName + " via Vehicle " + resolvedVehId + " to Shop " + shopId + ".");
                     ps.setInt(8, 4);
+                    ps.executeUpdate();
+
+                    ps.setString(1, reqId);
+                    ps.setString(2, "Awaiting Shop Confirmation");
+                    ps.setString(3, curDate);
+                    ps.setString(4, curTime);
+                    ps.setString(5, "Awaiting Receipt");
+                    ps.setString(6, "System");
+                    ps.setString(7, "Consignment in transit. Awaiting delivery receipt confirmation by Shop " + shopId + ".");
+                    ps.setInt(8, 5);
                     ps.executeUpdate();
                 }
 
@@ -690,7 +711,7 @@ public class RequestHandler implements HttpHandler {
                 }
 
                 // Update Request in SQLite
-                try (PreparedStatement ps = conn.prepareStatement("UPDATE requests SET status = 'In Transit', updated_date = ?, updated_time = ? WHERE UPPER(id) = UPPER(?);")) {
+                try (PreparedStatement ps = conn.prepareStatement("UPDATE requests SET status = 'In Transit', receipt_status = 'Awaiting Receipt', updated_date = ?, updated_time = ? WHERE UPPER(id) = UPPER(?);")) {
                     ps.setString(1, curDate);
                     ps.setString(2, curTime);
                     ps.setString(3, reqId);
@@ -731,11 +752,18 @@ public class RequestHandler implements HttpHandler {
         }
     }
 
-    private void markDelivered(HttpExchange exchange, String reqId) throws IOException {
+    private void confirmReceipt(HttpExchange exchange, String reqId) throws IOException {
         String body = HttpUtil.readRequestBody(exchange);
         Map<String, String> data = JsonUtil.parseSimpleObject(body);
-        String updatedBy = data.get("updatedBy");
-        if (updatedBy == null || updatedBy.trim().isEmpty()) updatedBy = "Shop Staff";
+        String shopId = data.get("shopId");
+        String confirmedBy = data.get("confirmedBy");
+        if (confirmedBy == null || confirmedBy.trim().isEmpty()) confirmedBy = "Shop User";
+        String notes = data.get("notes");
+        if (notes == null || notes.trim().isEmpty()) notes = "All commodities confirmed received in good order.";
+
+        int confRice = parseInt(data.get("rice"));
+        int confWheat = parseInt(data.get("wheat"));
+        int confSugar = parseInt(data.get("sugar"));
 
         String curDate = LocalDate.now().toString();
         String curTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
@@ -743,10 +771,17 @@ public class RequestHandler implements HttpHandler {
         try (Connection conn = Database.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                // Fetch vehicle and shopId from request in SQLite
+                // 1. Fetch Request from SQLite
+                String reqSql = "SELECT shop_id, warehouse_id, warehouse_name, rice, wheat, sugar, status, receipt_status, vehicle FROM requests WHERE UPPER(id) = UPPER(?);";
+                String reqShopId = null;
+                String whId = null;
+                String whName = null;
+                String curStatus = null;
+                String curReceiptStatus = null;
                 String assignedVehicle = null;
-                String shopId = null;
-                try (PreparedStatement ps = conn.prepareStatement("SELECT vehicle, shop_id FROM requests WHERE UPPER(id) = UPPER(?);")) {
+                int reqRice = 0, reqWheat = 0, reqSugar = 0;
+
+                try (PreparedStatement ps = conn.prepareStatement(reqSql)) {
                     ps.setString(1, reqId);
                     try (ResultSet rs = ps.executeQuery()) {
                         if (!rs.next()) {
@@ -754,65 +789,138 @@ public class RequestHandler implements HttpHandler {
                             HttpUtil.sendError(exchange, 404, "Request not found in database: " + reqId);
                             return;
                         }
+                        reqShopId = rs.getString("shop_id");
+                        whId = rs.getString("warehouse_id");
+                        whName = rs.getString("warehouse_name");
+                        curStatus = rs.getString("status");
+                        curReceiptStatus = rs.getString("receipt_status");
                         assignedVehicle = rs.getString("vehicle");
-                        shopId = rs.getString("shop_id");
+                        reqRice = rs.getInt("rice");
+                        reqWheat = rs.getInt("wheat");
+                        reqSugar = rs.getInt("sugar");
                     }
                 }
 
-                // Update Request status to Delivered in SQLite
-                try (PreparedStatement ps = conn.prepareStatement("UPDATE requests SET status = 'Delivered', updated_date = ?, updated_time = ? WHERE UPPER(id) = UPPER(?);")) {
+                // 2. Validate shop permission: Only correct shop user can confirm receipt
+                if (shopId != null && !shopId.trim().isEmpty()) {
+                    if (!shopId.trim().equalsIgnoreCase(reqShopId)) {
+                        conn.rollback();
+                        HttpUtil.sendError(exchange, 403, "Forbidden: Logged-in shop " + shopId + " cannot confirm delivery for shop " + reqShopId);
+                        return;
+                    }
+                }
+
+                // 3. Validate status: cannot confirm before dispatch
+                if ("Pending".equalsIgnoreCase(curStatus) || "Reserved".equalsIgnoreCase(curStatus)) {
+                    conn.rollback();
+                    HttpUtil.sendError(exchange, 400, "Cannot confirm receipt: Request " + reqId + " is currently " + curStatus + " and has not yet been dispatched.");
+                    return;
+                }
+
+                // 4. Prevent duplicate confirmation
+                if ("Completed".equalsIgnoreCase(curStatus) || "Delivered".equalsIgnoreCase(curStatus) || "Confirmed".equalsIgnoreCase(curReceiptStatus)) {
+                    conn.rollback();
+                    HttpUtil.sendError(exchange, 400, "Duplicate confirmation rejected: Request " + reqId + " has already been confirmed as received.");
+                    return;
+                }
+
+                // 5. Check for active open delivery issues: cannot confirm if discrepancy unresolved
+                try (PreparedStatement ps = conn.prepareStatement("SELECT issue_id FROM delivery_issues WHERE UPPER(request_id) = UPPER(?) AND status = 'Open' LIMIT 1;")) {
+                    ps.setString(1, reqId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            String activeIssue = rs.getString("issue_id");
+                            conn.rollback();
+                            HttpUtil.sendError(exchange, 400, "Cannot confirm receipt: Active delivery issue (" + activeIssue + ") is open for request " + reqId + ". Warehouse must resolve the issue before confirmation.");
+                            return;
+                        }
+                    }
+                }
+
+                // If user didn't specify quantities, use full delivered quantities from request
+                if (confRice <= 0 && confWheat <= 0 && confSugar <= 0) {
+                    confRice = reqRice;
+                    confWheat = reqWheat;
+                    confSugar = reqSugar;
+                }
+
+                // 6. Atomically update Request to Completed & Confirmed
+                String updateReqSql = "UPDATE requests SET status = 'Completed', receipt_status = 'Confirmed', " +
+                                      "receipt_confirmed_date = ?, receipt_confirmed_time = ?, receipt_confirmed_by = ?, " +
+                                      "confirmed_rice = ?, confirmed_wheat = ?, confirmed_sugar = ?, receipt_notes = ?, " +
+                                      "updated_date = ?, updated_time = ? WHERE UPPER(id) = UPPER(?);";
+                try (PreparedStatement ps = conn.prepareStatement(updateReqSql)) {
                     ps.setString(1, curDate);
                     ps.setString(2, curTime);
-                    ps.setString(3, reqId);
+                    ps.setString(3, confirmedBy);
+                    ps.setInt(4, confRice);
+                    ps.setInt(5, confWheat);
+                    ps.setInt(6, confSugar);
+                    ps.setString(7, notes);
+                    ps.setString(8, curDate);
+                    ps.setString(9, curTime);
+                    ps.setString(10, reqId);
                     ps.executeUpdate();
                 }
 
-                // Release Vehicle in SQLite if assigned
-                if (assignedVehicle != null && !assignedVehicle.equalsIgnoreCase("Not Assigned")) {
-                    try (PreparedStatement ps = conn.prepareStatement("UPDATE vehicles SET availability = 'Available', status = 'Idle / Ready', assigned_request = NULL WHERE UPPER(id) = UPPER(?) OR UPPER(vehicle_number) = UPPER(?);")) {
-                        ps.setString(1, assignedVehicle);
-                        ps.setString(2, assignedVehicle);
-                        ps.executeUpdate();
-                    }
-
-                    // Op History: Vehicle Released
-                    String vOpId = getNextOpId(conn);
-                    try (PreparedStatement ps = conn.prepareStatement("INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) VALUES (?, ?, ?, 'vehicle', 'Vehicle Released', 'On Trip', 'Available', ?, ?, ?, ?);")) {
-                        ps.setString(1, vOpId);
-                        ps.setString(2, reqId);
-                        ps.setString(3, assignedVehicle);
-                        ps.setString(4, curDate);
-                        ps.setString(5, curTime);
-                        ps.setString(6, updatedBy);
-                        ps.setString(7, "Vehicle " + assignedVehicle + " released after completing delivery for " + reqId + ".");
-                        ps.executeUpdate();
-                    }
-                }
-
-                // Add Timeline in SQLite
-                try (PreparedStatement ps = conn.prepareStatement("INSERT INTO request_timeline (request_id, stage_title, event_date, event_time, status, performed_by, details, stage_order) VALUES (?, 'Delivered', ?, ?, 'Delivered', ?, 'Consignment reached destination shop and received successfully.', 6);")) {
-                    ps.setString(1, reqId);
-                    ps.setString(2, curDate);
-                    ps.setString(3, curTime);
-                    ps.setString(4, updatedBy);
-                    ps.executeUpdate();
-                }
-
-                // Add Op History: Delivered in SQLite
-                String delOpId = getNextOpId(conn);
-                try (PreparedStatement ps = conn.prepareStatement("INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) VALUES (?, ?, ?, 'delivery', 'Delivered', 'In Transit', 'Delivered', ?, ?, ?, ?);")) {
-                    ps.setString(1, delOpId);
-                    ps.setString(2, reqId);
-                    ps.setString(3, shopId != null ? shopId : "SHOP");
+                // 7. Update Shop Stock in SQLite exactly once using confirmed quantities
+                String updateShopSql = "UPDATE shops SET rice_stock = COALESCE(rice_stock, 0) + ?, " +
+                                       "wheat_stock = COALESCE(wheat_stock, 0) + ?, " +
+                                       "sugar_stock = COALESCE(sugar_stock, 0) + ?, " +
+                                       "last_receipt_date = ?, last_receipt_time = ? WHERE UPPER(id) = UPPER(?);";
+                try (PreparedStatement ps = conn.prepareStatement(updateShopSql)) {
+                    ps.setInt(1, confRice);
+                    ps.setInt(2, confWheat);
+                    ps.setInt(3, confSugar);
                     ps.setString(4, curDate);
                     ps.setString(5, curTime);
-                    ps.setString(6, updatedBy);
-                    ps.setString(7, reqId + " successfully delivered to destination. Delivery confirmed by staff.");
+                    ps.setString(6, reqShopId);
+                    ps.executeUpdate();
+                }
+
+                // 8. Release Vehicle back to Available
+                if (assignedVehicle != null && !assignedVehicle.trim().isEmpty() && !"Not Assigned".equalsIgnoreCase(assignedVehicle)) {
+                    try (PreparedStatement ps = conn.prepareStatement("UPDATE vehicles SET availability = 'Available', status = 'Idle / Ready', assigned_request = NULL WHERE UPPER(id) = UPPER(?) OR assigned_request = ?;")) {
+                        ps.setString(1, assignedVehicle);
+                        ps.setString(2, reqId);
+                        ps.executeUpdate();
+                    }
+                }
+
+                // 9. Add Timeline Event: Stage 6 - Receipt Confirmed & Completed
+                String tlSql = "INSERT INTO request_timeline (request_id, stage_title, event_date, event_time, status, performed_by, details, stage_order) " +
+                               "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+                try (PreparedStatement ps = conn.prepareStatement(tlSql)) {
+                    ps.setString(1, reqId);
+                    ps.setString(2, "Delivery Receipt Confirmed");
+                    ps.setString(3, curDate);
+                    ps.setString(4, curTime);
+                    ps.setString(5, "Completed");
+                    ps.setString(6, confirmedBy);
+                    ps.setString(7, "Shop " + reqShopId + " confirmed receipt of commodities: Rice " + confRice + "kg, Wheat " + confWheat + "kg, Sugar " + confSugar + "kg. Shop inventory credited.");
+                    ps.setInt(8, 6);
+                    ps.executeUpdate();
+                }
+
+                // 10. Add Operation History Audit Log
+                String opId = getNextOpId(conn);
+                String opSql = "INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) " +
+                               "VALUES (?, ?, ?, 'delivery', 'Receipt Confirmed', ?, 'Completed', ?, ?, ?, ?);";
+                try (PreparedStatement ps = conn.prepareStatement(opSql)) {
+                    ps.setString(1, opId);
+                    ps.setString(2, reqId);
+                    ps.setString(3, reqShopId);
+                    ps.setString(4, curStatus);
+                    ps.setString(5, curDate);
+                    ps.setString(6, curTime);
+                    ps.setString(7, confirmedBy);
+                    ps.setString(8, reqId + " delivery receipt confirmed by " + confirmedBy + " at " + reqShopId + ". Stock added: Rice +" + confRice + "kg, Wheat +" + confWheat + "kg, Sugar +" + confSugar + "kg.");
                     ps.executeUpdate();
                 }
 
                 conn.commit();
                 getRequestById(exchange, reqId);
+
             } catch (SQLException e) {
                 conn.rollback();
                 throw e;
@@ -820,8 +928,153 @@ public class RequestHandler implements HttpHandler {
                 conn.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            HttpUtil.sendError(exchange, 500, "Database error marking request delivered: " + e.getMessage());
+            System.err.println("[RequestHandler] Error confirming receipt: " + e.getMessage());
+            HttpUtil.sendError(exchange, 500, "Database error during delivery receipt confirmation: " + e.getMessage());
         }
+    }
+
+    private void reportIssue(HttpExchange exchange, String reqId) throws IOException {
+        String body = HttpUtil.readRequestBody(exchange);
+        Map<String, String> data = JsonUtil.parseSimpleObject(body);
+        String shopId = data.get("shopId");
+        String reportedBy = data.get("reportedBy");
+        if (reportedBy == null || reportedBy.trim().isEmpty()) reportedBy = "Shop User";
+        String issueType = data.get("issueType");
+        if (issueType == null || issueType.trim().isEmpty()) issueType = "Delivery Discrepancy";
+        String description = data.get("description");
+        if (description == null || description.trim().isEmpty()) description = "Commodity discrepancy reported upon delivery inspection.";
+
+        String curDate = LocalDate.now().toString();
+        String curTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+
+        try (Connection conn = Database.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                // 1. Fetch Request
+                String reqSql = "SELECT shop_id, warehouse_id, warehouse_name, status, receipt_status FROM requests WHERE UPPER(id) = UPPER(?);";
+                String reqShopId = null;
+                String whId = null;
+                String curStatus = null;
+                String curReceiptStatus = null;
+
+                try (PreparedStatement ps = conn.prepareStatement(reqSql)) {
+                    ps.setString(1, reqId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) {
+                            conn.rollback();
+                            HttpUtil.sendError(exchange, 404, "Request not found in database: " + reqId);
+                            return;
+                        }
+                        reqShopId = rs.getString("shop_id");
+                        whId = rs.getString("warehouse_id");
+                        curStatus = rs.getString("status");
+                        curReceiptStatus = rs.getString("receipt_status");
+                    }
+                }
+
+                // 2. Validate shop permission
+                if (shopId != null && !shopId.trim().isEmpty() && !shopId.trim().equalsIgnoreCase(reqShopId)) {
+                    conn.rollback();
+                    HttpUtil.sendError(exchange, 403, "Forbidden: You cannot report issues for another shop's request.");
+                    return;
+                }
+
+                // 3. Validate status: must be dispatched
+                if ("Pending".equalsIgnoreCase(curStatus) || "Reserved".equalsIgnoreCase(curStatus)) {
+                    conn.rollback();
+                    HttpUtil.sendError(exchange, 400, "Cannot report delivery issue: Request " + reqId + " is " + curStatus + " and has not been dispatched yet.");
+                    return;
+                }
+                if ("Completed".equalsIgnoreCase(curStatus) || "Confirmed".equalsIgnoreCase(curReceiptStatus)) {
+                    conn.rollback();
+                    HttpUtil.sendError(exchange, 400, "Cannot report delivery issue: Request " + reqId + " has already been confirmed as completed.");
+                    return;
+                }
+
+                // 4. Generate new issue ID
+                String issueId = getNextIssueId(conn);
+
+                // 5. Insert into delivery_issues
+                String insertIssueSql = "INSERT INTO delivery_issues (issue_id, request_id, shop_id, warehouse_id, issue_type, description, reported_date, reported_time, reported_by, status) " +
+                                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Open');";
+                try (PreparedStatement ps = conn.prepareStatement(insertIssueSql)) {
+                    ps.setString(1, issueId);
+                    ps.setString(2, reqId);
+                    ps.setString(3, reqShopId);
+                    ps.setString(4, whId);
+                    ps.setString(5, issueType);
+                    ps.setString(6, description);
+                    ps.setString(7, curDate);
+                    ps.setString(8, curTime);
+                    ps.setString(9, reportedBy);
+                    ps.executeUpdate();
+                }
+
+                // 6. Update request status to 'Delivery Issue'
+                String updateReqSql = "UPDATE requests SET status = 'Delivery Issue', receipt_status = 'Issue Reported', updated_date = ?, updated_time = ? WHERE UPPER(id) = UPPER(?);";
+                try (PreparedStatement ps = conn.prepareStatement(updateReqSql)) {
+                    ps.setString(1, curDate);
+                    ps.setString(2, curTime);
+                    ps.setString(3, reqId);
+                    ps.executeUpdate();
+                }
+
+                // 7. Add timeline event
+                String tlSql = "INSERT INTO request_timeline (request_id, stage_title, event_date, event_time, status, performed_by, details, stage_order) " +
+                               "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+                try (PreparedStatement ps = conn.prepareStatement(tlSql)) {
+                    ps.setString(1, reqId);
+                    ps.setString(2, "Delivery Issue Reported");
+                    ps.setString(3, curDate);
+                    ps.setString(4, curTime);
+                    ps.setString(5, "Delivery Issue");
+                    ps.setString(6, reportedBy);
+                    ps.setString(7, "Shop reported issue [" + issueType + "]: " + description);
+                    ps.setInt(8, 5);
+                    ps.executeUpdate();
+                }
+
+                // 8. Add Operation History Audit Log
+                String opId = getNextOpId(conn);
+                String opSql = "INSERT INTO operation_history (op_id, request_id, entity_id, category, operation_type, prev_status, new_status, op_date, op_time, updated_by, details) " +
+                               "VALUES (?, ?, ?, 'delivery', 'Delivery Issue Reported', ?, 'Delivery Issue', ?, ?, ?, ?);";
+                try (PreparedStatement ps = conn.prepareStatement(opSql)) {
+                    ps.setString(1, opId);
+                    ps.setString(2, reqId);
+                    ps.setString(3, reqShopId);
+                    ps.setString(4, curStatus);
+                    ps.setString(5, curDate);
+                    ps.setString(6, curTime);
+                    ps.setString(7, reportedBy);
+                    ps.setString(8, "Reported " + issueType + " for " + reqId + ": " + description);
+                    ps.executeUpdate();
+                }
+
+                conn.commit();
+
+                StringBuilder res = new StringBuilder("{");
+                res.append("\"success\":true,")
+                   .append("\"issueId\":\"").append(JsonUtil.escape(issueId)).append("\",")
+                   .append("\"requestId\":\"").append(JsonUtil.escape(reqId)).append("\",")
+                   .append("\"status\":\"Delivery Issue\",")
+                   .append("\"message\":\"Delivery issue reported successfully. Warehouse staff will review and resolve.\"")
+                   .append("}");
+                HttpUtil.sendJsonResponse(exchange, 200, res.toString());
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            System.err.println("[RequestHandler] Error reporting issue: " + e.getMessage());
+            HttpUtil.sendError(exchange, 500, "Database error reporting delivery issue: " + e.getMessage());
+        }
+    }
+
+    private void markDelivered(HttpExchange exchange, String reqId) throws IOException {
+        confirmReceipt(exchange, reqId);
     }
 
     private void appendRequestJson(Connection conn, StringBuilder json, ResultSet rs) throws SQLException {
@@ -847,6 +1100,16 @@ public class RequestHandler implements HttpHandler {
             .append("\"processedTime\":").append(rs.getString("processed_time") != null ? "\"" + JsonUtil.escape(rs.getString("processed_time")) + "\"" : "null").append(",")
             .append("\"updatedDate\":\"").append(JsonUtil.escape(rs.getString("updated_date"))).append("\",")
             .append("\"updatedTime\":\"").append(JsonUtil.escape(rs.getString("updated_time"))).append("\",")
+            .append("\"dispatchedDate\":").append(rs.getString("dispatched_date") != null ? "\"" + JsonUtil.escape(rs.getString("dispatched_date")) + "\"" : "null").append(",")
+            .append("\"dispatchedTime\":").append(rs.getString("dispatched_time") != null ? "\"" + JsonUtil.escape(rs.getString("dispatched_time")) + "\"" : "null").append(",")
+            .append("\"receiptConfirmedDate\":").append(rs.getString("receipt_confirmed_date") != null ? "\"" + JsonUtil.escape(rs.getString("receipt_confirmed_date")) + "\"" : "null").append(",")
+            .append("\"receiptConfirmedTime\":").append(rs.getString("receipt_confirmed_time") != null ? "\"" + JsonUtil.escape(rs.getString("receipt_confirmed_time")) + "\"" : "null").append(",")
+            .append("\"receiptConfirmedBy\":").append(rs.getString("receipt_confirmed_by") != null ? "\"" + JsonUtil.escape(rs.getString("receipt_confirmed_by")) + "\"" : "null").append(",")
+            .append("\"receiptStatus\":\"").append(JsonUtil.escape(rs.getString("receipt_status") != null ? rs.getString("receipt_status") : "Pending")).append("\",")
+            .append("\"confirmedRice\":").append(rs.getInt("confirmed_rice")).append(",")
+            .append("\"confirmedWheat\":").append(rs.getInt("confirmed_wheat")).append(",")
+            .append("\"confirmedSugar\":").append(rs.getInt("confirmed_sugar")).append(",")
+            .append("\"receiptNotes\":").append(rs.getString("receipt_notes") != null ? "\"" + JsonUtil.escape(rs.getString("receipt_notes")) + "\"" : "null").append(",")
             .append("\"timeline\":");
 
         // Fetch Timeline directly from SQLite for this request
@@ -947,5 +1210,22 @@ public class RequestHandler implements HttpHandler {
             }
         }
         return "STK-" + (maxStk + 1);
+    }
+
+    public static synchronized String getNextIssueId(Connection conn) throws SQLException {
+        int maxNum = 0;
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery("SELECT issue_id FROM delivery_issues;")) {
+            while (rs.next()) {
+                String existingId = rs.getString(1);
+                if (existingId != null && existingId.toUpperCase().startsWith("ISSUE-")) {
+                    try {
+                        int n = Integer.parseInt(existingId.substring(6).trim());
+                        if (n > maxNum) maxNum = n;
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+        return "ISSUE-" + String.format("%03d", maxNum + 1);
     }
 }
