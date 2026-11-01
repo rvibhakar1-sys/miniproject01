@@ -1,88 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VALAM - Supply Management System</title>
 
-    <!-- Bootstrap 5 CSS from CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Our custom CSS file -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
 
-    <!-- ========== MAIN CONTAINER ========== -->
-    <!-- "vh-100" makes the container full screen height -->
-    <!-- "d-flex align-items-center" centers the card vertically -->
-    <div class="container vh-100 d-flex align-items-center justify-content-center">
+<body class="login-page">
 
-        <div class="row justify-content-center w-100">
-            <div class="col-md-5 col-lg-4">
-
-                <!-- ========== LOGIN CARD ========== -->
-                <div class="card shadow p-4">
-                    <div class="card-body">
-                        
-                        <!-- Title Section -->
-                        <h2 class="text-center fw-bold mb-1">VALAM</h2>
-                        <p class="text-center text-muted mb-4">Supply Management System</p>
-                        
-                        <!-- ========== LOGIN FORM ========== -->
-                        <!-- "onsubmit" calls our login function when the form is submitted -->
-                        <form onsubmit="handleLogin(event)">
-                            <!-- Role Selection Dropdown -->
-                            <div class="mb-4">
-                                <label for="role" class="form-label">Select Role:</label>
-                                <select class="form-select" id="role">
-                                    <option value="admin">Admin</option>
-                                    <option value="shop">Shop User</option>
-                                    <option value="warehouse">Warehouse Staff</option>
-                                </select>
-                            </div>
-
-                            <!-- Username Field -->
-                            <div class="mb-3">
-                                <label for="username" class="form-label">Username:</label>
-                                <input type="text" class="form-control" id="username" placeholder="Enter username" required>
-                            </div>
-
-                            <!-- Password Field -->
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password:</label>
-                                <input type="password" class="form-control" id="password" placeholder="Enter password" required>
-                            </div>
-
-
-                            <!-- Login Button -->
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg">Login</button>
-                            </div>
-
-                        </form>
-                        <!-- ========== END LOGIN FORM ========== -->
-
+    <!-- ===== TOP NAVBAR ===== -->
+    <nav class="login-navbar">
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <!-- Brand -->
+                <div class="d-flex align-items-center gap-2">
+                    <div class="brand-icon">V</div>
+                    <div>
+                        <div class="brand-name">VALAM</div>
+                        <div class="brand-tagline">Supply Management System</div>
                     </div>
                 </div>
-                <!-- ========== END LOGIN CARD ========== -->
+                <!-- Status -->
+                <div class="status-badge">
+                    <span class="status-dot"></span> System online
+                </div>
+            </div>
+        </div>
+    </nav>
 
-                <!-- Footer text below card -->
-                <p class="text-center text-muted mt-3">
-                    &copy; Kongu Engineering College 2026
-                </p>
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="login-main">
+        <div class="container">
+            <div class="row align-items-center justify-content-center g-5">
+
+                <!-- LEFT: Hero Text -->
+                <div class="col-lg-6">
+                    <p class="hero-label">PUBLIC DISTRIBUTION NETWORK</p>
+                    <h1 class="hero-title">
+                        Supply management,<br>
+                        <span class="hero-accent">made simpler.</span>
+                    </h1>
+                    <p class="hero-description">
+                        A dedicated workspace for fair-price shops to raise commodity
+                        requests, for warehouses to reserve and dispatch stock, and for district
+                        officers to monitor every delivery.
+                    </p>
+                    <div class="hero-feature-box">
+                        <h6 class="hero-feature-title">Role-based workspaces</h6>
+                        <p class="hero-feature-text">
+                            Each user sees only the tools and data that belong to their role,
+                            keeping operations secure and organised.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Portal Cards -->
+                <div class="col-lg-5 col-md-8">
+                    <div class="portal-card">
+                        <p class="portal-label">CHOOSE YOUR PORTAL</p>
+                        <h2 class="portal-title">Sign in to continue</h2>
+                        <p class="portal-subtitle">Select the workspace that applies to you.</p>
+
+                        <!-- Admin Portal -->
+                        <a href="#" class="portal-option" onclick="goToPortal('admin')">
+                            <div class="portal-icon admin-portal-icon">A</div>
+                            <div class="portal-info">
+                                <div class="portal-name">Admin portal</div>
+                                <div class="portal-desc">Monitor warehouses, shops and deliveries</div>
+                            </div>
+                            <div class="portal-arrow">&rarr;</div>
+                        </a>
+
+                        <!-- Shop Portal -->
+                        <a href="#" class="portal-option" onclick="goToPortal('shop')">
+                            <div class="portal-icon shop-portal-icon">S</div>
+                            <div class="portal-info">
+                                <div class="portal-name">Shop portal</div>
+                                <div class="portal-desc">Create commodity requests and track delivery</div>
+                            </div>
+                            <div class="portal-arrow">&rarr;</div>
+                        </a>
+
+                        <!-- Warehouse Portal -->
+                        <a href="#" class="portal-option" onclick="goToPortal('warehouse')">
+                            <div class="portal-icon warehouse-portal-icon">W</div>
+                            <div class="portal-info">
+                                <div class="portal-name">Warehouse portal</div>
+                                <div class="portal-desc">Manage stock, reserve and dispatch</div>
+                            </div>
+                            <div class="portal-arrow">&rarr;</div>
+                        </a>
+
+                        <p class="portal-footer">Access is restricted to authorised users only.</p>
+                    </div>
+                </div>
 
             </div>
         </div>
+    </main>
 
+    <!-- ===== LOGIN MODAL ===== -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 8px 32px rgba(0,0,0,0.12);">
+                <div class="modal-header border-0 pb-0" style="padding: 28px 32px 0;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div id="modalPortalIcon" class="portal-icon"></div>
+                        <div>
+                            <h5 class="modal-title mb-0" id="loginModalLabel" style="font-weight: 700; color: #0f1f2e;">Sign in</h5>
+                            <p class="mb-0" style="font-size: 0.85rem; color: #7a8a9c;" id="modalPortalName"></p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 24px 32px 32px;">
+                    <form id="loginForm" onsubmit="handleLogin(event)">
+                        <div class="mb-3">
+                            <label for="username" class="form-label" style="font-weight: 500; font-size: 0.9rem;">Username</label>
+                            <input type="text" class="form-control" id="username" placeholder="Enter your username" required
+                                   style="border-radius: 10px; padding: 10px 14px; border: 1px solid #d0d5dd;">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label" style="font-weight: 500; font-size: 0.9rem;">Password</label>
+                            <input type="password" class="form-control" id="password" placeholder="Enter your password" required
+                                   style="border-radius: 10px; padding: 10px 14px; border: 1px solid #d0d5dd;">
+                        </div>
+                        <div id="loginError" class="alert alert-danger py-2" style="display: none; font-size: 0.85rem; border-radius: 10px;"></div>
+                        <button type="submit" class="btn w-100 mt-2" id="loginBtn"
+                                style="border-radius: 10px; padding: 10px; font-weight: 600; color: white;">
+                            Sign in
+                        </button>
+                    </form>
+                    <p class="text-center mt-3 mb-0" style="font-size: 0.8rem; color: #9aa5b0;">
+                        Use the credentials provided by your administrator.
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- ========== END MAIN CONTAINER ========== -->
 
-    <!-- Bootstrap 5 JS from CDN (needed for dropdowns and other Bootstrap features) -->
+    <!-- ===== FOOTER ===== -->
+    <footer class="login-footer">
+        <p>&copy; VALAM - Supply Management System 2026</p>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Our custom JavaScript file -->
     <script src="script.js"></script>
 
 </body>
+
 </html>

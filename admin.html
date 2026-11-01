@@ -5,165 +5,1150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - VALAM</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
 
-    <!-- Our custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ========== ADMIN NAVBAR ========== -->
-    <!-- "admin-navbar" is our custom class for reddish-orange color -->
+
     <nav class="navbar admin-navbar">
         <div class="container">
             <span class="navbar-brand text-white">VALAM - Admin Dashboard</span>
-            <!-- Logout button to go back to login page -->
+         
             <a href="index.html" class="btn btn-outline-light btn-sm">Logout</a>
         </div>
     </nav>
 
-    <!-- ========== MAIN CONTENT ========== -->
+
     <div class="container mt-4">
 
-        <!-- Welcome Message -->
+
         <h4 class="mb-1">Welcome, District Supply Officer</h4>
         <p class="text-muted mb-4">Admin Panel — Monitor and manage all supply operations</p>
 
-        <!-- ========== FEATURE CARDS ROW 1 ========== -->
-        <div class="row g-4">
+        <div id="dashboardMain">
+            <div class="row g-4 justify-content-center">
 
-            <!-- Card 1: View Warehouses -->
-            <div class="col-md-4">
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle admin-icon">🏭</div>
-                        <h5 class="card-title">View Warehouses</h5>
-                        <p class="card-text text-muted">See all warehouses and their current stock levels.</p>
-                        <button class="btn admin-btn btn-sm">View Details</button>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle admin-icon">🏪</div>
+                                <h5 class="card-title mt-2">View Shops</h5>
+                                <p class="card-text text-muted">View all fair-price shops and their details.</p>
+                            </div>
+                            <div>
+                                <button class="btn admin-btn btn-sm" onclick="showSection('shopsView')">View Shops</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle admin-icon">🏭</div>
+                                <h5 class="card-title mt-2">View Warehouses</h5>
+                                <p class="card-text text-muted">View warehouses and their current stock.</p>
+                            </div>
+                            <div>
+                                <button class="btn admin-btn btn-sm" onclick="showSection('warehousesView')">View Warehouses</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle admin-icon">🚚</div>
+                                <h5 class="card-title mt-2">View Vehicles</h5>
+                                <p class="card-text text-muted">View available vehicles for delivery.</p>
+                            </div>
+                            <div>
+                                <button class="btn admin-btn btn-sm" onclick="showSection('vehiclesView')">View Vehicles</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+              
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle admin-icon">📋</div>
+                                <h5 class="card-title mt-2">View Requests</h5>
+                                <p class="card-text text-muted">View commodity requests received from shops.</p>
+                            </div>
+                            <div>
+                                <button class="btn admin-btn btn-sm" onclick="showSection('requestsView')">View Requests</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle admin-icon">📍</div>
+                                <h5 class="card-title mt-2">Delivery Status</h5>
+                                <p class="card-text text-muted">Monitor the status of all deliveries.</p>
+                            </div>
+                            <div>
+                                <button class="btn admin-btn btn-sm" onclick="showSection('deliveryStatusView')">View Status</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== NEW: OPERATION HISTORY CARD ========== -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dashboard-card p-3 text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="icon-circle admin-icon">📜</div>
+                                <h5 class="card-title mt-2">Operation History</h5>
+                                <p class="card-text text-muted">Date-wise & time-wise audit log of all operations.</p>
+                            </div>
+                            <div>
+                                <button class="btn admin-btn btn-sm" onclick="showSection('operationHistoryView')">View History</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ========== VIEW SHOPS (EXISTING — PRESERVED) ========== -->
+        <div id="shopsView" style="display: none;">
+
+         
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Fair-Price Shops</h5>
+                <p class="text-muted mb-3" style="font-size: 0.95rem;">List of all 8 fair-price shops and their current request status across the district.</p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Shop ID</th>
+                                <th>Shop Name</th>
+                                <th>Location</th>
+                                <th>Current Request Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopsTableBody">
+                            <tr>
+                                <td>S01</td>
+                                <td>FPS Nagercoil</td>
+                                <td>Nagercoil Town</td>
+                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
+                            </tr>
+                            <tr>
+                                <td>S02</td>
+                                <td>FPS Marthandam</td>
+                                <td>Marthandam Central</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                            </tr>
+                            <tr>
+                                <td>S03</td>
+                                <td>FPS Colachel</td>
+                                <td>Colachel Port</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>S04</td>
+                                <td>FPS Kanyakumari</td>
+                                <td>Kanyakumari Beach Road</td>
+                                <td><span class="badge bg-warning text-dark">In Transit</span></td>
+                            </tr>
+                            <tr>
+                                <td>S05</td>
+                                <td>FPS Thuckalay</td>
+                                <td>Thuckalay Market</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>S06</td>
+                                <td>FPS Padmanabhapuram</td>
+                                <td>Padmanabhapuram Fort</td>
+                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
+                            </tr>
+                            <tr>
+                                <td>S07</td>
+                                <td>FPS Karungal</td>
+                                <td>Karungal Junction</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                            </tr>
+                            <tr>
+                                <td>S08</td>
+                                <td>FPS Kulasekharam</td>
+                                <td>Kulasekharam Bus Stand</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- ========== VIEW WAREHOUSES (EXISTING — PRESERVED) ========== -->
+        <div id="warehousesView" style="display: none;">
+
+         
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Warehouses &amp; Current Stock</h5>
+                <p class="text-muted mb-3" style="font-size: 0.95rem;">Overview of district warehouses and their available commodity stock levels.</p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Warehouse ID</th>
+                                <th>Warehouse Name</th>
+                                <th>Location</th>
+                                <th>Rice Stock</th>
+                                <th>Wheat Stock</th>
+                                <th>Sugar Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody id="warehousesTableBody">
+                            <tr>
+                                <td>W01</td>
+                                <td>Valam Central Warehouse</td>
+                                <td>Central Area (Nagercoil)</td>
+                                <td>5000 kg</td>
+                                <td>3200 kg</td>
+                                <td>1500 kg</td>
+                            </tr>
+                            <tr>
+                                <td>W02</td>
+                                <td>Valam North Warehouse</td>
+                                <td>North Area (Marthandam)</td>
+                                <td>4500 kg</td>
+                                <td>2800 kg</td>
+                                <td>1200 kg</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- ========== VIEW VEHICLES (EXISTING — PRESERVED) ========== -->
+        <div id="vehiclesView" style="display: none;">
+
+       
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Available Vehicles</h5>
+                <p class="text-muted mb-3" style="font-size: 0.95rem;">Fleet of supply vehicles available for commodity delivery operations.</p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Vehicle ID</th>
+                                <th>Vehicle Name / Number</th>
+                                <th>Capacity</th>
+                                <th>Availability</th>
+                                <th>Current Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vehiclesTableBody">
+                            <tr>
+                                <td>V01</td>
+                                <td>TN-74-AA-1234 (Eicher 14ft)</td>
+                                <td>3000 kg</td>
+                                <td><span class="badge bg-warning text-dark">On Trip</span></td>
+                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
+                            </tr>
+                            <tr>
+                                <td>V02</td>
+                                <td>TN-74-BB-5678 (Tata 407)</td>
+                                <td>2500 kg</td>
+                                <td><span class="badge bg-success">Available</span></td>
+                                <td><span class="badge bg-success">Idle / Ready</span></td>
+                            </tr>
+                            <tr>
+                                <td>V03</td>
+                                <td>TN-74-CC-9012 (Ashok Leyland)</td>
+                                <td>1500 kg</td>
+                                <td><span class="badge bg-warning text-dark">On Trip</span></td>
+                                <td><span class="badge bg-warning text-dark">In Transit</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ========== END VIEW VEHICLES ========== -->
+
+
+
+        <!-- ========== VIEW REQUESTS (EXISTING — PRESERVED) ========== -->
+        <div id="requestsView" style="display: none;">
+
+        
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Commodity Requests</h5>
+                <p class="text-muted mb-3" style="font-size: 0.95rem;">Commodity stock requests submitted by fair-price shops.</p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Shop ID</th>
+                                <th>Rice (kg)</th>
+                                <th>Wheat (kg)</th>
+                                <th>Sugar (kg)</th>
+                                <th>Urgency</th>
+                                <th>Selected Warehouse</th>
+                                <th>Request Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestsTableBody">
+                            <tr>
+                                <td>REQ-101</td>
+                                <td>S01</td>
+                                <td>200</td>
+                                <td>100</td>
+                                <td>50</td>
+                                <td><span class="badge bg-danger">Critical</span></td>
+                                <td>Valam Central Warehouse</td>
+                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
+                            </tr>
+                            <tr>
+                                <td>REQ-102</td>
+                                <td>S02</td>
+                                <td>300</td>
+                                <td>150</td>
+                                <td>80</td>
+                                <td><span class="badge bg-primary">Normal</span></td>
+                                <td>Valam North Warehouse</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                            </tr>
+                            <tr>
+                                <td>REQ-103</td>
+                                <td>S03</td>
+                                <td>500</td>
+                                <td>400</td>
+                                <td>50</td>
+                                <td><span class="badge bg-primary">Normal</span></td>
+                                <td>Valam Central Warehouse</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>REQ-104</td>
+                                <td>S04</td>
+                                <td>250</td>
+                                <td>200</td>
+                                <td>100</td>
+                                <td><span class="badge bg-warning text-dark">Urgent</span></td>
+                                <td>Valam North Warehouse</td>
+                                <td><span class="badge bg-warning text-dark">In Transit</span></td>
+                            </tr>
+                            <tr>
+                                <td>REQ-105</td>
+                                <td>S05</td>
+                                <td>400</td>
+                                <td>250</td>
+                                <td>75</td>
+                                <td><span class="badge bg-primary">Normal</span></td>
+                                <td>Valam Central Warehouse</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ========== END VIEW REQUESTS ========== -->
+
+
+        <!-- ========== DELIVERY STATUS (EXISTING — PRESERVED) ========== -->
+        <div id="deliveryStatusView" style="display: none;">
+
+         
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4">
+                <h5 class="mb-3">Delivery Status Monitoring</h5>
+                <p class="text-muted mb-3" style="font-size: 0.95rem;">Live monitoring of dispatch, in-transit, and delivered shipments across the district.</p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Shop ID</th>
+                                <th>Warehouse</th>
+                                <th>Vehicle</th>
+                                <th>Delivery Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deliveryStatusTableBody">
+                            <tr>
+                                <td>REQ-101</td>
+                                <td>S01</td>
+                                <td>Valam Central Warehouse</td>
+                                <td>V01</td>
+                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
+                            </tr>
+                            <tr>
+                                <td>REQ-102</td>
+                                <td>S02</td>
+                                <td>Valam North Warehouse</td>
+                                <td>V02</td>
+                                <td><span class="badge bg-success">Delivered</span></td>
+                            </tr>
+                            <tr>
+                                <td>REQ-103</td>
+                                <td>S03</td>
+                                <td>Valam Central Warehouse</td>
+                                <td>Not Assigned</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>REQ-104</td>
+                                <td>S04</td>
+                                <td>Valam North Warehouse</td>
+                                <td>V03</td>
+                                <td><span class="badge bg-warning text-dark">In Transit</span></td>
+                            </tr>
+                            <tr>
+                                <td>REQ-105</td>
+                                <td>S05</td>
+                                <td>Valam Central Warehouse</td>
+                                <td>Not Assigned</td>
+                                <td><span class="badge bg-secondary">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ========== END DELIVERY STATUS ========== -->
+
+
+        <!-- ============================================================ -->
+        <!-- NEW SECTION: OPERATION HISTORY / AUDIT LOG                   -->
+        <!-- ============================================================ -->
+        <div id="operationHistoryView" style="display: none;">
+
+            <button class="btn btn-outline-secondary btn-sm mb-3" onclick="goBack()">← Back to Dashboard</button>
+
+            <div class="card p-4 mb-4">
+                <h5 class="mb-1">📜 Operation History / Audit Log</h5>
+                <p class="text-muted mb-3" style="font-size: 0.95rem;">Date-wise and time-wise tracking of all supply operations across shops, warehouses, vehicles, requests and deliveries.</p>
+
+                <!-- Date Range Filter -->
+                <div class="row g-3 align-items-end mb-3">
+                    <div class="col-md-3 col-sm-6">
+                        <label for="filterFromDate" class="form-label" style="font-weight: 500; font-size: 0.9rem;">From Date</label>
+                        <input type="date" class="form-control" id="filterFromDate">
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <label for="filterToDate" class="form-label" style="font-weight: 500; font-size: 0.9rem;">To Date</label>
+                        <input type="date" class="form-control" id="filterToDate">
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <label for="filterCategory" class="form-label" style="font-weight: 500; font-size: 0.9rem;">Category</label>
+                        <select class="form-select" id="filterCategory">
+                            <option value="all">All Operations</option>
+                            <option value="shop">Fair-Price Shops</option>
+                            <option value="warehouse">Warehouses & Stock</option>
+                            <option value="vehicle">Vehicles</option>
+                            <option value="request">Commodity Requests</option>
+                            <option value="delivery">Delivery Status</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <button class="btn admin-btn btn-sm me-2" onclick="filterOperationHistory()">🔍 Filter</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="resetOperationFilter()">↻ Reset</button>
+                    </div>
+                </div>
+
+                <!-- Date Validation Error -->
+                <div id="dateValidationError" class="alert alert-danger py-2" style="display: none; font-size: 0.85rem;">
+                    ⚠️ "From Date" cannot be later than "To Date". Please select a valid date range.
+                </div>
+            </div>
+
+            <!-- ===== Summary Cards ===== -->
+            <div class="row g-3 mb-4" id="summaryCardsRow">
+                <div class="col-6 col-md">
+                    <div class="card text-center p-3" style="border-left: 4px solid #d93829;">
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #d93829;" id="summaryRequestsReceived">0</div>
+                        <div style="font-size: 0.8rem; color: #666;">Requests Received</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md">
+                    <div class="card text-center p-3" style="border-left: 4px solid #2563eb;">
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #2563eb;" id="summaryRequestsProcessed">0</div>
+                        <div style="font-size: 0.8rem; color: #666;">Requests Processed</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md">
+                    <div class="card text-center p-3" style="border-left: 4px solid #f59e0b;">
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #f59e0b;" id="summaryVehiclesDispatched">0</div>
+                        <div style="font-size: 0.8rem; color: #666;">Vehicles Dispatched</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md">
+                    <div class="card text-center p-3" style="border-left: 4px solid #16a34a;">
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #16a34a;" id="summaryDeliveriesCompleted">0</div>
+                        <div style="font-size: 0.8rem; color: #666;">Deliveries Completed</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md">
+                    <div class="card text-center p-3" style="border-left: 4px solid #8b5cf6;">
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #8b5cf6;" id="summaryStockUpdates">0</div>
+                        <div style="font-size: 0.8rem; color: #666;">Stock Updates</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Card 2: View Shops -->
-            <div class="col-md-4">
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle admin-icon">🏪</div>
-                        <h5 class="card-title">View Shops</h5>
-                        <p class="card-text text-muted">See all fair-price shops and their details.</p>
-                        <button class="btn admin-btn btn-sm">View Details</button>
-                    </div>
+            <!-- ===== Operation History Table ===== -->
+            <div class="card p-4 mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0" style="font-weight: 600;">Operation Log</h6>
+                    <span class="text-muted" style="font-size: 0.82rem;" id="historyResultCount"></span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0" id="operationHistoryTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>S.No.</th>
+                                <th>Operation ID</th>
+                                <th>Request ID</th>
+                                <th>Shop / Warehouse / Vehicle ID</th>
+                                <th>Operation Type</th>
+                                <th>Previous Status</th>
+                                <th>New Status</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Updated By</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="operationHistoryBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- No Records Message -->
+                <div id="noRecordsMsg" class="text-center py-4" style="display: none;">
+                    <div style="font-size: 2.5rem;">📭</div>
+                    <p class="text-muted mt-2 mb-0">No operations found for the selected date range.<br>Try adjusting the filter criteria.</p>
                 </div>
             </div>
 
-            <!-- Card 3: View Vehicles -->
-            <div class="col-md-4">
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle admin-icon">🚚</div>
-                        <h5 class="card-title">View Vehicles</h5>
-                        <p class="card-text text-muted">Check available vehicles for delivery operations.</p>
-                        <button class="btn admin-btn btn-sm">View Details</button>
-                    </div>
-                </div>
+            <!-- Status Flow Legend -->
+            <div class="card p-3 mb-3">
+                <p class="mb-1" style="font-size: 0.85rem; font-weight: 600;">Status Flow Reference:</p>
+                <p class="text-muted mb-0" style="font-size: 0.8rem;">
+                    <span class="badge bg-secondary">Request Received</span> →
+                    <span class="badge bg-primary">Request Accepted</span> →
+                    <span class="badge bg-warning text-dark">Stock Updated / Reserved</span> →
+                    <span class="badge bg-info text-dark">Vehicle Assigned / Dispatched</span> →
+                    <span class="badge bg-warning text-dark">In Transit</span> →
+                    <span class="badge bg-success">Delivered</span>
+                </p>
+            </div>
+
+            <!-- Limitation Notice -->
+            <div class="alert alert-info py-2 mb-3" style="font-size: 0.82rem;">
+                <strong>ℹ️ Note:</strong> This prototype stores operation history in browser memory (JavaScript). 
+                Data is based on sample records and will reset when the page is refreshed. 
+                For persistent history, a database backend (e.g., MySQL with Java Servlets) is required.
             </div>
 
         </div>
-        <!-- ========== END ROW 1 ========== -->
+        <!-- ========== END OPERATION HISTORY ========== -->
 
-        <!-- ========== FEATURE CARDS ROW 2 ========== -->
-        <div class="row g-4 mt-1">
 
-            <!-- Card 4: Monitor Delivery Requests -->
-            <div class="col-md-4">
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle admin-icon">📋</div>
-                        <h5 class="card-title">Delivery Requests</h5>
-                        <p class="card-text text-muted">Monitor all incoming delivery requests from shops.</p>
-                        <button class="btn admin-btn btn-sm">View Requests</button>
+        <!-- ===== Operation Detail Modal ===== -->
+        <div class="modal fade" id="operationDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content" style="border-radius: 12px;">
+                    <div class="modal-header" style="background-color: #d93829; color: white; border-radius: 12px 12px 0 0;">
+                        <h6 class="modal-title mb-0" id="operationDetailTitle">Operation Details</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="operationDetailBody">
+                        <!-- Populated by JavaScript -->
                     </div>
                 </div>
-            </div>
-
-            <!-- Card 5: Monitor Stock -->
-            <div class="col-md-4">
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle admin-icon">📦</div>
-                        <h5 class="card-title">Monitor Stock</h5>
-                        <p class="card-text text-muted">Check overall stock levels across all locations.</p>
-                        <button class="btn admin-btn btn-sm">View Stock</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 6: Delivery Status -->
-            <div class="col-md-4">
-                <div class="card dashboard-card p-3 text-center">
-                    <div class="card-body">
-                        <div class="icon-circle admin-icon">✅</div>
-                        <h5 class="card-title">Delivery Status</h5>
-                        <p class="card-text text-muted">Track the status of all ongoing deliveries.</p>
-                        <button class="btn admin-btn btn-sm">View Status</button>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <!-- ========== END ROW 2 ========== -->
-
-        <!-- ========== SAMPLE DATA TABLE ========== -->
-        <div class="card mt-4 p-3">
-            <h5 class="mb-3">Recent Delivery Requests</h5>
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Request ID</th>
-                            <th>Shop Name</th>
-                            <th>Commodity</th>
-                            <th>Quantity</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>REQ-001</td>
-                            <td>FPS Nagercoil</td>
-                            <td>Rice</td>
-                            <td>500 kg</td>
-                            <td><span class="badge bg-success">Delivered</span></td>
-                        </tr>
-                        <tr>
-                            <td>REQ-002</td>
-                            <td>FPS Marthandam</td>
-                            <td>Wheat</td>
-                            <td>300 kg</td>
-                            <td><span class="badge bg-warning text-dark">In Transit</span></td>
-                        </tr>
-                        <tr>
-                            <td>REQ-003</td>
-                            <td>FPS Colachel</td>
-                            <td>Sugar</td>
-                            <td>200 kg</td>
-                            <td><span class="badge bg-primary">Pending</span></td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
-        <!-- ========== END TABLE ========== -->
 
-        <!-- Footer -->
+
         <p class="text-center footer-text mt-4 mb-3">&copy; 2026 VALAM - Supply Management System</p>
 
     </div>
     <!-- ========== END MAIN CONTENT ========== -->
 
-    <!-- Bootstrap JS -->
+
+    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    
+        // ---------------------------------------------------------------
+        // SECTION NAVIGATION (UPDATED — includes new section)
+        // ---------------------------------------------------------------
+        var adminSections = [
+            "shopsView",
+            "warehousesView",
+            "vehiclesView",
+            "requestsView",
+            "deliveryStatusView",
+            "operationHistoryView"
+        ];
+
+        function showSection(sectionId) {
+            document.getElementById("dashboardMain").style.display = "none";
+            for (var i = 0; i < adminSections.length; i++) {
+                document.getElementById(adminSections[i]).style.display = "none";
+            }
+            var target = document.getElementById(sectionId);
+            if (target) {
+                target.style.display = "block";
+            }
+            // If opening operation history, render it
+            if (sectionId === "operationHistoryView") {
+                renderOperationHistory(operationHistoryData);
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function goBack() {
+            for (var i = 0; i < adminSections.length; i++) {
+                document.getElementById(adminSections[i]).style.display = "none";
+            }
+            document.getElementById("dashboardMain").style.display = "block";
+            window.scrollTo(0, 0);
+        }
+
+
+        // ---------------------------------------------------------------
+        // EXISTING DATA (PRESERVED — unchanged)
+        // ---------------------------------------------------------------
+
+        // 1. 8 Fair-Price Shops (S01 to S08)
+        var shopsData = [
+            { shopId: "S01", shopName: "FPS Nagercoil", location: "Nagercoil Town", status: "Dispatched" },
+            { shopId: "S02", shopName: "FPS Marthandam", location: "Marthandam Central", status: "Delivered" },
+            { shopId: "S03", shopName: "FPS Colachel", location: "Colachel Port", status: "Pending" },
+            { shopId: "S04", shopName: "FPS Kanyakumari", location: "Kanyakumari Beach Road", status: "In Transit" },
+            { shopId: "S05", shopName: "FPS Thuckalay", location: "Thuckalay Market", status: "Pending" },
+            { shopId: "S06", shopName: "FPS Padmanabhapuram", location: "Padmanabhapuram Fort", status: "Dispatched" },
+            { shopId: "S07", shopName: "FPS Karungal", location: "Karungal Junction", status: "Delivered" },
+            { shopId: "S08", shopName: "FPS Kulasekharam", location: "Kulasekharam Bus Stand", status: "Pending" }
+        ];
+
+        // 2. 2 Warehouses and current stock
+        var warehousesData = [
+            { warehouseId: "W01", warehouseName: "Valam Central Warehouse", location: "Central Area (Nagercoil)", rice: "5000 kg", wheat: "3200 kg", sugar: "1500 kg" },
+            { warehouseId: "W02", warehouseName: "Valam North Warehouse", location: "North Area (Marthandam)", rice: "4500 kg", wheat: "2800 kg", sugar: "1200 kg" }
+        ];
+
+        // 3. 3 Available Vehicles (V01, V02, V03)
+        var vehiclesData = [
+            { vehicleId: "V01", vehicleName: "TN-74-AA-1234 (Eicher 14ft)", capacity: "3000 kg", availability: "On Trip", status: "Dispatched" },
+            { vehicleId: "V02", vehicleName: "TN-74-BB-5678 (Tata 407)", capacity: "2500 kg", availability: "Available", status: "Idle / Ready" },
+            { vehicleId: "V03", vehicleName: "TN-74-CC-9012 (Ashok Leyland)", capacity: "1500 kg", availability: "On Trip", status: "In Transit" }
+        ];
+
+        // 4. Commodity Requests received from shops (matches Shop & Warehouse data)
+        var requestsData = [
+            { requestId: "REQ-101", shopId: "S01", rice: "200", wheat: "100", sugar: "50", urgency: "critical", warehouse: "Valam Central Warehouse", status: "Dispatched" },
+            { requestId: "REQ-102", shopId: "S02", rice: "300", wheat: "150", sugar: "80", urgency: "normal", warehouse: "Valam North Warehouse", status: "Delivered" },
+            { requestId: "REQ-103", shopId: "S03", rice: "500", wheat: "400", sugar: "50", urgency: "normal", warehouse: "Valam Central Warehouse", status: "Pending" },
+            { requestId: "REQ-104", shopId: "S04", rice: "250", wheat: "200", sugar: "100", urgency: "urgent", warehouse: "Valam North Warehouse", status: "In Transit" },
+            { requestId: "REQ-105", shopId: "S05", rice: "400", wheat: "250", sugar: "75", urgency: "normal", warehouse: "Valam Central Warehouse", status: "Pending" }
+        ];
+
+        // 5. Delivery Status monitoring records
+        var deliveryStatusData = [
+            { requestId: "REQ-101", shopId: "S01", warehouse: "Valam Central Warehouse", vehicle: "V01", status: "Dispatched" },
+            { requestId: "REQ-102", shopId: "S02", warehouse: "Valam North Warehouse", vehicle: "V02", status: "Delivered" },
+            { requestId: "REQ-103", shopId: "S03", warehouse: "Valam Central Warehouse", vehicle: "Not Assigned", status: "Pending" },
+            { requestId: "REQ-104", shopId: "S04", warehouse: "Valam North Warehouse", vehicle: "V03", status: "In Transit" },
+            { requestId: "REQ-105", shopId: "S05", warehouse: "Valam Central Warehouse", vehicle: "Not Assigned", status: "Pending" }
+        ];
+
+
+        // ---------------------------------------------------------------
+        // NEW: OPERATION HISTORY DATA
+        // Comprehensive audit log with timestamps based on existing data.
+        // Each record stores the actual date and time of the operation.
+        // In a real system, these would come from a database table.
+        // ---------------------------------------------------------------
+
+        var operationHistoryData = [
+            // --- REQ-101 (S01 → W01, V01) — Full lifecycle: Received → Accepted → Stock Updated → Vehicle Assigned → Dispatched ---
+            {
+                opId: "OP-001", requestId: "REQ-101", entityId: "S01", category: "request",
+                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
+                date: "2026-10-20", time: "09:15:00", updatedBy: "Shop01",
+                details: "Shop S01 (FPS Nagercoil) submitted commodity request REQ-101. Rice: 200 kg, Wheat: 100 kg, Sugar: 50 kg. Urgency: Critical. Warehouse: Valam Central Warehouse."
+            },
+            {
+                opId: "OP-002", requestId: "REQ-101", entityId: "S01", category: "request",
+                operationType: "Request Accepted", prevStatus: "Pending", newStatus: "Reserved",
+                date: "2026-10-20", time: "10:30:00", updatedBy: "Wh01",
+                details: "Warehouse staff accepted request REQ-101 from Shop S01. Status changed from Pending to Reserved."
+            },
+            {
+                opId: "OP-003", requestId: "REQ-101", entityId: "W01", category: "warehouse",
+                operationType: "Stock Updated", prevStatus: "Rice: 5200 kg", newStatus: "Rice: 5000 kg",
+                date: "2026-10-20", time: "10:31:00", updatedBy: "Wh01",
+                details: "Stock reserved for REQ-101 at Valam Central Warehouse (W01). Rice: 5200→5000 kg (-200), Wheat: 3300→3200 kg (-100), Sugar: 1550→1500 kg (-50)."
+            },
+            {
+                opId: "OP-004", requestId: "REQ-101", entityId: "V01", category: "vehicle",
+                operationType: "Vehicle Assigned", prevStatus: "Available", newStatus: "On Trip",
+                date: "2026-10-21", time: "08:00:00", updatedBy: "Wh01",
+                details: "Vehicle V01 (TN-74-AA-1234, Eicher 14ft) assigned to REQ-101. Route: Valam Central Warehouse → FPS Nagercoil (S01)."
+            },
+            {
+                opId: "OP-005", requestId: "REQ-101", entityId: "S01", category: "delivery",
+                operationType: "Dispatched", prevStatus: "Reserved", newStatus: "Dispatched",
+                date: "2026-10-21", time: "08:30:00", updatedBy: "Wh01",
+                details: "REQ-101 dispatched from Valam Central Warehouse via Vehicle V01 to Shop S01 (FPS Nagercoil). Delivery status: Dispatched."
+            },
+
+            // --- REQ-102 (S02 → W02, V02) — Full lifecycle: Received → Accepted → Stock Updated → Vehicle Assigned → Dispatched → In Transit → Delivered ---
+            {
+                opId: "OP-006", requestId: "REQ-102", entityId: "S02", category: "request",
+                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
+                date: "2026-10-18", time: "11:00:00", updatedBy: "Shop02",
+                details: "Shop S02 (FPS Marthandam) submitted commodity request REQ-102. Rice: 300 kg, Wheat: 150 kg, Sugar: 80 kg. Urgency: Normal. Warehouse: Valam North Warehouse."
+            },
+            {
+                opId: "OP-007", requestId: "REQ-102", entityId: "S02", category: "request",
+                operationType: "Request Accepted", prevStatus: "Pending", newStatus: "Reserved",
+                date: "2026-10-18", time: "14:20:00", updatedBy: "Wh02",
+                details: "Warehouse staff accepted request REQ-102 from Shop S02. Status changed from Pending to Reserved."
+            },
+            {
+                opId: "OP-008", requestId: "REQ-102", entityId: "W02", category: "warehouse",
+                operationType: "Stock Updated", prevStatus: "Rice: 4800 kg", newStatus: "Rice: 4500 kg",
+                date: "2026-10-18", time: "14:21:00", updatedBy: "Wh02",
+                details: "Stock reserved for REQ-102 at Valam North Warehouse (W02). Rice: 4800→4500 kg (-300), Wheat: 2950→2800 kg (-150), Sugar: 1280→1200 kg (-80)."
+            },
+            {
+                opId: "OP-009", requestId: "REQ-102", entityId: "V02", category: "vehicle",
+                operationType: "Vehicle Assigned", prevStatus: "Available", newStatus: "On Trip",
+                date: "2026-10-19", time: "07:45:00", updatedBy: "Wh02",
+                details: "Vehicle V02 (TN-74-BB-5678, Tata 407) assigned to REQ-102. Route: Valam North Warehouse → FPS Marthandam (S02)."
+            },
+            {
+                opId: "OP-010", requestId: "REQ-102", entityId: "S02", category: "delivery",
+                operationType: "Dispatched", prevStatus: "Reserved", newStatus: "Dispatched",
+                date: "2026-10-19", time: "08:15:00", updatedBy: "Wh02",
+                details: "REQ-102 dispatched from Valam North Warehouse via Vehicle V02 to Shop S02 (FPS Marthandam)."
+            },
+            {
+                opId: "OP-011", requestId: "REQ-102", entityId: "S02", category: "delivery",
+                operationType: "In Transit", prevStatus: "Dispatched", newStatus: "In Transit",
+                date: "2026-10-19", time: "09:30:00", updatedBy: "System",
+                details: "REQ-102 delivery is in transit. Vehicle V02 en route from Valam North Warehouse to FPS Marthandam."
+            },
+            {
+                opId: "OP-012", requestId: "REQ-102", entityId: "S02", category: "delivery",
+                operationType: "Delivered", prevStatus: "In Transit", newStatus: "Delivered",
+                date: "2026-10-19", time: "11:45:00", updatedBy: "Shop02",
+                details: "REQ-102 successfully delivered to FPS Marthandam (S02). Vehicle V02 returned. Delivery confirmed by shop staff."
+            },
+            {
+                opId: "OP-013", requestId: "REQ-102", entityId: "V02", category: "vehicle",
+                operationType: "Vehicle Released", prevStatus: "On Trip", newStatus: "Available",
+                date: "2026-10-19", time: "12:30:00", updatedBy: "Wh02",
+                details: "Vehicle V02 (TN-74-BB-5678) released after completing delivery of REQ-102. Status: Available / Idle."
+            },
+
+            // --- REQ-103 (S03 → W01) — Only received, still pending ---
+            {
+                opId: "OP-014", requestId: "REQ-103", entityId: "S03", category: "request",
+                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
+                date: "2026-10-25", time: "10:00:00", updatedBy: "Shop03",
+                details: "Shop S03 (FPS Colachel) submitted commodity request REQ-103. Rice: 500 kg, Wheat: 400 kg, Sugar: 50 kg. Urgency: Normal. Warehouse: Valam Central Warehouse. Awaiting processing."
+            },
+
+            // --- REQ-104 (S04 → W02, V03) — Received → Accepted → Stock Updated → Vehicle Assigned → Dispatched → In Transit ---
+            {
+                opId: "OP-015", requestId: "REQ-104", entityId: "S04", category: "request",
+                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
+                date: "2026-10-22", time: "09:00:00", updatedBy: "Shop04",
+                details: "Shop S04 (FPS Kanyakumari) submitted commodity request REQ-104. Rice: 250 kg, Wheat: 200 kg, Sugar: 100 kg. Urgency: Urgent. Warehouse: Valam North Warehouse."
+            },
+            {
+                opId: "OP-016", requestId: "REQ-104", entityId: "S04", category: "request",
+                operationType: "Request Accepted", prevStatus: "Pending", newStatus: "Reserved",
+                date: "2026-10-22", time: "09:45:00", updatedBy: "Wh02",
+                details: "Warehouse staff accepted urgent request REQ-104 from Shop S04. Status changed from Pending to Reserved."
+            },
+            {
+                opId: "OP-017", requestId: "REQ-104", entityId: "W02", category: "warehouse",
+                operationType: "Stock Updated", prevStatus: "Rice: 4750 kg", newStatus: "Rice: 4500 kg",
+                date: "2026-10-22", time: "09:46:00", updatedBy: "Wh02",
+                details: "Stock reserved for REQ-104 at Valam North Warehouse (W02). Rice: 4750→4500 kg (-250), Wheat: 3000→2800 kg (-200), Sugar: 1300→1200 kg (-100)."
+            },
+            {
+                opId: "OP-018", requestId: "REQ-104", entityId: "V03", category: "vehicle",
+                operationType: "Vehicle Assigned", prevStatus: "Available", newStatus: "On Trip",
+                date: "2026-10-23", time: "07:30:00", updatedBy: "Wh02",
+                details: "Vehicle V03 (TN-74-CC-9012, Ashok Leyland) assigned to REQ-104. Route: Valam North Warehouse → FPS Kanyakumari (S04)."
+            },
+            {
+                opId: "OP-019", requestId: "REQ-104", entityId: "S04", category: "delivery",
+                operationType: "Dispatched", prevStatus: "Reserved", newStatus: "Dispatched",
+                date: "2026-10-23", time: "08:00:00", updatedBy: "Wh02",
+                details: "REQ-104 dispatched from Valam North Warehouse via Vehicle V03 to Shop S04 (FPS Kanyakumari)."
+            },
+            {
+                opId: "OP-020", requestId: "REQ-104", entityId: "S04", category: "delivery",
+                operationType: "In Transit", prevStatus: "Dispatched", newStatus: "In Transit",
+                date: "2026-10-23", time: "09:15:00", updatedBy: "System",
+                details: "REQ-104 delivery is in transit. Vehicle V03 en route from Valam North Warehouse to FPS Kanyakumari."
+            },
+
+            // --- REQ-105 (S05 → W01) — Only received, still pending ---
+            {
+                opId: "OP-021", requestId: "REQ-105", entityId: "S05", category: "request",
+                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
+                date: "2026-10-26", time: "14:30:00", updatedBy: "Shop05",
+                details: "Shop S05 (FPS Thuckalay) submitted commodity request REQ-105. Rice: 400 kg, Wheat: 250 kg, Sugar: 75 kg. Urgency: Normal. Warehouse: Valam Central Warehouse. Awaiting processing."
+            },
+
+            // --- Additional Shop-related operations (S06, S07, S08) ---
+            {
+                opId: "OP-022", requestId: "REQ-106", entityId: "S06", category: "request",
+                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
+                date: "2026-10-24", time: "11:00:00", updatedBy: "Shop01",
+                details: "Shop S06 (FPS Padmanabhapuram) submitted commodity request REQ-106. Rice: 350 kg, Wheat: 200 kg, Sugar: 60 kg. Urgency: Normal. Warehouse: Valam Central Warehouse."
+            },
+            {
+                opId: "OP-023", requestId: "REQ-106", entityId: "S06", category: "request",
+                operationType: "Request Accepted", prevStatus: "Pending", newStatus: "Reserved",
+                date: "2026-10-24", time: "13:15:00", updatedBy: "Wh01",
+                details: "Warehouse staff accepted request REQ-106 from Shop S06. Status changed from Pending to Reserved."
+            },
+            {
+                opId: "OP-024", requestId: "REQ-106", entityId: "W01", category: "warehouse",
+                operationType: "Stock Updated", prevStatus: "Rice: 5350 kg", newStatus: "Rice: 5000 kg",
+                date: "2026-10-24", time: "13:16:00", updatedBy: "Wh01",
+                details: "Stock reserved for REQ-106 at Valam Central Warehouse (W01). Rice: 5350→5000 kg (-350), Wheat: 3400→3200 kg (-200), Sugar: 1560→1500 kg (-60)."
+            },
+            {
+                opId: "OP-025", requestId: "REQ-106", entityId: "V01", category: "vehicle",
+                operationType: "Vehicle Assigned", prevStatus: "Available", newStatus: "On Trip",
+                date: "2026-10-25", time: "07:00:00", updatedBy: "Wh01",
+                details: "Vehicle V01 (TN-74-AA-1234) assigned to REQ-106. Route: Valam Central Warehouse → FPS Padmanabhapuram (S06)."
+            },
+            {
+                opId: "OP-026", requestId: "REQ-106", entityId: "S06", category: "delivery",
+                operationType: "Dispatched", prevStatus: "Reserved", newStatus: "Dispatched",
+                date: "2026-10-25", time: "07:30:00", updatedBy: "Wh01",
+                details: "REQ-106 dispatched from Valam Central Warehouse via Vehicle V01 to Shop S06 (FPS Padmanabhapuram)."
+            },
+            {
+                opId: "OP-027", requestId: "REQ-107", entityId: "S07", category: "request",
+                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
+                date: "2026-10-15", time: "08:30:00", updatedBy: "Shop01",
+                details: "Shop S07 (FPS Karungal) submitted commodity request REQ-107. Rice: 200 kg, Wheat: 100 kg, Sugar: 40 kg. Urgency: Normal. Warehouse: Valam North Warehouse."
+            },
+            {
+                opId: "OP-028", requestId: "REQ-107", entityId: "S07", category: "delivery",
+                operationType: "Delivered", prevStatus: "In Transit", newStatus: "Delivered",
+                date: "2026-10-17", time: "16:00:00", updatedBy: "Shop01",
+                details: "REQ-107 successfully delivered to FPS Karungal (S07). Delivery confirmed by shop staff."
+            },
+            {
+                opId: "OP-029", requestId: "REQ-108", entityId: "S08", category: "request",
+                operationType: "Request Received", prevStatus: "—", newStatus: "Pending",
+                date: "2026-10-27", time: "15:45:00", updatedBy: "Shop01",
+                details: "Shop S08 (FPS Kulasekharam) submitted commodity request REQ-108. Rice: 300 kg, Wheat: 200 kg, Sugar: 90 kg. Urgency: Normal. Warehouse: Valam Central Warehouse. Awaiting processing."
+            }
+        ];
+
+
+        // ---------------------------------------------------------------
+        // HELPER: Format time string to 12-hour IST format
+        // ---------------------------------------------------------------
+        function formatTimeIST(timeStr) {
+            var parts = timeStr.split(":");
+            var hours = parseInt(parts[0]);
+            var minutes = parts[1];
+            var seconds = parts[2];
+            var ampm = hours >= 12 ? "PM" : "AM";
+            var displayHours = hours % 12;
+            if (displayHours === 0) displayHours = 12;
+            return displayHours + ":" + minutes + ":" + seconds + " " + ampm + " IST";
+        }
+
+        // ---------------------------------------------------------------
+        // HELPER: Format date to readable format
+        // ---------------------------------------------------------------
+        function formatDateReadable(dateStr) {
+            var d = new Date(dateStr + "T00:00:00");
+            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            return days[d.getDay()] + ", " + d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+        }
+
+        // ---------------------------------------------------------------
+        // HELPER: Get status badge HTML
+        // ---------------------------------------------------------------
+        function getStatusBadge(status) {
+            if (status === "—" || status === "") return '<span class="text-muted">—</span>';
+            if (status.indexOf("Pending") !== -1) return '<span class="badge bg-secondary">' + status + '</span>';
+            if (status.indexOf("Reserved") !== -1) return '<span class="badge bg-warning text-dark">' + status + '</span>';
+            if (status.indexOf("Dispatched") !== -1) return '<span class="badge bg-info text-dark">' + status + '</span>';
+            if (status.indexOf("In Transit") !== -1) return '<span class="badge bg-warning text-dark">' + status + '</span>';
+            if (status.indexOf("Delivered") !== -1) return '<span class="badge bg-success">' + status + '</span>';
+            if (status.indexOf("Available") !== -1) return '<span class="badge bg-success">' + status + '</span>';
+            if (status.indexOf("On Trip") !== -1) return '<span class="badge bg-warning text-dark">' + status + '</span>';
+            // Stock changes — show as info
+            return '<span class="badge bg-info text-dark" style="font-size:0.7rem;">' + status + '</span>';
+        }
+
+        // ---------------------------------------------------------------
+        // HELPER: Get operation type badge
+        // ---------------------------------------------------------------
+        function getOperationTypeBadge(opType) {
+            var colors = {
+                "Request Received": "bg-secondary",
+                "Request Accepted": "bg-primary",
+                "Stock Updated": "bg-warning text-dark",
+                "Vehicle Assigned": "bg-info text-dark",
+                "Vehicle Released": "bg-success",
+                "Dispatched": "bg-info text-dark",
+                "In Transit": "bg-warning text-dark",
+                "Delivered": "bg-success"
+            };
+            var cls = colors[opType] || "bg-secondary";
+            return '<span class="badge ' + cls + '">' + opType + '</span>';
+        }
+
+
+        // ---------------------------------------------------------------
+        // RENDER: Populate the operation history table and summary cards
+        // ---------------------------------------------------------------
+        function renderOperationHistory(data) {
+            var tbody = document.getElementById("operationHistoryBody");
+            var noMsg = document.getElementById("noRecordsMsg");
+            var countSpan = document.getElementById("historyResultCount");
+
+            tbody.innerHTML = "";
+
+            if (data.length === 0) {
+                noMsg.style.display = "block";
+                document.getElementById("operationHistoryTable").style.display = "none";
+                countSpan.textContent = "";
+            } else {
+                noMsg.style.display = "none";
+                document.getElementById("operationHistoryTable").style.display = "table";
+                countSpan.textContent = "Showing " + data.length + " record(s)";
+
+                for (var i = 0; i < data.length; i++) {
+                    var op = data[i];
+                    var row = document.createElement("tr");
+                    row.innerHTML =
+                        "<td>" + (i + 1) + "</td>" +
+                        "<td><strong>" + op.opId + "</strong></td>" +
+                        "<td>" + op.requestId + "</td>" +
+                        "<td>" + op.entityId + "</td>" +
+                        "<td>" + getOperationTypeBadge(op.operationType) + "</td>" +
+                        "<td>" + getStatusBadge(op.prevStatus) + "</td>" +
+                        "<td>" + getStatusBadge(op.newStatus) + "</td>" +
+                        "<td>" + formatDateReadable(op.date) + "</td>" +
+                        "<td>" + formatTimeIST(op.time) + "</td>" +
+                        "<td>" + op.updatedBy + "</td>" +
+                        '<td><button class="btn btn-outline-danger btn-sm" onclick="viewOperationDetail(\'' + op.opId + '\')">View</button></td>';
+                    tbody.appendChild(row);
+                }
+            }
+
+            // Update summary cards
+            updateSummaryCards(data);
+        }
+
+
+        // ---------------------------------------------------------------
+        // SUMMARY CARDS: Count operations by type from filtered data
+        // ---------------------------------------------------------------
+        function updateSummaryCards(data) {
+            var received = 0, processed = 0, dispatched = 0, delivered = 0, stockUpdates = 0;
+
+            for (var i = 0; i < data.length; i++) {
+                var opType = data[i].operationType;
+                if (opType === "Request Received") received++;
+                if (opType === "Request Accepted") processed++;
+                if (opType === "Dispatched" || opType === "Vehicle Assigned") dispatched++;
+                if (opType === "Delivered") delivered++;
+                if (opType === "Stock Updated") stockUpdates++;
+            }
+
+            document.getElementById("summaryRequestsReceived").textContent = received;
+            document.getElementById("summaryRequestsProcessed").textContent = processed;
+            document.getElementById("summaryVehiclesDispatched").textContent = dispatched;
+            document.getElementById("summaryDeliveriesCompleted").textContent = delivered;
+            document.getElementById("summaryStockUpdates").textContent = stockUpdates;
+        }
+
+
+        // ---------------------------------------------------------------
+        // FILTER: Date range + category filtering
+        // ---------------------------------------------------------------
+        function filterOperationHistory() {
+            var fromDate = document.getElementById("filterFromDate").value;
+            var toDate = document.getElementById("filterToDate").value;
+            var category = document.getElementById("filterCategory").value;
+            var errorDiv = document.getElementById("dateValidationError");
+
+            // Validate: From Date must not be later than To Date
+            if (fromDate && toDate && fromDate > toDate) {
+                errorDiv.style.display = "block";
+                return;
+            }
+            errorDiv.style.display = "none";
+
+            // Filter the data
+            var filtered = [];
+            for (var i = 0; i < operationHistoryData.length; i++) {
+                var op = operationHistoryData[i];
+                var matchDate = true;
+                var matchCategory = true;
+
+                // Date filter
+                if (fromDate && op.date < fromDate) matchDate = false;
+                if (toDate && op.date > toDate) matchDate = false;
+
+                // Category filter
+                if (category !== "all") {
+                    if (category === "shop" && op.category !== "request") matchCategory = false;
+                    if (category === "warehouse" && op.category !== "warehouse") matchCategory = false;
+                    if (category === "vehicle" && op.category !== "vehicle") matchCategory = false;
+                    if (category === "request" && op.category !== "request") matchCategory = false;
+                    if (category === "delivery" && op.category !== "delivery") matchCategory = false;
+                }
+
+                if (matchDate && matchCategory) {
+                    filtered.push(op);
+                }
+            }
+
+            renderOperationHistory(filtered);
+        }
+
+
+        // ---------------------------------------------------------------
+        // RESET: Clear filters and show all records
+        // ---------------------------------------------------------------
+        function resetOperationFilter() {
+            document.getElementById("filterFromDate").value = "";
+            document.getElementById("filterToDate").value = "";
+            document.getElementById("filterCategory").value = "all";
+            document.getElementById("dateValidationError").style.display = "none";
+            renderOperationHistory(operationHistoryData);
+        }
+
+
+        // ---------------------------------------------------------------
+        // VIEW DETAILS: Show detailed modal for a specific operation
+        // ---------------------------------------------------------------
+        function viewOperationDetail(opId) {
+            var op = null;
+            for (var i = 0; i < operationHistoryData.length; i++) {
+                if (operationHistoryData[i].opId === opId) {
+                    op = operationHistoryData[i];
+                    break;
+                }
+            }
+            if (!op) return;
+
+            document.getElementById("operationDetailTitle").textContent = "Operation Details — " + op.opId;
+
+            // Find related operations for the same request
+            var relatedOps = [];
+            for (var j = 0; j < operationHistoryData.length; j++) {
+                if (operationHistoryData[j].requestId === op.requestId) {
+                    relatedOps.push(operationHistoryData[j]);
+                }
+            }
+
+            var html = "";
+
+            // Main details card
+            html += '<div class="p-3 border rounded mb-3">';
+            html += '<div class="row">';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Operation ID:</strong> ' + op.opId + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Request ID:</strong> ' + op.requestId + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Entity ID:</strong> ' + op.entityId + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Category:</strong> ' + op.category.charAt(0).toUpperCase() + op.category.slice(1) + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Operation:</strong> ' + getOperationTypeBadge(op.operationType) + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Updated By:</strong> ' + op.updatedBy + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Date:</strong> ' + formatDateReadable(op.date) + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Time:</strong> ' + formatTimeIST(op.time) + '</p></div>';
+            html += '<div class="col-12"><p class="mb-1"><strong>Status Change:</strong> ' + getStatusBadge(op.prevStatus) + ' → ' + getStatusBadge(op.newStatus) + '</p></div>';
+            html += '</div>';
+            html += '<hr>';
+            html += '<p class="mb-0" style="font-size: 0.9rem;"><strong>Description:</strong><br>' + op.details + '</p>';
+            html += '</div>';
+
+            // Related operations timeline
+            if (relatedOps.length > 1) {
+                html += '<h6 class="mt-3 mb-2" style="font-weight: 600;">📋 Full Timeline for ' + op.requestId + '</h6>';
+                html += '<div class="list-group">';
+                for (var k = 0; k < relatedOps.length; k++) {
+                    var r = relatedOps[k];
+                    var isActive = r.opId === op.opId ? ' list-group-item-warning' : '';
+                    html += '<div class="list-group-item' + isActive + '" style="font-size: 0.85rem;">';
+                    html += '<div class="d-flex justify-content-between align-items-center">';
+                    html += '<div>' + getOperationTypeBadge(r.operationType) + ' <span class="ms-2 text-muted">' + r.opId + '</span></div>';
+                    html += '<div class="text-muted" style="font-size: 0.78rem;">' + formatDateReadable(r.date) + ' · ' + formatTimeIST(r.time) + '</div>';
+                    html += '</div>';
+                    html += '<div class="mt-1">' + getStatusBadge(r.prevStatus) + ' → ' + getStatusBadge(r.newStatus) + ' <span class="ms-2 text-muted">by ' + r.updatedBy + '</span></div>';
+                    html += '</div>';
+                }
+                html += '</div>';
+            }
+
+            document.getElementById("operationDetailBody").innerHTML = html;
+
+            var modal = new bootstrap.Modal(document.getElementById("operationDetailModal"));
+            modal.show();
+        }
+
+    </script>
 
 </body>
 </html>
