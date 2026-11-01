@@ -153,8 +153,9 @@
                             <div class="mb-3">
                                 <label for="warehouse" class="form-label">Choose Warehouse:</label>
                                 <select class="form-select" id="warehouse">
-                                    <option value="Valam Central Warehouse">Valam Central Warehouse</option>
-                                    <option value="Valam North Warehouse">Valam North Warehouse</option>
+                                    <option value="Valam Central Warehouse">Valam Central Warehouse (W01 - Central Area)</option>
+                                    <option value="Valam North Warehouse">Valam North Warehouse (W02 - North Area)</option>
+                                    <option value="Valam South Warehouse">Valam South Warehouse (W03 - South Area)</option>
                                 </select>
                             </div>
 
@@ -209,31 +210,43 @@
             <div class="card p-4">
                 <h5 class="mb-3">Warehouse Stock &amp; Location</h5>
 
-                <div class="alert alert-success mb-3 py-2" role="alert">
+                <div class="alert alert-success mb-3 py-2" role="alert" id="nearestWarehouseAlert">
                     <strong>Nearest Warehouse:</strong> Valam Central Warehouse (5 km)
                 </div>
 
                 <!-- Warehouse 1 -->
                 <div class="mb-3 p-3 border rounded">
-                    <h6 class="mb-1"><strong>Valam Central Warehouse</strong></h6>
-                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: Central Area &nbsp;|&nbsp; Distance: 5 km</p>
+                    <h6 class="mb-1"><strong>Valam Central Warehouse (W01)</strong></h6>
+                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: Central Area (Nagercoil) &nbsp;|&nbsp; Distance: 10 km</p>
                     <p class="mb-0" style="font-size: 0.9rem;">
                         <strong>Available Stock:</strong><br>
-                        Rice: <span class="badge bg-success">5000 kg</span> &nbsp;
-                        Wheat: <span class="badge bg-success">3200 kg</span> &nbsp;
-                        Sugar: <span class="badge bg-success">1500 kg</span>
+                        Rice: <span class="badge bg-success" id="shopStockW01Rice">5000 kg</span> &nbsp;
+                        Wheat: <span class="badge bg-success" id="shopStockW01Wheat">3200 kg</span> &nbsp;
+                        Sugar: <span class="badge bg-success" id="shopStockW01Sugar">1500 kg</span>
                     </p>
                 </div>
 
                 <!-- Warehouse 2 -->
-                <div class="p-3 border rounded">
-                    <h6 class="mb-1"><strong>Valam North Warehouse</strong></h6>
-                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: North Area &nbsp;|&nbsp; Distance: 8 km</p>
+                <div class="mb-3 p-3 border rounded">
+                    <h6 class="mb-1"><strong>Valam North Warehouse (W02)</strong></h6>
+                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: North Area (Marthandam) &nbsp;|&nbsp; Distance: 8 km</p>
                     <p class="mb-0" style="font-size: 0.9rem;">
                         <strong>Available Stock:</strong><br>
-                        Rice: <span class="badge bg-success">4500 kg</span> &nbsp;
-                        Wheat: <span class="badge bg-success">2800 kg</span> &nbsp;
-                        Sugar: <span class="badge bg-success">1200 kg</span>
+                        Rice: <span class="badge bg-success" id="shopStockW02Rice">4500 kg</span> &nbsp;
+                        Wheat: <span class="badge bg-success" id="shopStockW02Wheat">2800 kg</span> &nbsp;
+                        Sugar: <span class="badge bg-success" id="shopStockW02Sugar">1200 kg</span>
+                    </p>
+                </div>
+
+                <!-- Warehouse 3 -->
+                <div class="p-3 border rounded">
+                    <h6 class="mb-1"><strong>Valam South Warehouse (W03)</strong></h6>
+                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: South Area (Kanyakumari) &nbsp;|&nbsp; Distance: 3 km</p>
+                    <p class="mb-0" style="font-size: 0.9rem;">
+                        <strong>Available Stock:</strong><br>
+                        Rice: <span class="badge bg-success" id="shopStockW03Rice">4000 kg</span> &nbsp;
+                        Wheat: <span class="badge bg-success" id="shopStockW03Wheat">2500 kg</span> &nbsp;
+                        Sugar: <span class="badge bg-success" id="shopStockW03Sugar">1000 kg</span>
                     </p>
                 </div>
             </div>
@@ -479,6 +492,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
 
     <!-- JavaScript for Shop Functionality -->
     <script>
@@ -489,18 +503,11 @@
         // ---------------------------------------------------------------
         var loggedInUser = sessionStorage.getItem("valam_user") || "Shop01";
         
-        // Map username to Shop ID
-        var shopUserMap = {
-            "Shop01": { id: "S01", name: "FPS Nagercoil" },
-            "Shop02": { id: "S02", name: "FPS Marthandam" },
-            "Shop03": { id: "S03", name: "FPS Colachel" },
-            "Shop04": { id: "S04", name: "FPS Kanyakumari" },
-            "Shop05": { id: "S05", name: "FPS Thuckalay" }
-        };
+        var currentShop = (typeof SHOP_USER_MAP !== "undefined" && SHOP_USER_MAP[loggedInUser]) 
+            ? SHOP_USER_MAP[loggedInUser] 
+            : { id: "S01", name: "FPS Nagercoil", nearestWh: "W01", nearestWhName: "Valam Central Warehouse", distance: "5 km" };
 
-        var currentShop = shopUserMap[loggedInUser] || { id: "S01", name: "FPS Nagercoil" };
-
-        // Set UI welcome and badge
+        // Set UI welcome, badge and initial setup
         document.addEventListener("DOMContentLoaded", function() {
             var badge = document.getElementById("shopUserBadge");
             if (badge) badge.textContent = "Logged in: " + loggedInUser + " (" + currentShop.id + " - " + currentShop.name + ")";
@@ -508,7 +515,34 @@
             if (heading) heading.textContent = "Welcome, " + currentShop.name + " (" + currentShop.id + ")";
             var filterBadge = document.getElementById("shopActiveFilterBadge");
             if (filterBadge) filterBadge.textContent = "Shop: " + currentShop.id + " (" + currentShop.name + ")";
+
+            updateShopWarehouseView();
+            renderInitialShopTables();
+            refreshShopDataFromServer();
         });
+
+        async function refreshShopDataFromServer() {
+            try {
+                if (typeof valamApiCall === "function") {
+                    var reqs = await valamApiCall("/api/requests?shopId=" + encodeURIComponent(currentShop.id), "GET");
+                    if (reqs && Array.isArray(reqs)) {
+                        allShopRequests = reqs;
+                        renderInitialShopTables();
+                    }
+                    var whs = await valamApiCall("/api/warehouses", "GET");
+                    if (whs && Array.isArray(whs)) {
+                        var whMap = {};
+                        for (var i = 0; i < whs.length; i++) whMap[whs[i].id] = whs[i];
+                        if (typeof sessionStorage !== "undefined") {
+                            sessionStorage.setItem("valam_warehouses_stock", JSON.stringify(whMap));
+                        }
+                        updateShopWarehouseView();
+                    }
+                }
+            } catch (e) {
+                console.warn("[Shop] Server sync error:", e);
+            }
+        }
 
         // ---------------------------------------------------------------
         // SECTION NAVIGATION
@@ -531,6 +565,9 @@
             if (target) {
                 target.style.display = "block";
             }
+            if (sectionId === "warehouseView") {
+                updateShopWarehouseView();
+            }
             if (sectionId === "requestHistoryView") {
                 renderShopHistory(getShopFilteredData());
             }
@@ -544,6 +581,39 @@
             }
             document.getElementById("dashboardMain").style.display = "block";
             window.scrollTo(0, 0);
+        }
+
+        // ---------------------------------------------------------------
+        // WAREHOUSE VIEW DATA SYNC (W01, W02, W03)
+        // ---------------------------------------------------------------
+        function updateShopWarehouseView() {
+            if (typeof getValamWarehouseStock !== "function") return;
+            var sW01 = getValamWarehouseStock("W01");
+            var sW02 = getValamWarehouseStock("W02");
+            var sW03 = getValamWarehouseStock("W03");
+
+            var nearestWhName = currentShop.nearestWhName || "Valam Central Warehouse";
+            var nearestDist = currentShop.distance || "5 km";
+            var nearestAlert = document.getElementById("nearestWarehouseAlert");
+            if (nearestAlert) {
+                nearestAlert.innerHTML = '<strong>Nearest Warehouse:</strong> ' + nearestWhName + ' (' + nearestDist + ')';
+            }
+
+            if (document.getElementById("shopStockW01Rice")) {
+                document.getElementById("shopStockW01Rice").textContent = sW01.available.rice + " kg";
+                document.getElementById("shopStockW01Wheat").textContent = sW01.available.wheat + " kg";
+                document.getElementById("shopStockW01Sugar").textContent = sW01.available.sugar + " kg";
+            }
+            if (document.getElementById("shopStockW02Rice")) {
+                document.getElementById("shopStockW02Rice").textContent = sW02.available.rice + " kg";
+                document.getElementById("shopStockW02Wheat").textContent = sW02.available.wheat + " kg";
+                document.getElementById("shopStockW02Sugar").textContent = sW02.available.sugar + " kg";
+            }
+            if (document.getElementById("shopStockW03Rice")) {
+                document.getElementById("shopStockW03Rice").textContent = sW03.available.rice + " kg";
+                document.getElementById("shopStockW03Wheat").textContent = sW03.available.wheat + " kg";
+                document.getElementById("shopStockW03Sugar").textContent = sW03.available.sugar + " kg";
+            }
         }
 
         // ---------------------------------------------------------------
@@ -585,248 +655,21 @@
         }
 
         // ---------------------------------------------------------------
-        // REQUEST REPOSITORY WITH COMPREHENSIVE AUDIT TIMELINES
+        // REQUEST REPOSITORY (INITIALIZED FROM CENTRALIZED STORAGE)
         // ---------------------------------------------------------------
-        var allShopRequests = [
-            // REQ-101 for S01
-            {
-                requestId: "REQ-101",
-                shopId: "S01",
-                rice: "200",
-                wheat: "100",
-                sugar: "50",
-                urgency: "critical",
-                warehouse: "Valam Central Warehouse",
-                status: "Dispatched",
-                vehicle: "V01",
-                route: "Valam Central Warehouse → FPS Nagercoil",
-                submittedDate: "2026-10-20",
-                submittedTime: "09:15:00",
-                lastUpdatedDate: "2026-10-21",
-                lastUpdatedTime: "08:30:00",
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: "2026-10-20",
-                        time: "09:15:00",
-                        status: "Pending",
-                        updatedBy: "Shop01 Staff",
-                        details: "Commodity stock request submitted for Rice: 200 kg, Wheat: 100 kg, Sugar: 50 kg. Urgency: Critical."
-                    },
-                    {
-                        stage: "Request Accepted / Processed",
-                        date: "2026-10-20",
-                        time: "10:30:00",
-                        status: "Reserved",
-                        updatedBy: "Wh01 Staff",
-                        details: "Request accepted at Valam Central Warehouse. Commodity stock reserved."
-                    },
-                    {
-                        stage: "Vehicle Assigned",
-                        date: "2026-10-21",
-                        time: "08:00:00",
-                        status: "Reserved",
-                        updatedBy: "Wh01 Dispatch Staff",
-                        details: "Delivery vehicle V01 (TN-74-AA-1234, Eicher 14ft) assigned."
-                    },
-                    {
-                        stage: "Dispatched",
-                        date: "2026-10-21",
-                        time: "08:30:00",
-                        status: "Dispatched",
-                        updatedBy: "Wh01 Dispatch Staff",
-                        details: "Commodity consignment dispatched from Valam Central Warehouse to FPS Nagercoil."
-                    }
-                ]
-            },
-            // REQ-102 for S02
-            {
-                requestId: "REQ-102",
-                shopId: "S02",
-                rice: "300",
-                wheat: "150",
-                sugar: "80",
-                urgency: "normal",
-                warehouse: "Valam North Warehouse",
-                status: "Delivered",
-                vehicle: "V02",
-                route: "Valam North Warehouse → FPS Marthandam",
-                submittedDate: "2026-10-18",
-                submittedTime: "11:00:00",
-                lastUpdatedDate: "2026-10-19",
-                lastUpdatedTime: "11:45:00",
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: "2026-10-18",
-                        time: "11:00:00",
-                        status: "Pending",
-                        updatedBy: "Shop02 Staff",
-                        details: "Commodity stock request submitted. Rice: 300 kg, Wheat: 150 kg, Sugar: 80 kg."
-                    },
-                    {
-                        stage: "Request Accepted / Processed",
-                        date: "2026-10-18",
-                        time: "14:20:00",
-                        status: "Reserved",
-                        updatedBy: "Wh02 Staff",
-                        details: "Request verified and approved. Stock reserved at Valam North Warehouse."
-                    },
-                    {
-                        stage: "Vehicle Assigned",
-                        date: "2026-10-19",
-                        time: "07:45:00",
-                        status: "Reserved",
-                        updatedBy: "Wh02 Dispatch",
-                        details: "Vehicle V02 (TN-74-BB-5678, Tata 407) assigned."
-                    },
-                    {
-                        stage: "Dispatched",
-                        date: "2026-10-19",
-                        time: "08:15:00",
-                        status: "Dispatched",
-                        updatedBy: "Wh02 Dispatch",
-                        details: "Shipment dispatched towards Marthandam Central."
-                    },
-                    {
-                        stage: "In Transit",
-                        date: "2026-10-19",
-                        time: "09:30:00",
-                        status: "In Transit",
-                        updatedBy: "Fleet GPS System",
-                        details: "Vehicle in transit. Estimated delivery 11:30 AM."
-                    },
-                    {
-                        stage: "Delivered",
-                        date: "2026-10-19",
-                        time: "11:45:00",
-                        status: "Delivered",
-                        updatedBy: "Shop02 Staff",
-                        details: "Consignment safely delivered and verified at FPS Marthandam."
-                    }
-                ]
-            },
-            // REQ-103 for S03
-            {
-                requestId: "REQ-103",
-                shopId: "S03",
-                rice: "500",
-                wheat: "400",
-                sugar: "50",
-                urgency: "normal",
-                warehouse: "Valam Central Warehouse",
-                status: "Pending",
-                vehicle: "Not Assigned",
-                route: "Warehouse → Shop",
-                submittedDate: "2026-10-25",
-                submittedTime: "10:00:00",
-                lastUpdatedDate: "2026-10-25",
-                lastUpdatedTime: "10:00:00",
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: "2026-10-25",
-                        time: "10:00:00",
-                        status: "Pending",
-                        updatedBy: "Shop03 Staff",
-                        details: "Request submitted. Awaiting acceptance from Central Warehouse staff."
-                    }
-                ]
-            },
-            // REQ-104 for S04
-            {
-                requestId: "REQ-104",
-                shopId: "S04",
-                rice: "250",
-                wheat: "200",
-                sugar: "100",
-                urgency: "urgent",
-                warehouse: "Valam North Warehouse",
-                status: "In Transit",
-                vehicle: "V03",
-                route: "Valam North Warehouse → FPS Kanyakumari",
-                submittedDate: "2026-10-22",
-                submittedTime: "09:00:00",
-                lastUpdatedDate: "2026-10-23",
-                lastUpdatedTime: "09:15:00",
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: "2026-10-22",
-                        time: "09:00:00",
-                        status: "Pending",
-                        updatedBy: "Shop04 Staff",
-                        details: "Urgent request submitted for festival quota."
-                    },
-                    {
-                        stage: "Request Accepted / Processed",
-                        date: "2026-10-22",
-                        time: "09:45:00",
-                        status: "Reserved",
-                        updatedBy: "Wh02 Staff",
-                        details: "Request expedited and approved. Stock allocated."
-                    },
-                    {
-                        stage: "Vehicle Assigned",
-                        date: "2026-10-23",
-                        time: "07:30:00",
-                        status: "Reserved",
-                        updatedBy: "Wh02 Staff",
-                        details: "Vehicle V03 (TN-74-CC-9012) assigned."
-                    },
-                    {
-                        stage: "Dispatched",
-                        date: "2026-10-23",
-                        time: "08:00:00",
-                        status: "Dispatched",
-                        updatedBy: "Wh02 Staff",
-                        details: "Dispatched towards Kanyakumari."
-                    },
-                    {
-                        stage: "In Transit",
-                        date: "2026-10-23",
-                        time: "09:15:00",
-                        status: "In Transit",
-                        updatedBy: "System",
-                        details: "Vehicle currently in transit along NH-66."
-                    }
-                ]
-            },
-            // REQ-105 for S05
-            {
-                requestId: "REQ-105",
-                shopId: "S05",
-                rice: "400",
-                wheat: "250",
-                sugar: "75",
-                urgency: "normal",
-                warehouse: "Valam Central Warehouse",
-                status: "Pending",
-                vehicle: "Not Assigned",
-                route: "Warehouse → Shop",
-                submittedDate: "2026-10-26",
-                submittedTime: "14:30:00",
-                lastUpdatedDate: "2026-10-26",
-                lastUpdatedTime: "14:30:00",
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: "2026-10-26",
-                        time: "14:30:00",
-                        status: "Pending",
-                        updatedBy: "Shop05 Staff",
-                        details: "Regular monthly commodity request submitted."
-                    }
-                ]
-            }
-        ];
+        var allShopRequests = (typeof getValamRequests === "function") 
+            ? getValamRequests() 
+            : (typeof INITIAL_VALAM_REQUESTS !== "undefined" ? INITIAL_VALAM_REQUESTS : []);
 
-        var requestCounter = 106;
+        var requestCounter = 109;
 
         // ---------------------------------------------------------------
         // HELPER: Get requests belonging ONLY to current shop
         // ---------------------------------------------------------------
         function getShopFilteredData() {
+            if (typeof getValamRequests === "function") {
+                allShopRequests = getValamRequests();
+            }
             var list = [];
             for (var i = 0; i < allShopRequests.length; i++) {
                 if (allShopRequests[i].shopId === currentShop.id) {
@@ -836,27 +679,69 @@
             return list;
         }
 
+        // Populate initial dashboard tables for logged-in shop
+        function renderInitialShopTables() {
+            var myReqs = getShopFilteredData();
+            var recentTbody = document.getElementById("recentRequestsBody");
+            var statusTbody = document.getElementById("requestStatusBody");
+            var deliveryList = document.getElementById("deliveryStatusList");
+
+            if (recentTbody) recentTbody.innerHTML = "";
+            if (statusTbody) statusTbody.innerHTML = "";
+            if (deliveryList) deliveryList.innerHTML = "";
+
+            if (myReqs.length === 0) {
+                if (recentTbody) recentTbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No requests submitted yet. Use Create Request above.</td></tr>';
+                if (statusTbody) statusTbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No request statuses available.</td></tr>';
+                if (deliveryList) deliveryList.innerHTML = '<p class="text-muted text-center py-3">No active deliveries for this shop.</p>';
+                return;
+            }
+
+            for (var i = 0; i < myReqs.length; i++) {
+                var req = myReqs[i];
+                addRecentRequestRow(req);
+                addRequestStatusRow(req);
+                addDeliveryStatusCard(req);
+            }
+        }
+
         // ---------------------------------------------------------------
-        // SUBMIT NEW REQUEST WITH LIVE IST TIMESTAMPS
+        // SUBMIT NEW REQUEST WITH LIVE IST TIMESTAMPS & WAREHOUSE ID
         // ---------------------------------------------------------------
-        function submitRequest(event) {
+        async function submitRequest(event) {
             event.preventDefault();
 
             var rice = document.getElementById("rice").value.trim();
             var wheat = document.getElementById("wheat").value.trim();
             var sugar = document.getElementById("sugar").value.trim();
             var urgency = document.getElementById("urgency").value;
-            var warehouse = document.getElementById("warehouse").value;
+            var warehouseSelect = document.getElementById("warehouse").value;
 
             if (rice === "" && wheat === "" && sugar === "") {
                 alert("Please enter at least one commodity quantity.");
                 return;
             }
 
+            var warehouseId = "W01";
+            var warehouseName = warehouseSelect;
+
+            if (warehouseSelect.indexOf("North") !== -1 || warehouseSelect.indexOf("W02") !== -1) {
+                warehouseId = "W02";
+                warehouseName = "Valam North Warehouse";
+            } else if (warehouseSelect.indexOf("South") !== -1 || warehouseSelect.indexOf("W03") !== -1) {
+                warehouseId = "W03";
+                warehouseName = "Valam South Warehouse";
+            } else {
+                warehouseId = "W01";
+                warehouseName = "Valam Central Warehouse";
+            }
+
             var todayDate = getCurrentDateIST();
             var nowTime = getCurrentTimeIST();
-            var requestId = "REQ-" + requestCounter;
-            requestCounter++;
+            var reqList = (typeof getValamRequests === "function") ? getValamRequests() : allShopRequests;
+            var nextNum = 101 + reqList.length;
+            var requestId = "REQ-" + (nextNum >= requestCounter ? nextNum : requestCounter);
+            requestCounter = parseInt(requestId.replace("REQ-", "")) + 1;
 
             rice = rice === "" ? "0" : rice;
             wheat = wheat === "" ? "0" : wheat;
@@ -869,10 +754,11 @@
                 wheat: wheat,
                 sugar: sugar,
                 urgency: urgency,
-                warehouse: warehouse,
+                warehouseId: warehouseId,
+                warehouse: warehouseName,
                 status: "Pending",
                 vehicle: "Not Assigned",
-                route: "Warehouse → Shop",
+                route: warehouseName + " → " + currentShop.name,
                 submittedDate: todayDate,
                 submittedTime: nowTime,
                 lastUpdatedDate: todayDate,
@@ -884,21 +770,21 @@
                         time: nowTime,
                         status: "Pending",
                         updatedBy: loggedInUser + " Staff",
-                        details: "Request " + requestId + " submitted for " + rice + "kg Rice, " + wheat + "kg Wheat, " + sugar + "kg Sugar."
+                        details: "Request " + requestId + " submitted for " + rice + "kg Rice, " + wheat + "kg Wheat, " + sugar + "kg Sugar to " + warehouseName + " (" + warehouseId + ")."
                     }
                 ]
             };
 
-            // Add to repository
-            allShopRequests.push(newRequest);
+            // Save to centralized storage
+            if (typeof addValamRequest === "function") {
+                allShopRequests = addValamRequest(newRequest);
+            } else {
+                allShopRequests.unshift(newRequest);
+            }
 
-            // Update Recent Requests table
+            // Update UI
             addRecentRequestRow(newRequest);
-
-            // Update Request Status table
             addRequestStatusRow(newRequest);
-
-            // Update Delivery Status view
             addDeliveryStatusCard(newRequest);
 
             // Clear inputs
@@ -906,9 +792,9 @@
             document.getElementById("wheat").value = "";
             document.getElementById("sugar").value = "";
             document.getElementById("urgency").value = "normal";
-            document.getElementById("warehouse").value = "Valam Central Warehouse";
+            document.getElementById("warehouse").selectedIndex = 0;
 
-            alert("✅ Request submitted successfully!\n\nRequest ID: " + requestId + "\nSubmitted At: " + todayDate + " " + formatTime12IST(nowTime));
+            alert("✅ Request submitted successfully!\n\nRequest ID: " + requestId + "\nAssigned Warehouse: " + warehouseName + " (" + warehouseId + ")\nSubmitted At: " + todayDate + " " + formatTime12IST(nowTime));
 
             // Refresh history view if visible
             renderShopHistory(getShopFilteredData());
