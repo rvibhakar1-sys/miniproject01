@@ -1,42 +1,14 @@
 
-// ---------------------------------------------------------------
-// CREDENTIALS DATABASE
-// Each role has its own username and password.
-// In a real app this would be checked on a server/database.
-// ---------------------------------------------------------------
-var credentials = {
-    admin: [
-        { username: "Admin", password: "admin@01" }
-    ],
-    warehouse: [
-        { username: "Wh01", password: "wh@01" },
-        { username: "Wh02", password: "wh@02" },
-        { username: "Wh03", password: "wh@03" }
-    ],
-    shop: [
-        { username: "Shop01", password: "shop@01" },
-        { username: "Shop02", password: "shop@02" },
-        { username: "Shop03", password: "shop@03" },
-        { username: "Shop04", password: "shop@04" },
-        { username: "Shop05", password: "shop@05" }
-    ]
-};
-
-// Variable to track which portal the user clicked
 var selectedRole = "";
 
-// ---------------------------------------------------------------
-// Portal-based navigation (opens login modal instead of redirect)
-// ---------------------------------------------------------------
 function goToPortal(role) {
+
     selectedRole = role;
 
-    // Update modal appearance based on role
     var icon = document.getElementById("modalPortalIcon");
     var portalName = document.getElementById("modalPortalName");
     var loginBtn = document.getElementById("loginBtn");
 
-    // Reset classes
     icon.className = "portal-icon";
 
     if (role === "admin") {
@@ -44,11 +16,13 @@ function goToPortal(role) {
         icon.textContent = "A";
         portalName.textContent = "Admin Portal";
         loginBtn.style.backgroundColor = "#d93829";
+
     } else if (role === "warehouse") {
         icon.classList.add("warehouse-portal-icon");
         icon.textContent = "W";
         portalName.textContent = "Warehouse Portal";
         loginBtn.style.backgroundColor = "#2563eb";
+
     } else if (role === "shop") {
         icon.classList.add("shop-portal-icon");
         icon.textContent = "S";
@@ -56,63 +30,70 @@ function goToPortal(role) {
         loginBtn.style.backgroundColor = "#16a34a";
     }
 
-    // Clear previous inputs and errors
     document.getElementById("username").value = "";
     document.getElementById("password").value = "";
     document.getElementById("loginError").style.display = "none";
 
-    // Show the login modal
-    var loginModal = new bootstrap.Modal(document.getElementById("loginModal"));
+    var loginModal = new bootstrap.Modal(
+        document.getElementById("loginModal")
+    );
+
     loginModal.show();
 }
 
-// ---------------------------------------------------------------
-// Handle login form submission
-// Validates username & password before redirecting
-// ---------------------------------------------------------------
-function handleLogin(event) {
-    // Prevent the form from refreshing the page
+async function handleLogin(event) {
+
     event.preventDefault();
 
-    // Get the values from the form
     var username = document.getElementById("username").value.trim();
-    var password = document.getElementById("password").value.trim();
+    var password = document.getElementById("password").value;
     var errorDiv = document.getElementById("loginError");
 
-    // Check if username and password are entered
     if (username === "" || password === "") {
         errorDiv.textContent = "Please enter both username and password.";
         errorDiv.style.display = "block";
         return;
     }
 
-    // Validate credentials against the stored data
-    var validCredsList = credentials[selectedRole];
-    var isValid = false;
+    try {
 
-    for (var i = 0; i < validCredsList.length; i++) {
-        if (username === validCredsList[i].username && password === validCredsList[i].password) {
-            isValid = true;
-            break;
+        errorDiv.style.display = "none";
+
+        const response = await fetch("http://localhost:8080/api/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || "Invalid username or password");
         }
-    }
 
-    if (isValid) {
-        // Save current user session
-        sessionStorage.setItem("valam_user", username);
-        sessionStorage.setItem("valam_role", selectedRole);
+        // Save user session
+        sessionStorage.setItem("valam_user", result.username);
+        sessionStorage.setItem("valam_role", result.role.toLowerCase());
 
-        // Correct credentials — redirect to the dashboard
-        if (selectedRole === "admin") {
+        // Redirect according to database role
+        if (result.role === "ADMIN") {
             window.location.href = "admin.html";
-        } else if (selectedRole === "warehouse") {
+        } else if (result.role === "WAREHOUSE") {
             window.location.href = "warehouse.html";
-        } else if (selectedRole === "shop") {
+        } else if (result.role === "SHOP") {
             window.location.href = "shop.html";
         }
-    } else {
-        // Wrong credentials — show error
-        errorDiv.textContent = "Invalid username or password. Please try again.";
+
+    } catch (error) {
+
+        errorDiv.textContent = error.message;
         errorDiv.style.display = "block";
+
+        console.error("Login error:", error);
     }
 }

@@ -1311,66 +1311,115 @@
         // ---------------------------------------------------------------
         // MANUAL STOCK ADDITION
         // ---------------------------------------------------------------
-        function handleManualStockAdd(event) {
+        async function handleManualStockAdd(event) {    
             event.preventDefault();
+
             var comm = document.getElementById("addCommodity").value;
-            var qty = parseInt(document.getElementById("addQuantity").value) || 0;
+            var qty = parseFloat(document.getElementById("addQuantity").value);
             var reason = document.getElementById("addReason").value.trim();
 
-            if (qty <= 0) {
+            if (!qty || qty <= 0) {
                 alert("Please enter a valid quantity.");
                 return;
             }
 
-            var today = getCurrentDateIST();
-            var timeNow = getCurrentTimeIST();
-            var prev = warehouseStock[comm];
-            warehouseStock[comm] += qty;
+    // Convert commodity names into MySQL IDs
+    var commodityIds = {
+        rice: 1,
+        wheat: 2,
+        sugar: 3
+    };
 
-            var commName = comm.charAt(0).toUpperCase() + comm.slice(1);
+    var username = sessionStorage.getItem("valam_user");
+    console.log("Username:", username);
+    console.log("Commodity:", comm);
+    console.log("Commodity ID:", commodityIds[comm]);
+    console.log("Quantity:", qty);
 
-            stockHistoryData.unshift({
-                updateId: "STK-" + stockHistoryCounter++,
-                warehouseId: currentWarehouse.id,
-                commodity: commName,
-                previousStock: prev,
-                quantityAdded: qty,
-                quantityDeducted: 0,
-                currentStock: warehouseStock[comm],
-                reason: reason,
-                date: today,
-                time: timeNow,
-                updatedBy: loggedInUser + " Staff"
-            });
+    try {
+        const response = await fetch(
+            "http://localhost:8080/api/warehouses/stock/add",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: username,
+                    commodityId: commodityIds[comm],
+                    quantity: qty
+                })
+            }
+        );
 
-            lastStockUpdate = {
-                date: today,
-                time: timeNow,
-                updatedBy: loggedInUser + " Staff",
-                reason: reason
-            };
-            updateStockDisplays();
+        const result = await response.json();
 
-            warehouseOperationsData.unshift({
-                opId: "WH-OP-" + opCounter++,
-                requestId: "—",
-                warehouseId: currentWarehouse.id,
-                operationType: "Stock Added",
-                prevValue: prev + " kg",
-                newValue: warehouseStock[comm] + " kg (+" + qty + ")",
-                date: today,
-                time: timeNow,
-                updatedBy: loggedInUser + " Staff"
-            });
-
-            // Close modal
-            var modalEl = document.getElementById("addStockModal");
-            var modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
-
-            alert("✅ Successfully added " + qty + " kg of " + commName + " to stock!");
-            renderStockHistory(stockHistoryData);
+        if (!response.ok) {
+            throw new Error(result.message || "Stock update failed");
         }
+
+        // Update the displayed stock after MySQL confirms success
+        var today = getCurrentDateIST();
+        var timeNow = getCurrentTimeIST();
+        var prev = warehouseStock[comm];
+
+        warehouseStock[comm] += qty;
+
+        var commName = comm.charAt(0).toUpperCase() + comm.slice(1);
+
+        stockHistoryData.unshift({
+            updateId: "STK-" + stockHistoryCounter++,
+            warehouseId: currentWarehouse.id,
+            commodity: commName,
+            previousStock: prev,
+            quantityAdded: qty,
+            quantityDeducted: 0,
+            currentStock: warehouseStock[comm],
+            reason: reason,
+            date: today,
+            time: timeNow,
+            updatedBy: loggedInUser + " Staff"
+        });
+
+        lastStockUpdate = {
+            date: today,
+            time: timeNow,
+            updatedBy: loggedInUser + " Staff",
+            reason: reason
+        };
+
+        updateStockDisplays();
+
+        warehouseOperationsData.unshift({
+            opId: "WH-OP-" + opCounter++,
+            requestId: "—",
+            warehouseId: currentWarehouse.id,
+            operationType: "Stock Added",
+            prevValue: prev + " kg",
+            newValue: warehouseStock[comm] + " kg (+" + qty + ")",
+            date: today,
+            time: timeNow,
+            updatedBy: loggedInUser + " Staff"
+        });
+
+        var modalEl = document.getElementById("addStockModal");
+        var modal = bootstrap.Modal.getInstance(modalEl);
+
+        if (modal) {
+            modal.hide();
+        }
+
+        alert("Successfully added " + qty + " kg of " + commName + "!");
+
+        renderStockHistory(stockHistoryData);
+
+        document.getElementById("addStockForm")?.reset();
+
+    } catch (error) {
+        alert(error.message);
+        console.error("Stock update error:", error);
+    }
+}
 
         // ---------------------------------------------------------------
         // DELIVERY ASSIGNMENT
