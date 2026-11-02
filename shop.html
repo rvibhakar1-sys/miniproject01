@@ -26,7 +26,22 @@
 
         <!-- Welcome Message -->
         <h4 class="mb-1" id="shopWelcomeHeading">Welcome, Shop User</h4>
-        <p class="text-muted mb-4">Fair-Price Shop — Create requests, track deliveries, and monitor lifecycle history</p>
+        <p class="text-muted mb-3">Fair-Price Shop — Create requests, track deliveries, and monitor lifecycle history</p>
+
+        <!-- Current Shop Inventory / Stock Banner -->
+        <div class="card p-3 mb-4 shadow-sm" style="border-left: 5px solid #16a34a; background: #f8faf8;">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h6 class="mb-1" style="font-weight: 700; color: #16a34a;">🏪 Current Shop Inventory / Stock</h6>
+                    <span class="text-muted" style="font-size: 0.84rem;" id="shopStockLastUpdated">Last receipt: Never</span>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <span class="badge bg-success px-3 py-2" style="font-size: 0.88rem;">Rice: <strong id="shopRiceStock">0 kg</strong></span>
+                    <span class="badge bg-success px-3 py-2" style="font-size: 0.88rem;">Wheat: <strong id="shopWheatStock">0 kg</strong></span>
+                    <span class="badge bg-success px-3 py-2" style="font-size: 0.88rem;">Sugar: <strong id="shopSugarStock">0 kg</strong></span>
+                </div>
+            </div>
+        </div>
 
         <!-- ========== DASHBOARD MAIN MENU ========== -->
         <div id="dashboardMain">
@@ -153,8 +168,9 @@
                             <div class="mb-3">
                                 <label for="warehouse" class="form-label">Choose Warehouse:</label>
                                 <select class="form-select" id="warehouse">
-                                    <option value="Valam Central Warehouse">Valam Central Warehouse</option>
-                                    <option value="Valam North Warehouse">Valam North Warehouse</option>
+                                    <option value="Valam Central Warehouse">Valam Central Warehouse (W01 - Central Area)</option>
+                                    <option value="Valam North Warehouse">Valam North Warehouse (W02 - North Area)</option>
+                                    <option value="Valam South Warehouse">Valam South Warehouse (W03 - South Area)</option>
                                 </select>
                             </div>
 
@@ -181,15 +197,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="recentRequestsBody">
-                                    <tr>
-                                        <td>REQ-101</td>
-                                        <td>200</td>
-                                        <td>100</td>
-                                        <td>50</td>
-                                        <td><span class="badge bg-danger">Critical</span></td>
-                                        <td>Valam Central Warehouse</td>
-                                        <td><span class="badge bg-info text-dark">Dispatched</span></td>
-                                    </tr>
+                                    <!-- Populated dynamically from SQLite database -->
                                 </tbody>
                             </table>
                         </div>
@@ -209,31 +217,43 @@
             <div class="card p-4">
                 <h5 class="mb-3">Warehouse Stock &amp; Location</h5>
 
-                <div class="alert alert-success mb-3 py-2" role="alert">
+                <div class="alert alert-success mb-3 py-2" role="alert" id="nearestWarehouseAlert">
                     <strong>Nearest Warehouse:</strong> Valam Central Warehouse (5 km)
                 </div>
 
                 <!-- Warehouse 1 -->
                 <div class="mb-3 p-3 border rounded">
-                    <h6 class="mb-1"><strong>Valam Central Warehouse</strong></h6>
-                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: Central Area &nbsp;|&nbsp; Distance: 5 km</p>
+                    <h6 class="mb-1"><strong>Valam Central Warehouse (W01)</strong></h6>
+                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: Central Area (Nagercoil) &nbsp;|&nbsp; Distance: 10 km</p>
                     <p class="mb-0" style="font-size: 0.9rem;">
                         <strong>Available Stock:</strong><br>
-                        Rice: <span class="badge bg-success">5000 kg</span> &nbsp;
-                        Wheat: <span class="badge bg-success">3200 kg</span> &nbsp;
-                        Sugar: <span class="badge bg-success">1500 kg</span>
+                        Rice: <span class="badge bg-success" id="shopStockW01Rice">5000 kg</span> &nbsp;
+                        Wheat: <span class="badge bg-success" id="shopStockW01Wheat">3200 kg</span> &nbsp;
+                        Sugar: <span class="badge bg-success" id="shopStockW01Sugar">1500 kg</span>
                     </p>
                 </div>
 
                 <!-- Warehouse 2 -->
-                <div class="p-3 border rounded">
-                    <h6 class="mb-1"><strong>Valam North Warehouse</strong></h6>
-                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: North Area &nbsp;|&nbsp; Distance: 8 km</p>
+                <div class="mb-3 p-3 border rounded">
+                    <h6 class="mb-1"><strong>Valam North Warehouse (W02)</strong></h6>
+                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: North Area (Marthandam) &nbsp;|&nbsp; Distance: 8 km</p>
                     <p class="mb-0" style="font-size: 0.9rem;">
                         <strong>Available Stock:</strong><br>
-                        Rice: <span class="badge bg-success">4500 kg</span> &nbsp;
-                        Wheat: <span class="badge bg-success">2800 kg</span> &nbsp;
-                        Sugar: <span class="badge bg-success">1200 kg</span>
+                        Rice: <span class="badge bg-success" id="shopStockW02Rice">4500 kg</span> &nbsp;
+                        Wheat: <span class="badge bg-success" id="shopStockW02Wheat">2800 kg</span> &nbsp;
+                        Sugar: <span class="badge bg-success" id="shopStockW02Sugar">1200 kg</span>
+                    </p>
+                </div>
+
+                <!-- Warehouse 3 -->
+                <div class="p-3 border rounded">
+                    <h6 class="mb-1"><strong>Valam South Warehouse (W03)</strong></h6>
+                    <p class="text-muted mb-1" style="font-size: 0.9rem;">📍 Location: South Area (Kanyakumari) &nbsp;|&nbsp; Distance: 3 km</p>
+                    <p class="mb-0" style="font-size: 0.9rem;">
+                        <strong>Available Stock:</strong><br>
+                        Rice: <span class="badge bg-success" id="shopStockW03Rice">4000 kg</span> &nbsp;
+                        Wheat: <span class="badge bg-success" id="shopStockW03Wheat">2500 kg</span> &nbsp;
+                        Sugar: <span class="badge bg-success" id="shopStockW03Sugar">1000 kg</span>
                     </p>
                 </div>
             </div>
@@ -263,15 +283,7 @@
                             </tr>
                         </thead>
                         <tbody id="requestStatusBody">
-                            <tr>
-                                <td>REQ-101</td>
-                                <td>200</td>
-                                <td>100</td>
-                                <td>50</td>
-                                <td><span class="badge bg-danger">Critical</span></td>
-                                <td>Valam Central Warehouse</td>
-                                <td><span class="badge bg-info text-dark">Dispatched</span></td>
-                            </tr>
+                            <!-- Populated dynamically from SQLite database -->
                         </tbody>
                     </table>
                 </div>
@@ -297,17 +309,7 @@
                 <h5 class="mb-3">Delivery Status</h5>
 
                 <div id="deliveryStatusList">
-                    <div class="mb-3 p-3 border rounded">
-                        <h6 class="mb-1"><strong>REQ-101</strong></h6>
-                        <p class="mb-1" style="font-size: 0.9rem;">
-                            🏭 Warehouse: Valam Central Warehouse<br>
-                            🚚 Vehicle: V01<br>
-                            📦 Route: Warehouse → Shop
-                        </p>
-                        <p class="mb-0">
-                            Status: <span class="badge bg-info text-dark">Dispatched</span>
-                        </p>
-                    </div>
+                    <!-- Populated dynamically from SQLite database -->
                 </div>
 
                 <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
@@ -471,6 +473,44 @@
             </div>
         </div>
 
+        <!-- ===== CONFIRM RECEIPT MODAL ===== -->
+        <div class="modal fade" id="confirmReceiptModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                    <div class="modal-header" style="background-color: #16a34a; color: white; border-radius: 14px 14px 0 0;">
+                        <h6 class="modal-title mb-0" id="confirmModalTitle" style="font-weight: 700;">📦 Confirm Delivery Receipt</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4" id="confirmModalBody">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    <div class="modal-footer bg-light" style="border-radius: 0 0 14px 14px;">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success btn-sm" id="btnSubmitReceiptConfirm" onclick="submitReceiptConfirmation()">✅ Confirm Receipt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== REPORT DELIVERY ISSUE MODAL ===== -->
+        <div class="modal fade" id="reportIssueModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                    <div class="modal-header" style="background-color: #d97706; color: white; border-radius: 14px 14px 0 0;">
+                        <h6 class="modal-title mb-0" id="reportIssueModalTitle" style="font-weight: 700;">⚠️ Report Delivery Issue</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4" id="reportIssueModalBody">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    <div class="modal-footer bg-light" style="border-radius: 0 0 14px 14px;">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger btn-sm" id="btnSubmitIssueReport" onclick="submitIssueReport()">🚨 Submit Delivery Issue</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <p class="text-center footer-text mt-4 mb-3">&copy; 2026 VALAM - Supply Management System</p>
 
@@ -479,28 +519,17 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
 
     <!-- JavaScript for Shop Functionality -->
     <script>
-
-        // ---------------------------------------------------------------
-        // USER SESSION & SHOP IDENTITY
-        // Reads logged-in shop username from sessionStorage (default Shop01 / S01)
-        // ---------------------------------------------------------------
         var loggedInUser = sessionStorage.getItem("valam_user") || "Shop01";
-        
-        // Map username to Shop ID
-        var shopUserMap = {
-            "Shop01": { id: "S01", name: "FPS Nagercoil" },
-            "Shop02": { id: "S02", name: "FPS Marthandam" },
-            "Shop03": { id: "S03", name: "FPS Colachel" },
-            "Shop04": { id: "S04", name: "FPS Kanyakumari" },
-            "Shop05": { id: "S05", name: "FPS Thuckalay" }
-        };
+        var currentShop = (typeof SHOP_USER_MAP !== "undefined" && SHOP_USER_MAP[loggedInUser]) 
+            ? SHOP_USER_MAP[loggedInUser] 
+            : { id: "S01", name: "FPS Nagercoil", nearestWh: "W01", nearestWhName: "Valam Central Warehouse", distance: "5 km" };
 
-        var currentShop = shopUserMap[loggedInUser] || { id: "S01", name: "FPS Nagercoil" };
+        var allShopRequests = [];
 
-        // Set UI welcome and badge
         document.addEventListener("DOMContentLoaded", function() {
             var badge = document.getElementById("shopUserBadge");
             if (badge) badge.textContent = "Logged in: " + loggedInUser + " (" + currentShop.id + " - " + currentShop.name + ")";
@@ -508,7 +537,201 @@
             if (heading) heading.textContent = "Welcome, " + currentShop.name + " (" + currentShop.id + ")";
             var filterBadge = document.getElementById("shopActiveFilterBadge");
             if (filterBadge) filterBadge.textContent = "Shop: " + currentShop.id + " (" + currentShop.name + ")";
+
+            refreshShopDataFromServer();
         });
+
+        async function refreshShopDataFromServer() {
+            await Promise.all([
+                loadShopRequests(),
+                loadWarehouseStockForShop(),
+                loadShopInventoryStock()
+            ]);
+        }
+
+        async function loadShopInventoryStock() {
+            var res = await valamApiCall("/api/shops/" + encodeURIComponent(currentShop.id) + "/stock", "GET");
+            if (res && !res.error) {
+                var rEl = document.getElementById("shopRiceStock");
+                var wEl = document.getElementById("shopWheatStock");
+                var sEl = document.getElementById("shopSugarStock");
+                var luEl = document.getElementById("shopStockLastUpdated");
+                if (rEl) rEl.textContent = (res.rice || 0) + " kg";
+                if (wEl) wEl.textContent = (res.wheat || 0) + " kg";
+                if (sEl) sEl.textContent = (res.sugar || 0) + " kg";
+                if (luEl) {
+                    if (res.lastReceiptDate && res.lastReceiptTime) {
+                        luEl.textContent = "Last receipt: " + formatDateReadable(res.lastReceiptDate) + " at " + formatTime12IST(res.lastReceiptTime);
+                    } else {
+                        luEl.textContent = "Last receipt: None yet";
+                    }
+                }
+            }
+        }
+
+        async function loadShopRequests() {
+            var res = await valamApiCall("/api/requests?shopId=" + encodeURIComponent(currentShop.id), "GET");
+            if (res && res.error) {
+                console.error("[Shop] Error loading requests:", res.error);
+                var tbody = document.getElementById("recentRequestsBody");
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-3">⚠️ Database Error: ' + res.error + '</td></tr>';
+                return;
+            }
+            allShopRequests = Array.isArray(res) ? res : [];
+            renderShopTables();
+            renderShopHistory(allShopRequests);
+        }
+
+        function renderShopTables() {
+            var recentTbody = document.getElementById("recentRequestsBody");
+            var statusTbody = document.getElementById("requestStatusBody");
+            var deliveryList = document.getElementById("deliveryStatusList");
+
+            if (recentTbody) recentTbody.innerHTML = "";
+            if (statusTbody) statusTbody.innerHTML = "";
+            if (deliveryList) deliveryList.innerHTML = "";
+
+            if (!allShopRequests || allShopRequests.length === 0) {
+                if (recentTbody) recentTbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">No requests submitted yet. Use Create Request above.</td></tr>';
+                if (statusTbody) statusTbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">No request statuses available.</td></tr>';
+                if (deliveryList) deliveryList.innerHTML = '<p class="text-muted text-center py-3">No active deliveries for this shop.</p>';
+                return;
+            }
+
+            for (var i = 0; i < allShopRequests.length; i++) {
+                var req = allShopRequests[i];
+                var reqId = req.id || req.requestId;
+                var urgBadge = getUrgencyBadge(req.urgency);
+                var statusBadge = getStatusBadge(req.status);
+                var whName = req.warehouse || req.warehouseName || (req.warehouseId === "W01" ? "Valam Central Warehouse" : (req.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
+
+                if (recentTbody) {
+                    var rRow = document.createElement("tr");
+                    rRow.innerHTML = "<td><strong>" + reqId + "</strong></td>" +
+                        "<td>" + req.rice + "</td>" +
+                        "<td>" + req.wheat + "</td>" +
+                        "<td>" + req.sugar + "</td>" +
+                        "<td>" + urgBadge + "</td>" +
+                        "<td>" + whName + "</td>" +
+                        "<td>" + statusBadge + "</td>";
+                    recentTbody.appendChild(rRow);
+                }
+
+                if (statusTbody) {
+                    var sRow = document.createElement("tr");
+                    sRow.innerHTML = "<td><strong>" + reqId + "</strong></td>" +
+                        "<td>" + req.rice + "</td>" +
+                        "<td>" + req.wheat + "</td>" +
+                        "<td>" + req.sugar + "</td>" +
+                        "<td>" + urgBadge + "</td>" +
+                        "<td>" + whName + "</td>" +
+                        "<td>" + statusBadge + "</td>";
+                    statusTbody.appendChild(sRow);
+                }
+
+                if (deliveryList) {
+                    var isDispatched = (req.status === "Dispatched" || req.status === "In Transit" || req.status === "Awaiting Receipt" || req.receiptStatus === "Awaiting Receipt");
+                    var isConfirmed = (req.status === "Completed" || req.status === "Delivered" || req.receiptStatus === "Confirmed");
+                    var isIssue = (req.status === "Delivery Issue" || req.receiptStatus === "Issue Reported");
+
+                    var card = document.createElement("div");
+                    card.className = "mb-3 p-3 border rounded shadow-sm";
+                    if (isDispatched) {
+                        card.style.borderLeft = "5px solid #0dcaf0";
+                    } else if (isConfirmed) {
+                        card.style.borderLeft = "5px solid #198754";
+                    } else if (isIssue) {
+                        card.style.borderLeft = "5px solid #dc3545";
+                    }
+
+                    var dispDateStr = req.dispatchedDate ? formatDateReadable(req.dispatchedDate) : (req.updatedDate ? formatDateReadable(req.updatedDate) : "—");
+                    var dispTimeStr = req.dispatchedTime ? formatTime12IST(req.dispatchedTime) : (req.updatedTime ? formatTime12IST(req.updatedTime) : "—");
+
+                    var cardHtml = '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">';
+                    cardHtml += '<div><h6 class="mb-0"><strong>' + reqId + '</strong></h6></div>';
+                    cardHtml += '<div>Status: ' + statusBadge + '</div>';
+                    cardHtml += '</div>';
+
+                    cardHtml += '<div class="row g-2 mb-2" style="font-size: 0.9rem;">';
+                    cardHtml += '<div class="col-sm-6">🏭 <strong>Warehouse:</strong> ' + whName + '</div>';
+                    cardHtml += '<div class="col-sm-6">🚚 <strong>Vehicle:</strong> ' + (req.vehicle || 'Not Assigned') + '</div>';
+                    cardHtml += '<div class="col-sm-6">📦 <strong>Commodities:</strong> Rice <strong>' + req.rice + 'kg</strong>, Wheat <strong>' + req.wheat + 'kg</strong>, Sugar <strong>' + req.sugar + 'kg</strong></div>';
+                    cardHtml += '<div class="col-sm-6">🕒 <strong>Dispatched At:</strong> ' + dispDateStr + ' ' + dispTimeStr + '</div>';
+                    cardHtml += '</div>';
+
+                    if (isDispatched) {
+                        cardHtml += '<div class="p-2 bg-light rounded border mb-2 d-flex justify-content-between align-items-center flex-wrap gap-2">';
+                        cardHtml += '<span class="text-muted" style="font-size: 0.86rem;">Commodities arrived? Please verify and confirm receipt to credit shop stock:</span>';
+                        cardHtml += '<div>';
+                        cardHtml += '<button class="btn btn-success btn-sm me-2" onclick="openConfirmReceiptModal(\'' + reqId + '\')">✅ Confirm Receipt</button>';
+                        cardHtml += '<button class="btn btn-outline-warning btn-sm" onclick="openReportIssueModal(\'' + reqId + '\')">⚠️ Report Delivery Issue</button>';
+                        cardHtml += '</div>';
+                        cardHtml += '</div>';
+                    } else if (isIssue) {
+                        cardHtml += '<div class="alert alert-danger py-2 mb-2" style="font-size: 0.85rem;">';
+                        cardHtml += '⚠️ <strong>Delivery Discrepancy Reported:</strong> Issue logged in SQLite. Warehouse staff has been notified to investigate and resolve.';
+                        cardHtml += '</div>';
+                    } else if (isConfirmed) {
+                        var confDateStr = req.receiptConfirmedDate ? formatDateReadable(req.receiptConfirmedDate) : (req.updatedDate ? formatDateReadable(req.updatedDate) : "");
+                        var confTimeStr = req.receiptConfirmedTime ? formatTime12IST(req.receiptConfirmedTime) : (req.updatedTime ? formatTime12IST(req.updatedTime) : "");
+                        cardHtml += '<div class="alert alert-success py-2 mb-2" style="font-size: 0.85rem;">';
+                        cardHtml += '✅ <strong>Receipt Confirmed:</strong> Consignment received by <strong>' + (req.receiptConfirmedBy || 'Shop User') + '</strong>';
+                        if (confDateStr) cardHtml += ' on ' + confDateStr + ' at ' + confTimeStr;
+                        cardHtml += '. Stock credited to shop inventory.';
+                        cardHtml += '</div>';
+                    }
+
+                    cardHtml += '<div class="d-flex justify-content-end">';
+                    cardHtml += '<button class="btn btn-outline-secondary btn-sm" onclick="viewRequestTimeline(\'' + reqId + '\')">⏱️ View Timeline</button>';
+                    cardHtml += '</div>';
+
+                    card.innerHTML = cardHtml;
+                    deliveryList.appendChild(card);
+                }
+            }
+        }
+
+        async function loadWarehouseStockForShop() {
+            var res = await valamApiCall("/api/warehouses", "GET");
+            if (!res || !Array.isArray(res)) return;
+
+            var nearestAlert = document.getElementById("nearestWarehouseAlert");
+            if (nearestAlert) {
+                var nName = currentShop.nearestWhName || "Valam Central Warehouse";
+                var nDist = currentShop.distance || "5 km";
+                nearestAlert.innerHTML = '<strong>Nearest Warehouse:</strong> ' + nName + ' (' + nDist + ')';
+            }
+
+            for (var i = 0; i < res.length; i++) {
+                var wh = res[i];
+                var rice = (wh.available ? wh.available.rice : wh.rice) + " kg";
+                var wheat = (wh.available ? wh.available.wheat : wh.wheat) + " kg";
+                var sugar = (wh.available ? wh.available.sugar : wh.sugar) + " kg";
+
+                if (wh.id === "W01") {
+                    var rEl = document.getElementById("shopStockW01Rice");
+                    if (rEl) {
+                        rEl.textContent = rice;
+                        document.getElementById("shopStockW01Wheat").textContent = wheat;
+                        document.getElementById("shopStockW01Sugar").textContent = sugar;
+                    }
+                } else if (wh.id === "W02") {
+                    var rEl = document.getElementById("shopStockW02Rice");
+                    if (rEl) {
+                        rEl.textContent = rice;
+                        document.getElementById("shopStockW02Wheat").textContent = wheat;
+                        document.getElementById("shopStockW02Sugar").textContent = sugar;
+                    }
+                } else if (wh.id === "W03") {
+                    var rEl = document.getElementById("shopStockW03Rice");
+                    if (rEl) {
+                        rEl.textContent = rice;
+                        document.getElementById("shopStockW03Wheat").textContent = wheat;
+                        document.getElementById("shopStockW03Sugar").textContent = sugar;
+                    }
+                }
+            }
+        }
 
         // ---------------------------------------------------------------
         // SECTION NAVIGATION
@@ -531,8 +754,11 @@
             if (target) {
                 target.style.display = "block";
             }
+            if (sectionId === "warehouseView") {
+                loadWarehouseStockForShop();
+            }
             if (sectionId === "requestHistoryView") {
-                renderShopHistory(getShopFilteredData());
+                renderShopHistory(allShopRequests);
             }
             window.scrollTo(0, 0);
         }
@@ -546,433 +772,62 @@
             window.scrollTo(0, 0);
         }
 
-        // ---------------------------------------------------------------
-        // DATE & TIME HELPERS (IST)
-        // ---------------------------------------------------------------
-        function getCurrentDateIST() {
-            var now = new Date();
-            var year = now.getFullYear();
-            var month = String(now.getMonth() + 1).padStart(2, '0');
-            var day = String(now.getDate()).padStart(2, '0');
-            return year + "-" + month + "-" + day;
-        }
-
-        function getCurrentTimeIST() {
-            var now = new Date();
-            var hours = String(now.getHours()).padStart(2, '0');
-            var minutes = String(now.getMinutes()).padStart(2, '0');
-            var seconds = String(now.getSeconds()).padStart(2, '0');
-            return hours + ":" + minutes + ":" + seconds;
-        }
-
         function formatTime12IST(timeStr) {
-            if (!timeStr) return "—";
-            var parts = timeStr.split(":");
-            var h = parseInt(parts[0]);
-            var m = parts[1];
-            var s = parts[2] || "00";
-            var ampm = h >= 12 ? "PM" : "AM";
-            var dispH = h % 12;
-            if (dispH === 0) dispH = 12;
-            return dispH + ":" + m + ":" + s + " " + ampm + " IST";
-        }
-
-        function formatDateReadable(dateStr) {
-            if (!dateStr) return "—";
-            var d = new Date(dateStr + "T00:00:00");
-            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+            return formatTimeIST(timeStr);
         }
 
         // ---------------------------------------------------------------
-        // REQUEST REPOSITORY WITH COMPREHENSIVE AUDIT TIMELINES
+        // CREATE / SUBMIT COMMODITY REQUEST (STRICTLY SQLITE)
         // ---------------------------------------------------------------
-        var allShopRequests = [
-            // REQ-101 for S01
-            {
-                requestId: "REQ-101",
-                shopId: "S01",
-                rice: "200",
-                wheat: "100",
-                sugar: "50",
-                urgency: "critical",
-                warehouse: "Valam Central Warehouse",
-                status: "Dispatched",
-                vehicle: "V01",
-                route: "Valam Central Warehouse → FPS Nagercoil",
-                submittedDate: "2026-10-20",
-                submittedTime: "09:15:00",
-                lastUpdatedDate: "2026-10-21",
-                lastUpdatedTime: "08:30:00",
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: "2026-10-20",
-                        time: "09:15:00",
-                        status: "Pending",
-                        updatedBy: "Shop01 Staff",
-                        details: "Commodity stock request submitted for Rice: 200 kg, Wheat: 100 kg, Sugar: 50 kg. Urgency: Critical."
-                    },
-                    {
-                        stage: "Request Accepted / Processed",
-                        date: "2026-10-20",
-                        time: "10:30:00",
-                        status: "Reserved",
-                        updatedBy: "Wh01 Staff",
-                        details: "Request accepted at Valam Central Warehouse. Commodity stock reserved."
-                    },
-                    {
-                        stage: "Vehicle Assigned",
-                        date: "2026-10-21",
-                        time: "08:00:00",
-                        status: "Reserved",
-                        updatedBy: "Wh01 Dispatch Staff",
-                        details: "Delivery vehicle V01 (TN-74-AA-1234, Eicher 14ft) assigned."
-                    },
-                    {
-                        stage: "Dispatched",
-                        date: "2026-10-21",
-                        time: "08:30:00",
-                        status: "Dispatched",
-                        updatedBy: "Wh01 Dispatch Staff",
-                        details: "Commodity consignment dispatched from Valam Central Warehouse to FPS Nagercoil."
-                    }
-                ]
-            },
-            // REQ-102 for S02
-            {
-                requestId: "REQ-102",
-                shopId: "S02",
-                rice: "300",
-                wheat: "150",
-                sugar: "80",
-                urgency: "normal",
-                warehouse: "Valam North Warehouse",
-                status: "Delivered",
-                vehicle: "V02",
-                route: "Valam North Warehouse → FPS Marthandam",
-                submittedDate: "2026-10-18",
-                submittedTime: "11:00:00",
-                lastUpdatedDate: "2026-10-19",
-                lastUpdatedTime: "11:45:00",
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: "2026-10-18",
-                        time: "11:00:00",
-                        status: "Pending",
-                        updatedBy: "Shop02 Staff",
-                        details: "Commodity stock request submitted. Rice: 300 kg, Wheat: 150 kg, Sugar: 80 kg."
-                    },
-                    {
-                        stage: "Request Accepted / Processed",
-                        date: "2026-10-18",
-                        time: "14:20:00",
-                        status: "Reserved",
-                        updatedBy: "Wh02 Staff",
-                        details: "Request verified and approved. Stock reserved at Valam North Warehouse."
-                    },
-                    {
-                        stage: "Vehicle Assigned",
-                        date: "2026-10-19",
-                        time: "07:45:00",
-                        status: "Reserved",
-                        updatedBy: "Wh02 Dispatch",
-                        details: "Vehicle V02 (TN-74-BB-5678, Tata 407) assigned."
-                    },
-                    {
-                        stage: "Dispatched",
-                        date: "2026-10-19",
-                        time: "08:15:00",
-                        status: "Dispatched",
-                        updatedBy: "Wh02 Dispatch",
-                        details: "Shipment dispatched towards Marthandam Central."
-                    },
-                    {
-                        stage: "In Transit",
-                        date: "2026-10-19",
-                        time: "09:30:00",
-                        status: "In Transit",
-                        updatedBy: "Fleet GPS System",
-                        details: "Vehicle in transit. Estimated delivery 11:30 AM."
-                    },
-                    {
-                        stage: "Delivered",
-                        date: "2026-10-19",
-                        time: "11:45:00",
-                        status: "Delivered",
-                        updatedBy: "Shop02 Staff",
-                        details: "Consignment safely delivered and verified at FPS Marthandam."
-                    }
-                ]
-            },
-            // REQ-103 for S03
-            {
-                requestId: "REQ-103",
-                shopId: "S03",
-                rice: "500",
-                wheat: "400",
-                sugar: "50",
-                urgency: "normal",
-                warehouse: "Valam Central Warehouse",
-                status: "Pending",
-                vehicle: "Not Assigned",
-                route: "Warehouse → Shop",
-                submittedDate: "2026-10-25",
-                submittedTime: "10:00:00",
-                lastUpdatedDate: "2026-10-25",
-                lastUpdatedTime: "10:00:00",
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: "2026-10-25",
-                        time: "10:00:00",
-                        status: "Pending",
-                        updatedBy: "Shop03 Staff",
-                        details: "Request submitted. Awaiting acceptance from Central Warehouse staff."
-                    }
-                ]
-            },
-            // REQ-104 for S04
-            {
-                requestId: "REQ-104",
-                shopId: "S04",
-                rice: "250",
-                wheat: "200",
-                sugar: "100",
-                urgency: "urgent",
-                warehouse: "Valam North Warehouse",
-                status: "In Transit",
-                vehicle: "V03",
-                route: "Valam North Warehouse → FPS Kanyakumari",
-                submittedDate: "2026-10-22",
-                submittedTime: "09:00:00",
-                lastUpdatedDate: "2026-10-23",
-                lastUpdatedTime: "09:15:00",
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: "2026-10-22",
-                        time: "09:00:00",
-                        status: "Pending",
-                        updatedBy: "Shop04 Staff",
-                        details: "Urgent request submitted for festival quota."
-                    },
-                    {
-                        stage: "Request Accepted / Processed",
-                        date: "2026-10-22",
-                        time: "09:45:00",
-                        status: "Reserved",
-                        updatedBy: "Wh02 Staff",
-                        details: "Request expedited and approved. Stock allocated."
-                    },
-                    {
-                        stage: "Vehicle Assigned",
-                        date: "2026-10-23",
-                        time: "07:30:00",
-                        status: "Reserved",
-                        updatedBy: "Wh02 Staff",
-                        details: "Vehicle V03 (TN-74-CC-9012) assigned."
-                    },
-                    {
-                        stage: "Dispatched",
-                        date: "2026-10-23",
-                        time: "08:00:00",
-                        status: "Dispatched",
-                        updatedBy: "Wh02 Staff",
-                        details: "Dispatched towards Kanyakumari."
-                    },
-                    {
-                        stage: "In Transit",
-                        date: "2026-10-23",
-                        time: "09:15:00",
-                        status: "In Transit",
-                        updatedBy: "System",
-                        details: "Vehicle currently in transit along NH-66."
-                    }
-                ]
-            },
-            // REQ-105 for S05
-            {
-                requestId: "REQ-105",
-                shopId: "S05",
-                rice: "400",
-                wheat: "250",
-                sugar: "75",
-                urgency: "normal",
-                warehouse: "Valam Central Warehouse",
-                status: "Pending",
-                vehicle: "Not Assigned",
-                route: "Warehouse → Shop",
-                submittedDate: "2026-10-26",
-                submittedTime: "14:30:00",
-                lastUpdatedDate: "2026-10-26",
-                lastUpdatedTime: "14:30:00",
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: "2026-10-26",
-                        time: "14:30:00",
-                        status: "Pending",
-                        updatedBy: "Shop05 Staff",
-                        details: "Regular monthly commodity request submitted."
-                    }
-                ]
-            }
-        ];
-
-        var requestCounter = 106;
-
-        // ---------------------------------------------------------------
-        // HELPER: Get requests belonging ONLY to current shop
-        // ---------------------------------------------------------------
-        function getShopFilteredData() {
-            var list = [];
-            for (var i = 0; i < allShopRequests.length; i++) {
-                if (allShopRequests[i].shopId === currentShop.id) {
-                    list.push(allShopRequests[i]);
-                }
-            }
-            return list;
-        }
-
-        // ---------------------------------------------------------------
-        // SUBMIT NEW REQUEST WITH LIVE IST TIMESTAMPS
-        // ---------------------------------------------------------------
-        function submitRequest(event) {
+        async function submitRequest(event) {
             event.preventDefault();
 
             var rice = document.getElementById("rice").value.trim();
             var wheat = document.getElementById("wheat").value.trim();
             var sugar = document.getElementById("sugar").value.trim();
             var urgency = document.getElementById("urgency").value;
-            var warehouse = document.getElementById("warehouse").value;
+            var warehouseSelect = document.getElementById("warehouse").value;
 
             if (rice === "" && wheat === "" && sugar === "") {
                 alert("Please enter at least one commodity quantity.");
                 return;
             }
 
-            var todayDate = getCurrentDateIST();
-            var nowTime = getCurrentTimeIST();
-            var requestId = "REQ-" + requestCounter;
-            requestCounter++;
+            var warehouseId = "W01";
+            if (warehouseSelect.indexOf("North") !== -1 || warehouseSelect.indexOf("W02") !== -1) {
+                warehouseId = "W02";
+            } else if (warehouseSelect.indexOf("South") !== -1 || warehouseSelect.indexOf("W03") !== -1) {
+                warehouseId = "W03";
+            } else {
+                warehouseId = "W01";
+            }
 
-            rice = rice === "" ? "0" : rice;
-            wheat = wheat === "" ? "0" : wheat;
-            sugar = sugar === "" ? "0" : sugar;
-
-            var newRequest = {
-                requestId: requestId,
+            var res = await valamApiCall("/api/requests", "POST", {
                 shopId: currentShop.id,
-                rice: rice,
-                wheat: wheat,
-                sugar: sugar,
+                rice: rice === "" ? 0 : parseInt(rice),
+                wheat: wheat === "" ? 0 : parseInt(wheat),
+                sugar: sugar === "" ? 0 : parseInt(sugar),
                 urgency: urgency,
-                warehouse: warehouse,
-                status: "Pending",
-                vehicle: "Not Assigned",
-                route: "Warehouse → Shop",
-                submittedDate: todayDate,
-                submittedTime: nowTime,
-                lastUpdatedDate: todayDate,
-                lastUpdatedTime: nowTime,
-                timeline: [
-                    {
-                        stage: "Request Submitted",
-                        date: todayDate,
-                        time: nowTime,
-                        status: "Pending",
-                        updatedBy: loggedInUser + " Staff",
-                        details: "Request " + requestId + " submitted for " + rice + "kg Rice, " + wheat + "kg Wheat, " + sugar + "kg Sugar."
-                    }
-                ]
-            };
+                warehouseId: warehouseId
+            });
 
-            // Add to repository
-            allShopRequests.push(newRequest);
-
-            // Update Recent Requests table
-            addRecentRequestRow(newRequest);
-
-            // Update Request Status table
-            addRequestStatusRow(newRequest);
-
-            // Update Delivery Status view
-            addDeliveryStatusCard(newRequest);
+            if (res && res.error) {
+                alert("⚠️ Error submitting request: " + res.error);
+                return;
+            }
 
             // Clear inputs
             document.getElementById("rice").value = "";
             document.getElementById("wheat").value = "";
             document.getElementById("sugar").value = "";
             document.getElementById("urgency").value = "normal";
-            document.getElementById("warehouse").value = "Valam Central Warehouse";
+            document.getElementById("warehouse").selectedIndex = 0;
 
-            alert("✅ Request submitted successfully!\n\nRequest ID: " + requestId + "\nSubmitted At: " + todayDate + " " + formatTime12IST(nowTime));
+            await refreshShopDataFromServer();
 
-            // Refresh history view if visible
-            renderShopHistory(getShopFilteredData());
-        }
-
-        // ---------------------------------------------------------------
-        // TABLE ROW INSERTERS (PRESERVED)
-        // ---------------------------------------------------------------
-        function getUrgencyBadge(urgency) {
-            if (urgency === "critical") return '<span class="badge bg-danger">Critical</span>';
-            if (urgency === "urgent") return '<span class="badge bg-warning text-dark">Urgent</span>';
-            return '<span class="badge bg-primary">Normal</span>';
-        }
-
-        function getStatusBadge(status) {
-            if (status === "Pending") return '<span class="badge bg-secondary">Pending</span>';
-            if (status === "Reserved") return '<span class="badge bg-warning text-dark">Reserved</span>';
-            if (status === "Dispatched") return '<span class="badge bg-info text-dark">Dispatched</span>';
-            if (status === "In Transit") return '<span class="badge bg-warning text-dark">In Transit</span>';
-            if (status === "Delivered") return '<span class="badge bg-success">Delivered</span>';
-            return '<span class="badge bg-secondary">' + status + '</span>';
-        }
-
-        function addRecentRequestRow(req) {
-            var tbody = document.getElementById("recentRequestsBody");
-            var row = document.createElement("tr");
-            row.innerHTML =
-                "<td>" + req.requestId + "</td>" +
-                "<td>" + req.rice + "</td>" +
-                "<td>" + req.wheat + "</td>" +
-                "<td>" + req.sugar + "</td>" +
-                "<td>" + getUrgencyBadge(req.urgency) + "</td>" +
-                "<td>" + req.warehouse + "</td>" +
-                "<td>" + getStatusBadge(req.status) + "</td>";
-            tbody.insertBefore(row, tbody.firstChild);
-        }
-
-        function addRequestStatusRow(req) {
-            var tbody = document.getElementById("requestStatusBody");
-            var row = document.createElement("tr");
-            row.innerHTML =
-                "<td>" + req.requestId + "</td>" +
-                "<td>" + req.rice + "</td>" +
-                "<td>" + req.wheat + "</td>" +
-                "<td>" + req.sugar + "</td>" +
-                "<td>" + getUrgencyBadge(req.urgency) + "</td>" +
-                "<td>" + req.warehouse + "</td>" +
-                "<td>" + getStatusBadge(req.status) + "</td>";
-            tbody.insertBefore(row, tbody.firstChild);
-        }
-
-        function addDeliveryStatusCard(req) {
-            var container = document.getElementById("deliveryStatusList");
-            var card = document.createElement("div");
-            card.className = "mb-3 p-3 border rounded";
-            card.innerHTML =
-                '<h6 class="mb-1"><strong>' + req.requestId + '</strong></h6>' +
-                '<p class="mb-1" style="font-size: 0.9rem;">' +
-                '🏭 Warehouse: ' + req.warehouse + '<br>' +
-                '🚚 Vehicle: ' + req.vehicle + '<br>' +
-                '📦 Route: ' + req.route +
-                '</p>' +
-                '<p class="mb-0">Status: ' + getStatusBadge(req.status) + '</p>';
-            container.insertBefore(card, container.firstChild);
+            var reqId = res.id || res.requestId;
+            var whName = res.warehouseName || res.warehouse || warehouseSelect;
+            alert("✅ Request submitted successfully! Stored directly in SQLite database.\n\nRequest ID: " + reqId + "\nAssigned Warehouse: " + whName + " (" + warehouseId + ")");
         }
 
         // ---------------------------------------------------------------
@@ -998,48 +853,57 @@
                 for (var i = 0; i < data.length; i++) {
                     var req = data[i];
                     var tr = document.createElement("tr");
+                    var reqId = req.id || req.requestId;
+                    var whName = req.warehouse || req.warehouseName || (req.warehouseId === "W01" ? "Valam Central Warehouse" : (req.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
+
                     tr.innerHTML =
-                        "<td><strong>" + req.requestId + "</strong></td>" +
+                        "<td><strong>" + reqId + "</strong></td>" +
                         "<td><span class=\"badge bg-light text-dark border\">" + req.shopId + "</span></td>" +
                         "<td>" + req.rice + "</td>" +
                         "<td>" + req.wheat + "</td>" +
                         "<td>" + req.sugar + "</td>" +
                         "<td>" + getUrgencyBadge(req.urgency) + "</td>" +
-                        "<td>" + req.warehouse + "</td>" +
+                        "<td>" + whName + "</td>" +
                         "<td>" + getStatusBadge(req.status) + "</td>" +
                         "<td>" + formatDateReadable(req.submittedDate) + "</td>" +
                         "<td>" + formatTime12IST(req.submittedTime) + "</td>" +
                         "<td>" + formatDateReadable(req.lastUpdatedDate) + "</td>" +
-                        "<td>" + formatTime12IST(req.lastUpdatedTime) + "</td>" +
-                        '<td><button class="btn btn-outline-success btn-sm text-nowrap" onclick="viewRequestTimeline(\'' + req.requestId + '\')">⏱️ View Timeline</button></td>';
+                        "<td>" + formatTime12IST(req.lastUpdatedTime) + "</td>";
+
+                    var isDisp = (req.status === "Dispatched" || req.status === "In Transit" || req.status === "Awaiting Receipt" || req.receiptStatus === "Awaiting Receipt");
+                    var actHtml = '<div class="d-flex gap-1">';
+                    if (isDisp) {
+                        actHtml += '<button class="btn btn-success btn-sm text-nowrap" onclick="openConfirmReceiptModal(\'' + reqId + '\')">✅ Confirm</button>';
+                    }
+                    actHtml += '<button class="btn btn-outline-success btn-sm text-nowrap" onclick="viewRequestTimeline(\'' + reqId + '\')">⏱️ Timeline</button>';
+                    actHtml += '</div>';
+
+                    tr.innerHTML += '<td>' + actHtml + '</td>';
                     tbody.appendChild(tr);
                 }
             }
 
-            // Update stats
             var total = data ? data.length : 0;
             var pending = 0, dispatched = 0, delivered = 0;
             if (data) {
                 for (var j = 0; j < data.length; j++) {
-                    if (data[j].status === "Pending") pending++;
-                    else if (data[j].status === "Dispatched" || data[j].status === "In Transit" || data[j].status === "Reserved") dispatched++;
-                    else if (data[j].status === "Delivered") delivered++;
+                    var s = data[j].status;
+                    if (s === "Pending" || s === "Reserved") pending++;
+                    else if (s === "Dispatched" || s === "In Transit") dispatched++;
+                    else if (s === "Delivered") delivered++;
                 }
             }
             document.getElementById("statTotalRequests").textContent = total;
-            document.getElementById("statPendingRequests").textContent = pending;
-            document.getElementById("statDispatchedRequests").textContent = dispatched;
-            document.getElementById("statDeliveredRequests").textContent = delivered;
+            document.getElementById("statPending").textContent = pending;
+            document.getElementById("statDispatched").textContent = dispatched;
+            document.getElementById("statDelivered").textContent = delivered;
         }
 
-        // ---------------------------------------------------------------
-        // FILTER: DATE RANGE & STATUS
-        // ---------------------------------------------------------------
-        function filterShopRequests() {
+        function filterShopHistory() {
             var from = document.getElementById("shopFilterFromDate").value;
             var to = document.getElementById("shopFilterToDate").value;
-            var status = document.getElementById("shopStatusFilter").value;
-            var alertBox = document.getElementById("shopDateAlert");
+            var status = document.getElementById("shopFilterStatus").value;
+            var alertBox = document.getElementById("shopDateValidationAlert");
 
             if (from && to && from > to) {
                 alertBox.style.display = "block";
@@ -1047,90 +911,88 @@
             }
             alertBox.style.display = "none";
 
-            var shopOnly = getShopFilteredData();
             var filtered = [];
-
-            for (var i = 0; i < shopOnly.length; i++) {
-                var r = shopOnly[i];
+            for (var i = 0; i < allShopRequests.length; i++) {
+                var r = allShopRequests[i];
                 var dateOk = true;
-                var statusOk = true;
+                var statOk = true;
 
                 if (from && r.submittedDate < from) dateOk = false;
                 if (to && r.submittedDate > to) dateOk = false;
-                if (status !== "all" && r.status !== status) statusOk = false;
+                if (status !== "all" && r.status !== status) statOk = false;
 
-                if (dateOk && statusOk) {
-                    filtered.push(r);
-                }
+                if (dateOk && statOk) filtered.push(r);
             }
 
             renderShopHistory(filtered);
         }
 
-        function resetShopFilter() {
+        function resetShopHistoryFilter() {
             document.getElementById("shopFilterFromDate").value = "";
             document.getElementById("shopFilterToDate").value = "";
-            document.getElementById("shopStatusFilter").value = "all";
-            document.getElementById("shopDateAlert").style.display = "none";
-            renderShopHistory(getShopFilteredData());
+            document.getElementById("shopFilterStatus").value = "all";
+            document.getElementById("shopDateValidationAlert").style.display = "none";
+            renderShopHistory(allShopRequests);
         }
 
         // ---------------------------------------------------------------
-        // VIEW TIMELINE MODAL
+        // VIEW REQUEST TIMELINE MODAL (STRICTLY SQLITE)
         // ---------------------------------------------------------------
-        function viewRequestTimeline(reqId) {
-            var req = null;
-            for (var i = 0; i < allShopRequests.length; i++) {
-                if (allShopRequests[i].requestId === reqId) {
-                    req = allShopRequests[i];
-                    break;
-                }
+        async function viewRequestTimeline(reqId) {
+            var res = await valamApiCall("/api/requests/" + encodeURIComponent(reqId), "GET");
+            if (res && res.error) {
+                alert("⚠️ Error loading timeline: " + res.error);
+                return;
             }
+            var req = res;
             if (!req) return;
 
-            document.getElementById("timelineModalTitle").textContent = "Request Timeline — " + req.requestId;
-            document.getElementById("timelineModalSubtitle").textContent = "Shop: " + req.shopId + " | Warehouse: " + req.warehouse;
+            var rId = req.id || req.requestId;
+            var whName = req.warehouse || req.warehouseName || (req.warehouseId === "W01" ? "Valam Central Warehouse" : (req.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
+
+            document.getElementById("timelineModalTitle").textContent = "Request Timeline — " + rId;
+            document.getElementById("timelineModalSubtitle").textContent = "Shop: " + currentShop.id + " (" + currentShop.name + ") | Warehouse: " + whName;
 
             var html = '';
-
-            // Commodity summary banner
-            html += '<div class="p-3 bg-light rounded border mb-4">';
-            html += '<div class="row text-center">';
-            html += '<div class="col-3"><strong>Rice</strong><br><span class="badge bg-success">' + req.rice + ' kg</span></div>';
-            html += '<div class="col-3"><strong>Wheat</strong><br><span class="badge bg-success">' + req.wheat + ' kg</span></div>';
-            html += '<div class="col-3"><strong>Sugar</strong><br><span class="badge bg-success">' + req.sugar + ' kg</span></div>';
-            html += '<div class="col-3"><strong>Status</strong><br>' + getStatusBadge(req.status) + '</div>';
+            html += '<div class="p-3 bg-light rounded border mb-3">';
+            html += '<div class="row">';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Commodities:</strong> Rice ' + req.rice + 'kg, Wheat ' + req.wheat + 'kg, Sugar ' + req.sugar + 'kg</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Urgency:</strong> ' + getUrgencyBadge(req.urgency) + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Current Status:</strong> ' + getStatusBadge(req.status) + '</p></div>';
+            html += '<div class="col-md-6"><p class="mb-1"><strong>Vehicle:</strong> ' + (req.vehicle || 'Not Assigned') + '</p></div>';
             html += '</div></div>';
 
-            html += '<h6 class="mb-3" style="font-weight: 600;">Chronological Event History (IST)</h6>';
-
-            // Vertical Timeline list
+            html += '<h6 class="mb-3" style="font-weight: 600;">Event History (Chronological)</h6>';
             html += '<div class="list-group">';
-            for (var t = 0; t < req.timeline.length; t++) {
-                var item = req.timeline[t];
-                var isLatest = (t === req.timeline.length - 1);
-                var activeClass = isLatest ? ' border-success shadow-sm' : '';
 
-                html += '<div class="list-group-item p-3 mb-2 rounded' + activeClass + '" style="border-left: 4px solid #16a34a !important;">';
-                html += '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">';
-                html += '<div>';
-                html += '<strong style="font-size: 0.95rem;">' + (t + 1) + '. ' + item.stage + '</strong> ';
-                html += getStatusBadge(item.status);
-                html += '</div>';
-                html += '<div class="text-muted" style="font-size: 0.8rem;">';
-                html += '📅 ' + formatDateReadable(item.date) + ' &nbsp;|&nbsp; 🕒 ' + formatTime12IST(item.time);
-                html += '</div>';
-                html += '</div>';
+            var events = req.timeline || [];
+            if (events.length === 0) {
+                html += '<p class="text-muted text-center py-3">No timeline events recorded yet.</p>';
+            } else {
+                for (var i = 0; i < events.length; i++) {
+                    var ev = events[i];
+                    var isLatest = (i === events.length - 1);
+                    var activeBorder = isLatest ? 'border-success shadow-sm' : '';
 
-                html += '<p class="mt-2 mb-1 text-muted" style="font-size: 0.88rem;">' + item.details + '</p>';
-                html += '<small class="text-secondary">👤 Action by: <strong>' + item.updatedBy + '</strong></small>';
-                html += '</div>';
+                    html += '<div class="list-group-item p-3 mb-2 rounded ' + activeBorder + '" style="border-left: 4px solid #16a34a !important;">';
+                    html += '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">';
+                    html += '<div>';
+                    html += '<strong style="font-size: 0.95rem;">' + (i + 1) + '. ' + (ev.stage || ev.stageTitle) + '</strong> ';
+                    html += getStatusBadge(ev.status);
+                    html += '</div>';
+                    html += '<div class="text-muted" style="font-size: 0.8rem;">';
+                    html += '📅 ' + formatDateReadable(ev.date) + ' &nbsp;|&nbsp; 🕒 ' + formatTime12IST(ev.time);
+                    html += '</div>';
+                    html += '</div>';
+                    html += '<p class="mt-2 mb-1 text-muted" style="font-size: 0.88rem;">' + (ev.details || ev.note || '') + '</p>';
+                    html += '<small class="text-secondary">👤 Action Performed By: <strong>' + (ev.updatedBy || ev.actor || 'Staff') + '</strong></small>';
+                    html += '</div>';
+                }
             }
             html += '</div>';
 
-            // Next Stage hint if not delivered
             if (req.status !== "Delivered") {
-                html += '<div class="mt-3 p-2 bg-warning-subtle rounded border border-warning" style="font-size: 0.82rem;">';
+                html += '<div class="mt-3 p-2 bg-light rounded border" style="font-size: 0.82rem;">';
                 html += '⏳ <strong>Current Stage:</strong> ' + req.status + '. Next updates will be recorded automatically when Warehouse operations proceed.';
                 html += '</div>';
             } else {
@@ -1140,11 +1002,167 @@
             }
 
             document.getElementById("timelineModalBody").innerHTML = html;
-
             var modal = new bootstrap.Modal(document.getElementById("shopTimelineModal"));
             modal.show();
         }
 
+        // ---------------------------------------------------------------
+        // DELIVERY RECEIPT CONFIRMATION & ISSUE REPORTING (MODAL ACTIONS)
+        // ---------------------------------------------------------------
+        var activeActionReqId = null;
+
+        function openConfirmReceiptModal(reqId) {
+            activeActionReqId = reqId;
+            var req = allShopRequests.find(function(r) { return (r.id || r.requestId) === reqId; });
+            if (!req) return;
+
+            var whName = req.warehouse || req.warehouseName || (req.warehouseId === "W01" ? "Valam Central Warehouse" : (req.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
+            var dispDate = req.dispatchedDate ? formatDateReadable(req.dispatchedDate) : (req.updatedDate ? formatDateReadable(req.updatedDate) : "Today");
+            var dispTime = req.dispatchedTime ? formatTime12IST(req.dispatchedTime) : (req.updatedTime ? formatTime12IST(req.updatedTime) : "Recent");
+
+            var html = '';
+            html += '<div class="alert alert-success py-2 mb-3" style="font-size:0.9rem;">';
+            html += '<strong>Delivery Consignment: ' + reqId + '</strong><br>';
+            html += 'Dispatched from: <strong>' + whName + '</strong> (' + (req.vehicle || 'Assigned Vehicle') + ')<br>';
+            html += 'Dispatch Time: ' + dispDate + ' ' + dispTime;
+            html += '</div>';
+
+            html += '<h6 class="mb-2" style="font-weight:600;">Commodity Quantities to Confirm:</h6>';
+            html += '<div class="table-responsive mb-3">';
+            html += '<table class="table table-bordered table-sm text-center align-middle mb-0">';
+            html += '<thead class="table-light"><tr><th>Rice</th><th>Wheat</th><th>Sugar</th></tr></thead>';
+            html += '<tbody><tr>';
+            html += '<td><strong class="text-success" style="font-size:1.1rem;">' + req.rice + ' kg</strong></td>';
+            html += '<td><strong class="text-success" style="font-size:1.1rem;">' + req.wheat + ' kg</strong></td>';
+            html += '<td><strong class="text-success" style="font-size:1.1rem;">' + req.sugar + ' kg</strong></td>';
+            html += '</tr></tbody></table></div>';
+
+            html += '<div class="mb-3">';
+            html += '<label for="receiptConfirmNotes" class="form-label" style="font-size:0.88rem; font-weight:500;">Shop Acknowledgment / Notes (Optional):</label>';
+            html += '<input type="text" class="form-control form-control-sm" id="receiptConfirmNotes" placeholder="e.g. Received in good order, seals verified">';
+            html += '</div>';
+
+            html += '<p class="text-muted mb-0" style="font-size:0.83rem;">';
+            html += '⚠️ <em>Upon confirmation, the Fair-Price Shop inventory will be automatically credited with the confirmed quantities and the request will be marked as Completed.</em>';
+            html += '</p>';
+
+            document.getElementById("confirmModalBody").innerHTML = html;
+            var modal = new bootstrap.Modal(document.getElementById("confirmReceiptModal"));
+            modal.show();
+        }
+
+        async function submitReceiptConfirmation() {
+            if (!activeActionReqId) return;
+            var req = allShopRequests.find(function(r) { return (r.id || r.requestId) === activeActionReqId; });
+            if (!req) return;
+
+            var notesEl = document.getElementById("receiptConfirmNotes");
+            var notes = notesEl ? notesEl.value.trim() : "";
+
+            var btn = document.getElementById("btnSubmitReceiptConfirm");
+            if (btn) btn.disabled = true;
+
+            var res = await valamApiCall("/api/requests/" + encodeURIComponent(activeActionReqId) + "/confirm-receipt", "POST", {
+                shopId: currentShop.id,
+                confirmedBy: currentShop.name + " (" + loggedInUser + ")",
+                notes: notes,
+                rice: req.rice,
+                wheat: req.wheat,
+                sugar: req.sugar
+            });
+
+            if (btn) btn.disabled = false;
+
+            if (res && res.error) {
+                alert("⚠️ Error confirming receipt: " + res.error);
+                return;
+            }
+
+            var modalEl = document.getElementById("confirmReceiptModal");
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            await refreshShopDataFromServer();
+
+            alert("🎉 Delivery Receipt Confirmed Successfully!\n\nRequest ID: " + activeActionReqId + "\nShop Inventory Credited: Rice +" + req.rice + "kg, Wheat +" + req.wheat + "kg, Sugar +" + req.sugar + "kg.\nDelivery Status: Completed.");
+        }
+
+        function openReportIssueModal(reqId) {
+            activeActionReqId = reqId;
+            var req = allShopRequests.find(function(r) { return (r.id || r.requestId) === reqId; });
+            if (!req) return;
+
+            var whName = req.warehouse || req.warehouseName || (req.warehouseId === "W01" ? "Valam Central Warehouse" : (req.warehouseId === "W02" ? "Valam North Warehouse" : "Valam South Warehouse"));
+
+            var html = '';
+            html += '<div class="alert alert-warning py-2 mb-3" style="font-size:0.9rem;">';
+            html += '<strong>Report Discrepancy for ' + reqId + '</strong><br>';
+            html += 'Warehouse: <strong>' + whName + '</strong> | Expected: Rice ' + req.rice + 'kg, Wheat ' + req.wheat + 'kg, Sugar ' + req.sugar + 'kg';
+            html += '</div>';
+
+            html += '<div class="mb-3">';
+            html += '<label for="issueTypeSelect" class="form-label" style="font-size:0.88rem; font-weight:600;">Issue Type:</label>';
+            html += '<select class="form-select form-select-sm" id="issueTypeSelect">';
+            html += '<option value="Damaged commodities">Damaged commodities (torn bags, moisture, contamination)</option>';
+            html += '<option value="Missing commodities">Missing commodities (shortage in bag count)</option>';
+            html += '<option value="Incorrect quantities">Incorrect quantities (weight mismatch)</option>';
+            html += '<option value="Other delivery problems">Other delivery problems</option>';
+            html += '</select>';
+            html += '</div>';
+
+            html += '<div class="mb-3">';
+            html += '<label for="issueDescriptionText" class="form-label" style="font-size:0.88rem; font-weight:600;">Short Description / Discrepancy Details:</label>';
+            html += '<textarea class="form-control form-control-sm" id="issueDescriptionText" rows="3" placeholder="Describe the issue observed (e.g. 50kg wheat sack damaged during transit; bag torn)."></textarea>';
+            html += '</div>';
+
+            html += '<p class="text-muted mb-0" style="font-size:0.83rem;">';
+            html += 'ℹ️ <em>The delivery will be placed on hold under <strong>Delivery Issue</strong> status. Warehouse staff will review and rectify the issue before you confirm receipt.</em>';
+            html += '</p>';
+
+            document.getElementById("reportIssueModalBody").innerHTML = html;
+            var modal = new bootstrap.Modal(document.getElementById("reportIssueModal"));
+            modal.show();
+        }
+
+        async function submitIssueReport() {
+            if (!activeActionReqId) return;
+
+            var typeEl = document.getElementById("issueTypeSelect");
+            var descEl = document.getElementById("issueDescriptionText");
+
+            var issueType = typeEl ? typeEl.value : "Delivery Discrepancy";
+            var description = descEl ? descEl.value.trim() : "";
+
+            if (!description) {
+                alert("Please enter a short description of the delivery issue.");
+                return;
+            }
+
+            var btn = document.getElementById("btnSubmitIssueReport");
+            if (btn) btn.disabled = true;
+
+            var res = await valamApiCall("/api/requests/" + encodeURIComponent(activeActionReqId) + "/report-issue", "POST", {
+                shopId: currentShop.id,
+                reportedBy: currentShop.name + " (" + loggedInUser + ")",
+                issueType: issueType,
+                description: description
+            });
+
+            if (btn) btn.disabled = false;
+
+            if (res && res.error) {
+                alert("⚠️ Error reporting delivery issue: " + res.error);
+                return;
+            }
+
+            var modalEl = document.getElementById("reportIssueModal");
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            await refreshShopDataFromServer();
+
+            alert("⚠️ Delivery Issue Reported Successfully!\n\nIssue ID: " + (res.issueId || 'Logged') + "\nRequest: " + activeActionReqId + "\nStatus changed to 'Delivery Issue'. Warehouse staff will investigate and resolve.");
+        }
     </script>
 </body>
 </html>
