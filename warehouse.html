@@ -821,6 +821,7 @@
         var warehouseOperationsData = [];
 
         document.addEventListener("DOMContentLoaded", function() {
+            loadWarehouseStock();
             var badge = document.getElementById("whUserBadge");
             if (badge) badge.textContent = "Logged in: " + loggedInUser + " (" + currentWarehouse.id + " - " + currentWarehouse.name + ")";
             var heading = document.getElementById("whWelcomeHeading");
@@ -1112,8 +1113,9 @@
         // ---------------------------------------------------------------
         async function handleManualStockAdd(event) {
             event.preventDefault();
+
             var comm = document.getElementById("addCommodity").value;
-            var qty = parseInt(document.getElementById("addQuantity").value) || 0;
+            var qty = parseFloat(document.getElementById("addQuantity").value);
             var reason = document.getElementById("addReason").value.trim();
 
             if (qty <= 0) {
@@ -1142,6 +1144,18 @@
 
             alert("✅ Successfully added " + qty + " kg of " + commName + " to " + currentWarehouse.name + " (" + currentWarehouse.id + ") in SQLite database!");
         }
+
+        alert("Successfully added " + qty + " kg of " + commName + "!");
+
+        renderStockHistory(stockHistoryData);
+
+        document.getElementById("addStockForm")?.reset();
+
+    } catch (error) {
+        alert(error.message);
+        console.error("Stock update error:", error);
+    }
+}
 
         // ---------------------------------------------------------------
         // DELIVERY ASSIGNMENT (STRICTLY SQLITE)

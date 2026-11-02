@@ -62,6 +62,7 @@ async function valamApiCall(endpoint, method, data) {
 var selectedRole = "";
 
 function goToPortal(role) {
+
     selectedRole = role;
 
     var icon = document.getElementById("modalPortalIcon");
@@ -77,11 +78,13 @@ function goToPortal(role) {
         icon.textContent = "A";
         portalName.textContent = "Admin Portal";
         loginBtn.style.backgroundColor = "#d93829";
+
     } else if (role === "warehouse") {
         icon.classList.add("warehouse-portal-icon");
         icon.textContent = "W";
         portalName.textContent = "Warehouse Portal";
         loginBtn.style.backgroundColor = "#2563eb";
+
     } else if (role === "shop") {
         icon.classList.add("shop-portal-icon");
         icon.textContent = "S";
@@ -105,7 +108,7 @@ async function handleLogin(event) {
     event.preventDefault();
 
     var username = document.getElementById("username").value.trim();
-    var password = document.getElementById("password").value.trim();
+    var password = document.getElementById("password").value;
     var errorDiv = document.getElementById("loginError");
 
     if (username === "" || password === "") {
@@ -131,14 +134,16 @@ async function handleLogin(event) {
 
         if (selectedRole === "admin") {
             window.location.href = "admin.html";
-        } else if (selectedRole === "warehouse") {
+        } else if (result.role === "WAREHOUSE") {
             window.location.href = "warehouse.html";
-        } else if (selectedRole === "shop") {
+        } else if (result.role === "SHOP") {
             window.location.href = "shop.html";
         }
     } else {
         errorDiv.textContent = (res && res.error) ? res.error : "Authentication failed. Please verify credentials or server status.";
         errorDiv.style.display = "block";
+
+        console.error("Login error:", error);
     }
 }
 
